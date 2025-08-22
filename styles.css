@@ -1,3 +1,4 @@
+/* Hackmanit Fonts */
 @font-face {
     font-family: 'Nunito Sans';
     font-style: normal;
@@ -196,7 +197,6 @@
         url('./fonts/courier-prime-v2-latin-700italic.ttf') format('truetype');
 }
 
-
 /* Key Management Styles */
 .key-section {
     background-color: #EEF0F2;
@@ -204,6 +204,7 @@
     padding: 20px;
     margin-bottom: 20px;
 }
+
 /*
   ========== Grundlegende Layout- und Container-Styles ==========
 */
@@ -212,18 +213,24 @@ body {
     line-height: 1.6;
     color: #535D68;
     margin: 0;
-    
 }
+
 .page-wrapper {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
 }
+
 h1 {
     color: #535D68;
     border-bottom: 2px solid #D90022;
     padding-bottom: 10px;
 }
+
+a {
+    color: #D90022;
+}
+
 .container {
     margin: 0;
     padding: 20px;
@@ -231,14 +238,16 @@ h1 {
     flex-direction: column;
     gap: 20px;
 }
+
 .row {
     display: flex;
     justify-content: space-between;
     margin-bottom: 20px;
 }
+
 .header-bar {
-        max-width: 1200px;
-            display: flex;
+    max-width: 1200px;
+    display: flex;
     margin: 0 auto;
     padding: 20px;
     gap: 20px;
@@ -247,19 +256,25 @@ h1 {
 /*
   ========== Karten & Sektionen ==========
 */
-.card, .section, .input-section, .vulnerabilities-section, .results-section {
+.card,
+.section,
+.input-section,
+.vulnerabilities-section,
+.results-section {
     background-color: #EEF0F2;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     padding: 20px;
     margin-bottom: 20px;
 }
+
 .card {
     flex: 1;
     background-color: white;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     overflow: hidden;
 }
+
 .card-header {
     background-color: #EEF0F2;
     padding: 15px 20px;
@@ -269,16 +284,20 @@ h1 {
     align-items: center;
     min-height: 60px;
 }
-.card-header h2, .section h2 {
+
+.card-header h2,
+.section h2 {
     margin: 0;
     font-size: 18px;
     color: #535D68;
     border-bottom: 1px solid #EEF0F2;
     padding-bottom: 10px;
 }
+
 .card-body {
     padding: 20px;
 }
+
 .section-label {
     font-weight: 600;
     margin-bottom: 8px;
@@ -293,12 +312,15 @@ h1 {
     gap: 20px;
     margin-bottom: 20px;
 }
+
 .two-column-layout {
     display: flex;
     align-items: stretch;
     height: 100%;
 }
-.left-column, .right-column {
+
+.left-column,
+.right-column {
     display: flex;
     flex-direction: column;
     flex: 1 1 0;
@@ -307,12 +329,15 @@ h1 {
     margin: 0;
     padding: 0;
 }
+
 .left-column {
     margin-right: 10px;
 }
+
 .right-column {
     margin-left: 10px;
 }
+
 .token-section {
     display: flex;
     flex-direction: column;
@@ -325,6 +350,7 @@ h1 {
     border-radius: 8px;
     padding: 20px;
 }
+
 .column {
     display: flex;
     flex-direction: column;
@@ -334,7 +360,9 @@ h1 {
 /*
   ========== Formularelemente ==========
 */
-textarea, input[type="text"], .key {
+textarea,
+input[type="text"],
+.key {
     width: 100%;
     padding: 12px;
     border: 1px solid #ced4da;
@@ -345,24 +373,37 @@ textarea, input[type="text"], .key {
     transition: border-color 0.2s;
     resize: vertical;
 }
-textarea {
-    box-sizing: border-box; 
-    max-width: 100%;        
-    width: 100%;
-    height: auto;            
-    overflow-y: auto;
-    min-height: 150px       
+
+.vulnerability-checkbox-wrapper textarea,
+.vulnerability-checkbox-wrapper input[type="text"],
+.vulnerability-checkbox-wrapper .key {
+    width: calc(100% - 24px);
+    padding: 12px;
 }
-textarea:focus, .key:focus, input[type="text"]:focus {
+
+textarea {
+    box-sizing: border-box;
+    max-width: 100%;
+    width: 100%;
+    height: auto;
+    overflow-y: auto;
+    min-height: 150px
+}
+
+textarea:focus,
+.key:focus,
+input[type="text"]:focus {
     border-color: #68B4DA;
     outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
 }
+
 label {
     display: block;
     margin-bottom: 5px;
     font-weight: bold;
 }
+
 .algorithm-select {
     width: 100%;
     padding: 10px 12px;
@@ -372,64 +413,97 @@ label {
     background-color: white;
     cursor: pointer;
 }
-#asymKeys, #asymKeysJWE {
-  display: flex;
-  gap: 20px;        /* Abstand zwischen den beiden */
-  width: 100%;      /* volle Breite */
+
+#asymKeys,
+#asymKeysJWE {
+    display: flex;
+    gap: 20px;
+    /* Abstand zwischen den beiden */
+    width: 100%;
+    /* volle Breite */
 }
 
-#asymKeys .key-item, #asymKeysJWE .key-item {
-  flex: 1;          /* jeder nimmt gleich viel Platz */
-  display: flex;
-  flex-direction: column; /* Label über Textarea */
+#asymKeys .key-item,
+#asymKeysJWE .key-item {
+    flex: 1;
+    /* jeder nimmt gleich viel Platz */
+    display: flex;
+    flex-direction: column;
+    /* Label über Textarea */
 }
 
-#asymKeys textarea,#asymKeysJWE textarea {
-  flex: 1;          /* Textarea füllt das .key-item */
-  width: 100%;
-  min-height: 100px;
-  box-sizing: border-box;
+#asymKeys textarea,
+#asymKeysJWE textarea {
+    flex: 1;
+    /* Textarea füllt das .key-item */
+    width: 100%;
+    min-height: 100px;
+    box-sizing: border-box;
 }
+
 /*
   ========== Button Styles ==========
 */
-button, .gen-btn, .convert-btn, .save-btn, .load-btn, .clear-btn, .copy-btn, .action-btn {
+button,
+.gen-btn,
+.convert-btn,
+.save-btn,
+.load-btn,
+.clear-btn,
+.copy-btn,
+.action-btn {
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-weight: 500;
     transition: background-color 0.2s, color 0.2s;
 }
-button .load-btn{
+
+button .load-btn {
     background-color: #06A2B0;
     color: white;
     padding: 10px 20px;
     font-size: 14px;
 }
-button, .gen-btn, .convert-btn, .save-btn {
+
+button,
+.gen-btn,
+.convert-btn,
+.save-btn {
     background-color: #D90022;
     color: white;
     padding: 10px 20px;
     font-size: 14px;
 }
-button.primary-btn, .primary-btn {
+
+button.primary-btn,
+.primary-btn {
     background-color: #D90022;
 }
-button.primary-btn:hover, .primary-btn:hover {
+
+button.primary-btn:hover,
+.primary-btn:hover {
     background-color: #D90022;
 }
-button.secondary-btn, .secondary-btn {
+
+button.secondary-btn,
+.secondary-btn {
     background-color: #D90022;
 }
-button.secondary-btn:hover, .secondary-btn:hover {
+
+button.secondary-btn:hover,
+.secondary-btn:hover {
     background-color: #D90022;
 }
+
 .clear-btn {
     background-color: #D90022;
 }
+
 .clear-btn:hover {
     background-color: #D90022;
 }
+
 .copy-btn {
     background-color: #D90022;
     color: white;
@@ -437,9 +511,11 @@ button.secondary-btn:hover, .secondary-btn:hover {
     font-size: 14px;
     margin-top: 5px;
 }
+
 .copy-btn:hover {
     background-color: #D90022;
 }
+
 .action-btn {
     background: none;
     border: 1px solid #EEF0F2;
@@ -448,6 +524,7 @@ button.secondary-btn:hover, .secondary-btn:hover {
     margin-right: 5px;
     font-size: 12px;
 }
+
 .action-btn:hover {
     background: #f0f0f0;
 }
@@ -455,32 +532,41 @@ button.secondary-btn:hover, .secondary-btn:hover {
 /*
   ========== Key Management & Storage ==========
 */
-
-.key-gen-controls, .conversion-controls, .storage-controls {
+.key-gen-controls,
+.conversion-controls,
+.storage-controls {
     display: flex;
     flex-direction: column;
     gap: 15px;
     margin-bottom: 20px;
 }
-.key-gen-options, .conversion-direction {
+
+.key-gen-options,
+.conversion-direction {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
-.generated-keys, .conversion-result, .stored-keys-list {
+
+.generated-keys,
+.conversion-result,
+.stored-keys-list {
     margin-top: 20px;
 }
+
 .key-pair {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
     margin-bottom: 20px;
 }
+
 .key-item {
     display: flex;
     flex-direction: column;
     gap: 5px;
 }
+
 .stored-key-item {
     background-color: white;
     border: 1px solid #ddd;
@@ -491,13 +577,16 @@ button.secondary-btn:hover, .secondary-btn:hover {
     justify-content: space-between;
     align-items: center;
 }
+
 .stored-key-info {
     flex: 1;
 }
+
 .stored-key-actions {
     display: flex;
     gap: 5px;
 }
+
 .storage-actions {
     display: flex;
     gap: 10px;
@@ -508,36 +597,43 @@ button.secondary-btn:hover, .secondary-btn:hover {
   ========== Signature Status ==========
 */
 .signature-status {
-      color: white;          /* Schriftfarbe */
-  padding: 6px 10px;
-  border-radius: 6px;
+    color: white;
+    /* Schriftfarbe */
+    padding: 6px 10px;
+    border-radius: 6px;
     display: flex;
     align-items: center;
     background-color: #EEF0F2;
-
     border-radius: 6px;
     border: 1px solid #EEF0F2;
     margin-bottom: 15px;
 }
-.signature-section h2{
 
-  color: white;          /* Schriftfarbe */
-  padding: 6px 10px;
-  border-radius: 6px;
-  
-  display: flex;
-  align-items: center;
-  justify-content: flex-start; /* nebeneinander statt weit auseinander */
-  gap: 8px; /* kleiner Abstand zwischen Text und Icon */                     /* Abstand zwischen Text & Icon */
+.signature-section h2 {
+    color: white;
+    /* Schriftfarbe */
+    padding: 6px 10px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    /* nebeneinander statt weit auseinander */
+    gap: 6px;
+    /* kleiner Abstand zwischen Text und Icon */
+    /* Abstand zwischen Text & Icon */
 }
+
 .signature-heading img {
-  width: 20px;  /* passende Größe */
-  height: 20px;
+    width: 20px;
+    /* passende Größe */
+    height: 20px;
 }
+
 .status-label {
     font-weight: 600;
     margin-right: 10px;
 }
+
 .status-value {
     font-size: 16px;
     font-weight: 500;
@@ -546,27 +642,30 @@ button.secondary-btn:hover, .secondary-btn:hover {
 /*
   ========== Toggle & Segment Controls ==========
 */
-
 .toggle-container-css {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100%;
 }
-#symKeysJWE, .cek-input{
+
+#symKeysJWE,
+.cek-input {
     display: flex;
     align-items: center;
     gap: 0.5em;
 }
+
 .toggle-segment-control-small {
     display: flex;
     border-radius: 6px;
     overflow: hidden;
     width: fit-content;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     border: 1px solid #ddd;
     margin: 5px 0;
 }
+
 .segment-btn-small {
     padding: 5px 10px;
     background-color: white;
@@ -580,28 +679,34 @@ button.secondary-btn:hover, .secondary-btn:hover {
     min-width: 60px;
     text-align: center;
 }
+
 .segment-btn-small:first-child {
     border-top-left-radius: 6px;
     border-bottom-left-radius: 6px;
 }
+
 .segment-btn-small:last-child {
     border-right: none;
     border-top-right-radius: 6px;
     border-bottom-right-radius: 6px;
 }
+
 .segment-btn-small.active {
     background-color: #D90022;
     color: white;
 }
+
 .segment-btn-small:hover:not(.active) {
     background-color: #EEF0F2;
 }
+
 .toggle-container {
     display: flex;
     background-color: #D90022;
     border-radius: 30px;
     padding: 4px;
 }
+
 .toggle-option {
     padding: 10px 20px;
     border-radius: 30px;
@@ -609,6 +714,7 @@ button.secondary-btn:hover, .secondary-btn:hover {
     transition: background-color 0.3s, color 0.3s;
     color: white;
 }
+
 .active {
     background-color: white;
     color: #D90022;
@@ -621,12 +727,15 @@ button.secondary-btn:hover, .secondary-btn:hover {
     display: flex;
     flex-direction: column;
 }
-.action-buttons, .format-buttons {
+
+.action-buttons,
+.format-buttons {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
     margin-top: 4px;
 }
+
 .token-display {
     background-color: #EEF0F2;
     padding: 10px;
@@ -636,10 +745,12 @@ button.secondary-btn:hover, .secondary-btn:hover {
     max-height: 100px;
     overflow-y: auto;
 }
+
 .token-info {
     margin-top: 10px;
     font-size: 14px;
 }
+
 .jwt-parts {
     display: flex;
     flex-direction: column;
@@ -647,69 +758,90 @@ button.secondary-btn:hover, .secondary-btn:hover {
     margin-top: 10px;
     font-family: monospace;
 }
+
 .jwt-part {
     padding: 5px;
     background-color: #EEF0F2;
     border-radius: 3px;
 }
+
 table {
     width: 100%;
     border-collapse: collapse;
-    font-family: sans-serif;
     font-size: 14px;
     table-layout: auto;
-    border: none; 
+    border: none;
 }
-th, td {
+
+th,
+td {
     padding: 10px;
     text-align: left;
     vertical-align: top;
     word-break: break-word;
 }
+
 th {
     font-weight: bold;
 }
+
 td span {
     cursor: pointer;
 }
+
 #resultTable input {
-  width: 100%;
-  max-width: 100%;       /* verhindert Überlauf */
-  box-sizing: border-box;/* Padding+Border zählen zur Breite */
-  margin: 0;
-  padding: 4px 6px;
-  font-size: 14px;
+    width: 100%;
+    max-width: 100%;
+    /* verhindert Überlauf */
+    box-sizing: border-box;
+    /* Padding+Border zählen zur Breite */
+    margin: 0;
+    padding: 4px 6px;
+    font-size: 14px;
 }
+
 /* Zellen ohne Linien */
 #resultTable th,
 #resultTable td {
-  border: none;              /* keine Rahmen */
-  padding: 8px 12px;         /* Abstand bleibt */
-  text-align: left;
-  
+    border: none;
+    /* keine Rahmen */
+    padding: 8px 12px;
+    /* Abstand bleibt */
+    text-align: left;
 }
+
 #resultTable td:first-child,
 #resultTable th:first-child {
-  width: 40px;         /* gewünschte feste Breite */
-  white-space: nowrap; /* verhindert Umbruch */
-  text-align: center;  /* optional: ID zentrieren */
+    width: 40px;
+    /* gewünschte feste Breite */
+    white-space: nowrap;
+    /* verhindert Umbruch */
+    text-align: center;
+    /* optional: ID zentrieren */
 }
-#resultTable { 
+
+#resultTable {
     margin-bottom: 300px;
 }
+
 /* Kopfzeile */
 #resultTable thead {
-  background-color: #ffffff; /* leichtes Grau für Header */
-  font-weight: bold;
+    background-color: #ffffff;
+    /* leichtes Grau für Header */
+    font-weight: bold;
 }
 
 /* Alternierende Hintergrundfarben für Body */
 #resultTable tbody tr:nth-child(odd) {
-  background-color: #ffffff; /* weiß */
+    background-color: #ffffff;
+    /* weiß */
 }
+
 #resultTable tbody tr:nth-child(even) {
-  background-color: #EEF0F2; /* hellgrau */
+    background-color: #EEF0F2;
+    /* hellgrau */
 }
+
 /*
   ========== Checkbox & Vulnerability Styles ==========
 */
@@ -718,25 +850,31 @@ td span {
     align-items: center;
     gap: 0.5em;
 }
+
 .vulnerability-checkbox-wrapper {
     margin-bottom: 10px;
     display: flex;
     align-items: baseline;
 }
-.vulnerability-checkbox-wrapper input {
+
+.vulnerability-checkbox-wrapper input[type="checkbox"] {
     margin-right: 10px;
 }
+
 .vulnerability-name {
     font-weight: bold;
     margin-right: 10px;
 }
+
 .severity {
     padding: 2px 6px;
     border-radius: 3px;
     font-size: 12px;
     margin-right: 10px;
 }
-.vulnerability-details, .vulnerability-cve {
+
+.vulnerability-details,
+.vulnerability-cve {
     margin-left: 25px;
     font-size: 14px;
     color: #535D68;
@@ -749,6 +887,7 @@ td span {
 .results-container {
     margin-top: 20px;
 }
+
 .result-item {
     background-color: white;
     border-radius: 5px;
@@ -756,19 +895,23 @@ td span {
     margin-bottom: 15px;
     border-left: 4px solid #D90022;
 }
+
 .result-header {
     display: flex;
     justify-content: space-between;
     margin-bottom: 10px;
     align-items: center;
 }
+
 .result-title {
     font-weight: bold;
     font-size: 18px;
 }
+
 .select-all {
     margin-bottom: 15px;
 }
+
 .controls {
     display: flex;
     gap: 10px;
@@ -784,6 +927,7 @@ td span {
     font-size: 14px;
     margin-bottom: 15px;
 }
+
 .vulnerability-with-error-message {
     color: #D90022;
 }
@@ -792,33 +936,49 @@ td span {
   ========== Responsive Design ==========
 */
 @media (max-width: 768px) {
-    .card-container, .two-column-layout {
+
+    .card-container,
+    .two-column-layout {
         flex-direction: column;
         grid-template-columns: 1fr;
     }
-    .button-bar, .action-buttons, .storage-actions {
+
+    .button-bar,
+    .action-buttons,
+    .storage-actions {
         flex-direction: column;
         gap: 15px;
         width: 100%;
         justify-content: center;
     }
+
     .key-pair {
         grid-template-columns: 1fr;
     }
-    table, thead, tbody, th, td, tr {
+
+    table,
+    thead,
+    tbody,
+    th,
+    td,
+    tr {
         display: block;
     }
+
     tr {
         margin-bottom: 15px;
     }
+
     th {
         display: none;
     }
+
     td {
         border: none;
         position: relative;
         padding-left: 50%;
     }
+
     td::before {
         content: attr(data-label);
         position: absolute;
@@ -828,7 +988,11 @@ td span {
     }
 }
 
-.decoded-token-section, .header-section, .body-section, .token-section, .signature-section {
+.decoded-token-section,
+.header-section,
+.body-section,
+.token-section,
+.signature-section {
     box-sizing: border-box;
     margin: 10px 0px;
     padding: 10px;
@@ -837,68 +1001,91 @@ td span {
 }
 
 /* ===== Auto-resize textareas & equal-height columns ===== */
-#token, #decodedHeader, #decodedBody,
-#tokenJWE, #decodedHeaderJWE, #decodedBodyJWE {
-  overflow: hidden; /* hide native scrollbar; JS adjusts height */
-  resize: none;     /* prevent manual resize which would desync */
+#token,
+#decodedHeader,
+#decodedBody,
+#tokenJWE,
+#decodedHeaderJWE,
+#decodedBodyJWE {
+    overflow: hidden;
+    /* hide native scrollbar; JS adjusts height */
+    resize: none;
+    /* prevent manual resize which would desync */
 }
 
 /* Allow columns to shrink properly inside flex parents */
-.left-column, .right-column, .token-section, .decoded-token-section {
-  min-height: 0;
+.left-column,
+.right-column,
+.token-section,
+.decoded-token-section {
+    min-height: 0;
 }
+
 /* === Token-Textarea soll gesamten Container füllen === */
 .section.token-section {
-  display: flex;
-  flex-direction: column;
+    display: flex;
+    flex-direction: column;
 }
 
 .section.token-section h2,
 .section.token-section #jwtErrorMessage {
-  flex: 0 0 auto;
+    flex: 0 0 auto;
 }
 
-.section.token-section textarea#token, .section.token-section textarea#tokenJWE {
-  flex: 1 1 auto;  /* nimmt den gesamten verbleibenden Platz ein */
-  min-height: 0;   /* wichtig, damit Flex schrumpfen darf */
-  height: auto;    /* keine feste Höhe aus CSS */
-  overflow: auto;  /* bei Bedarf scrollen */
+.section.token-section textarea#token,
+.section.token-section textarea#tokenJWE {
+    flex: 1 1 auto;
+    /* nimmt den gesamten verbleibenden Platz ein */
+    min-height: 0;
+    /* wichtig, damit Flex schrumpfen darf */
+    height: auto;
+    /* keine feste Höhe aus CSS */
+    overflow: auto;
+    /* bei Bedarf scrollen */
 }
 
 .header-section h2 {
-  background-color: #ED7D31;
-  color: white;          /* Schriftfarbe */
-  padding: 6px 10px;
-  border-radius: 6px;
+    background-color: #ED7D31;
+    color: white;
+    /* Schriftfarbe */
+    padding: 6px 10px;
+    border-radius: 6px;
 }
+
 .body-section h2 {
-  background-color: #980968;
-  color: white;          /* Schriftfarbe */
-  padding: 6px 10px;
-  border-radius: 6px;
+    background-color: #980968;
+    color: white;
+    /* Schriftfarbe */
+    padding: 6px 10px;
+    border-radius: 6px;
 }
 
 .header-bar {
-  display: flex;
-  justify-content: space-between; /* linkes & rechtes Ende */
-  align-items: center;
-  font-size: 40px;
-  font-weight: bold;
-  margin-bottom: 10px;
-  padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    /* linkes & rechtes Ende */
+    align-items: center;
+    font-size: 40px;
+    font-weight: bold;
+    padding: 30px 20px;
 }
 
 .header-bar .title {
-  text-align: left;
+    text-align: left;
 }
 
 .header-bar .byline {
-  text-align: right;
-  font-weight: normal;
-  font-size: 16px;
-  color: #535D68;
+    text-align: right;
+    font-weight: normal;
+    font-size: 16px;
+    color: #535D68;
 }
 
+.header-bar img.logo {
+    height: 3.5em;
+    vertical-align: middle;
+    margin-left: 10px;
+}
 
 footer {
     background-color: #EEF0F2;
@@ -908,21 +1095,25 @@ footer .footer__bar {
     background-color: #D90022;
     height: 20px;
     width: 100%;
-
 }
+
 footer table {
-  border-collapse: collapse;
-  width: auto;            /* nur so breit wie Inhalt */
+    border-collapse: collapse;
+    width: auto;
+    /* nur so breit wie Inhalt */
+    font-size: unset;
 }
 
 footer td {
-  padding: 4px 8px;
-  vertical-align: top;
+    padding: 4px 8px;
+    vertical-align: top;
 }
 
 footer td:first-child {
-  white-space: nowrap;    /* bricht nicht um */
+    white-space: nowrap;
+    /* bricht nicht um */
 }
+
 footer .footer__content {
     max-width: 1200px;
     background-color: #EEF0F2;
@@ -930,12 +1121,17 @@ footer .footer__content {
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: flex-start;
-    padding: 25px 50px;
+    padding: 0 20%;
+    padding-top: 25px;
     max-width: none;
 }
 
 footer .footer__content div {
     width: 50%;
+}
+
+footer .footer__content div.footer-contact {
+    margin-bottom: 20px;
 }
 
 footer .footer__content div.footer-newsletter {
@@ -994,126 +1190,153 @@ footer .footer__content ul.nav a:hover {
     color: #D90022;
 }
 
-
 /* ==== Social Icons: absolut überlagern + per Opacity crossfaden (kein Springen) ==== */
 div.custom.social-icons {
-  align-self: center;
-  display: flex;
-  align-items: center;
-  gap: 20px;              /* statt margin-right am <a> */
+    align-self: center;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    /* statt margin-right am <a> */
 }
 
 div.custom.social-icons p {
-  margin: 0;
-  line-height: 0;
+    margin: 0;
+    line-height: 0;
 }
 
 div.custom.social-icons a {
-  position: relative;
-  display: inline-block;
-  width: 2.3rem;
-  height: 2.3rem;
-  flex: 0 0 2.3rem;       /* feste Box, verhindert Layout-Shift */
-  overflow: hidden;
+    position: relative;
+    display: inline-block;
+    width: 2.3rem;
+    height: 2.3rem;
+    flex: 0 0 2.3rem;
+    /* feste Box, verhindert Layout-Shift */
+    overflow: hidden;
 }
 
 div.custom.social-icons a img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display: block;
-  margin: 0;
-  transition: opacity .15s ease;
-  will-change: opacity;   /* smoother, kein Reflow */
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    margin: 0;
+    transition: opacity .15s ease;
+    will-change: opacity;
+    /* smoother, kein Reflow */
 }
 
 /* Standard: normales Icon sichtbar, rote Variante unsichtbar */
-div.custom.social-icons a img:nth-child(1) { opacity: 1; }
-div.custom.social-icons a img:nth-child(2) { opacity: 0; }
+div.custom.social-icons a img:nth-child(1) {
+    opacity: 1;
+}
+
+div.custom.social-icons a img:nth-child(2) {
+    opacity: 0;
+}
 
 /* Hover: rote Variante ein, normale aus */
-div.custom.social-icons a:hover img:nth-child(1) { opacity: 0; }
-div.custom.social-icons a:hover img:nth-child(2) { opacity: 1; }
+div.custom.social-icons a:hover img:nth-child(1) {
+    opacity: 0;
+}
+
+div.custom.social-icons a:hover img:nth-child(2) {
+    opacity: 1;
+}
+
+div.github {
+    text-align: center;
+}
+
+div.github a img {
+    position: relative;
+    display: inline-block;
+    width: 2.3rem;
+    height: 2.3rem;
+}
 
 .impressum table {
-  border-collapse: collapse;
-  width: auto;            /* nur so breit wie Inhalt */
+    border-collapse: collapse;
+    width: auto;
+    /* nur so breit wie Inhalt */
 }
 
 .impressum td {
-  padding: 4px 8px;
-  vertical-align: top;
+    padding: 4px 8px;
+    vertical-align: top;
 }
 
 .impressum td:first-child {
-  white-space: nowrap;    /* bricht nicht um */
+    white-space: nowrap;
+    /* bricht nicht um */
 }
 
 /* Controls zweispaltig: JSON links, Signature rechts */
 .controls-section {
-  display: grid;
-  grid-template-columns: 1fr 1fr; /* 50/50 */
-  gap: 20px;
-  align-items: start;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    /* 50/50 */
+    gap: 20px;
+    align-items: start;
 }
 
 /* H2 über beide Spalten */
-.controls-section > h2 {
-  grid-column: 1 / -1;
-  margin-bottom: 10px;
+.controls-section>h2 {
+    grid-column: 1 / -1;
+    margin-bottom: 10px;
 }
 
 /* Optional: auf schmalen Screens wieder untereinander */
 @media (max-width: 900px) {
-  .controls-section {
-    grid-template-columns: 1fr;
-  }
+    .controls-section {
+        grid-template-columns: 1fr;
+    }
 }
 
-
-
 /* === Tooltip-Basis für Buttons (JWT/JWE/global) === */
-.has-tooltip { position: relative; }
+.has-tooltip {
+    position: relative;
+}
 
 /* Tooltip-Blase */
 .has-tooltip::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  left: 50%;
-  bottom: calc(100% + 10px);     /* oberhalb des Buttons */
-  transform: translateX(-50%);
-  background: #333;
-  color: #fff;
-  font-size: 12px;
-  line-height: 1.2;
-  padding: 6px 8px;
-  border-radius: 6px;
-  white-space: pre-wrap;
-  width: max-content;
-  max-width: 260px;
-  box-shadow: 0 4px 12px rgba(0,0,0,.2);
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transition: opacity .15s ease, transform .15s ease, visibility .15s;
-  z-index: 1000;
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 10px);
+    /* oberhalb des Buttons */
+    transform: translateX(-50%);
+    background: #333;
+    color: #fff;
+    font-size: 12px;
+    line-height: 1.2;
+    padding: 6px 8px;
+    border-radius: 6px;
+    white-space: pre-wrap;
+    width: max-content;
+    max-width: 260px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .2);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity .15s ease, transform .15s ease, visibility .15s;
+    z-index: 1000;
 }
 
 /* Pfeil */
 .has-tooltip::before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: calc(100% + 4px);
-  transform: translateX(-50%);
-  border: 6px solid transparent;
-  border-top-color: #333;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity .15s ease, visibility .15s;
-  z-index: 1000;
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 4px);
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: #333;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .15s ease, visibility .15s;
+    z-index: 1000;
 }
 
 /* Anzeigen bei Hover/Fokus */
@@ -1121,112 +1344,122 @@ div.custom.social-icons a:hover img:nth-child(2) { opacity: 1; }
 .has-tooltip:focus::after,
 .has-tooltip:hover::before,
 .has-tooltip:focus::before {
-  opacity: 1;
-  visibility: visible;
+    opacity: 1;
+    visibility: visible;
 }
 
 .has-tooltip:hover::after,
 .has-tooltip:focus::after {
-  transform: translateX(-50%) translateY(-2px);
+    transform: translateX(-50%) translateY(-2px);
 }
 
 /* Mobile: Tooltip unter dem Button zeigen (optional) */
 @media (max-width: 480px) {
-  .has-tooltip::after {
-    top: calc(100% + 10px);
-    bottom: auto;
-  }
-  .has-tooltip::before {
-    top: calc(100% + 4px);
-    bottom: auto;
-    border-top-color: transparent;
-    border-bottom-color: #333;
-  }
+    .has-tooltip::after {
+        top: calc(100% + 10px);
+        bottom: auto;
+    }
+
+    .has-tooltip::before {
+        top: calc(100% + 4px);
+        bottom: auto;
+        border-top-color: transparent;
+        border-bottom-color: #333;
+    }
 }
 
 /* WICHTIG: Wrapper der Valid/Raw-Toggle darf nicht clippen */
 .toggle-segment-control-small {
-  overflow: visible;  /* war vorher hidden -> hat Tooltips abgeschnitten */
-  position: relative; /* eigener Stacking-Context, falls nötig */
+    overflow: visible;
+    /* war vorher hidden -> hat Tooltips abgeschnitten */
+    position: relative;
+    /* eigener Stacking-Context, falls nötig */
 }
 
-
 /* ===== JWE im Stil der JWT-Ansicht (nur Styling, keine ID-Änderungen) ===== */
-
 /* 2 Spalten gleich hoch ziehen */
 #JWE-Container .card-container {
-  align-items: stretch;
+    align-items: stretch;
 }
 
 /* "Card" wie JWT-Sections aussehen lassen */
 #JWE-Container .card {
-  display: flex;
-  flex-direction: column;
-  background: transparent;         /* Kartenhintergrund neutralisieren */
-  box-shadow: none;                 /* Schatten weg, wie Sections */
-  border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    background: transparent;
+    /* Kartenhintergrund neutralisieren */
+    box-shadow: none;
+    /* Schatten weg, wie Sections */
+    border-radius: 0;
 }
+
 #JWE-Container .card-header {
-  background: transparent;
-  padding: 0;
-  border: none;
+    background: transparent;
+    padding: 0;
+    border: none;
 }
+
 #JWE-Container .card-header h2 {
-  margin: 0 0 10px;
-  font-size: 18px;
-  color: #535D68;
-  border-bottom: 1px solid #EEF0F2; /* wie .section h2 in JWT */
-  padding-bottom: 10px;
+    margin: 0 0 10px;
+    font-size: 18px;
+    color: #535D68;
+    border-bottom: 1px solid #EEF0F2;
+    /* wie .section h2 in JWT */
+    padding-bottom: 10px;
 }
+
 #JWE-Container .card-body {
-  background-color: #EEF0F2; /* wie JWT-Boxen */
-  border-radius: 8px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+    background-color: #EEF0F2;
+    /* wie JWT-Boxen */
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 /* Linke Spalte: Token-Textarea füllt den verfügbaren Raum */
 #JWE-Container .card-container .card:first-child .card-body {
-  flex: 1 1 auto;
+    flex: 1 1 auto;
 }
+
 #JWE-Container .card-container .card:first-child .card-body textarea#tokenJWE {
-  flex: 1 1 auto;
-  min-height: 0;
-  height: auto;
-  overflow: auto;
-  resize: none;
+    flex: 1 1 auto;
+    min-height: 0;
+    height: auto;
+    overflow: auto;
+    resize: none;
 }
 
 /* Rechte Spalte: "Header" / "Payload" Labels wie farbige H2-Balken in JWT */
 #JWE-Container .card-container .card:nth-child(2) .card-body .section-label {
-  font-weight: 600;
-  margin: 8px 0 4px;
-  padding: 6px 10px;
-  border-radius: 6px;
-  color: #fff;
+    font-weight: 600;
+    margin: 8px 0 4px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    color: #fff;
 }
+
 #JWE-Container .card-container .card:nth-child(2) .card-body .section-label:nth-of-type(1) {
-  background-color: #ED7D31; /* Header-Farbe wie JWT */
+    background-color: #ED7D31;
+    /* Header-Farbe wie JWT */
 }
+
 #JWE-Container .card-container .card:nth-child(2) .card-body .section-label:nth-of-type(2) {
-  background-color: #980968; /* Payload-Farbe wie JWT */
+    background-color: #980968;
+    /* Payload-Farbe wie JWT */
 }
 
 /* Decoded-Textareas im rechten Panel wie in JWT */
 #JWE-Container .card-container .card:nth-child(2) .card-body textarea {
-  flex: 1 1 auto;
-  min-height: 150px;
+    flex: 1 1 auto;
+    min-height: 150px;
 }
 
 /* Button-Bar unten optisch wie JWT-Actions (bereits global, hier nur Fallbacks) */
 #JWE-Container .button-bar .action-buttons {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: center;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
 }
-
-
-

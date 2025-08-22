@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JWTF - JSON Web Token Forgery</title>
+    <title>JWTF – JSON Web Token Forgery – developed by Hackmanit</title>
     <link rel="stylesheet" href="styles.css">
     <script type="text/javascript" src="script.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.1/purify.min.js"></script>
@@ -14,25 +14,22 @@
 
 <body>
     <div class="page-wrapper">
-
         <div class="toggle-container-css">
             <div class="toggle-container">
                 <div class="toggle-option active" id="option-JWT" onclick="toggleToJWT();">JWT</div>
-                <div class="toggle-option" id="option-JWE" onclick="toggleToJWE();">JWE</div>
                 <div class="toggle-option" id="option-Attacks" onclick="toggleToAttacks();">Signature Attacks</div>
                 <div class="toggle-option" id="option-KeyMgmt" onclick="toggleToKeyMgmt();">Key Management</div>
+                <div class="toggle-option" id="option-JWE" onclick="toggleToJWE();">JWE</div>
             </div>
         </div>
         <div class="header-bar">
-            <div class="title">JWT Forgery</div>
+            <div class="title">JWTF – JWT Forgery</div>
             <div class="byline">
-                developed by <img src="./img/wbm_hackmanit.png" alt="Hackmanit Logo"
-                    style="height: 5em; vertical-align: middle;">
+                developed by <a href="https://hackmanit.de/" target="_blank" rel="noopener"><img
+                        src="./img/wbm_hackmanit.png" alt="Hackmanit Logo" class="logo"></a>
             </div>
         </div>
         <div class="container" id="JWT-Container">
-
-
             <div class="two-column-layout">
                 <!-- Left Column -->
                 <div class="column left-column">
@@ -41,26 +38,19 @@
                         <textarea
                             oninput="decodeToken();verifySignature();requestAnimationFrame(() => syncTokenSectionHeight('JWT'))"
                             id="token"
-                            placeholder="Paste your JWT here...">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJDb25uaTQwNCIsImFkbWluIjp0cnVlLCJpYXQiOjE1MTYyMzEzMzd9.HXqhzXf2CSD4lLF8OhpyI_gRsx0jtQoHHLAqpRDloIk</textarea>
+                            placeholder="Paste your JWT here...">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2lzc3Vlci5leGFtcGxlIiwic3ViIjoiQ29ubmk0MDQiLCJhdWQiOiJodHRwczovL2hhY2ttYW5pdC5kZSIsImlhdCI6MTY4NDg0ODYwMCwiZXhwIjoxNjg0ODYwNDgwLCJub25jZSI6Ikh0UnMxODQ4LVQwUjMxNDEtVmZMIn0.yVRRzN5yOxNrzawTUr1eUi7fwGitsBk6I5ZfYw9CvQA</textarea>
                         <div id="jwtErrorMessage" class="error-message"></div>
                     </div>
-
-
-
                 </div>
-
                 <!-- Right Column -->
                 <div class="column right-column">
                     <div class="section decoded-token-section" id="decoded-token-section-jwt">
-
                         <div class="section header-section">
                             <h2>Header</h2>
-
                             <textarea oninput="encodeToken();requestAnimationFrame(() => syncTokenSectionHeight('JWT'))"
                                 id="decodedHeader" placeholder="Decoded Header"></textarea>
                             <div id="errorMessageHeader" class="error-message"></div>
                         </div>
-
                         <div class="section body-section">
                             <h2>Payload</h2>
                             <textarea oninput="encodeToken();requestAnimationFrame(() => syncTokenSectionHeight('JWT'))"
@@ -72,14 +62,9 @@
                                 Signature is <span id="signatureStatus">Valid</span>
                                 <img style="display:none" id="signatureIcon">
                             </h2>
-
                         </div>
-
                     </div>
-
-
                 </div>
-
             </div>
             <div class="section controls-section">
                 <div class="controls-json">
@@ -93,27 +78,25 @@
                             </button>
                             <button type="button" class="segment-btn-small has-tooltip"
                                 onclick="setActiveContentTypeJSONButton(this, 'Raw Text')"
-                                data-tooltip="Treat input as raw text (no JSON validation). It possible to insert byte values via /#xx.">
+                                data-tooltip="Treat input as raw text (no JSON validation). It is possible to insert byte values via /#xx.">
                                 Raw
                             </button>
                             <input type="hidden" id="contentTypeOfJSON" value="Valid JSON">
                         </div>
                     </div>
-
                     <div class="format-buttons">
                         <button onclick="beautifyJWT()" class="primary-btn has-tooltip"
                             data-tooltip="Pretty-print Header & Payload with indentation.">
                             Beautify
                         </button>
                         <button onclick="unbeautifyJWT()" class="primary-btn has-tooltip"
-                            data-tooltip="Minify JSON by removing unnecessary whitespace.">
+                            data-tooltip="Minify JSON by removing unnecessary whitespaces.">
                             Minify
                         </button>
                     </div>
                 </div>
                 <div class="controls-signature">
                     <h3>Signature Controls</h3>
-
                     <div class="buttons-section">
                         <div class="action-buttons">
                             <button onclick="decodeToken();verifySignature()" class="primary-btn has-tooltip"
@@ -121,7 +104,7 @@
                                 Decode
                             </button>
                             <button onclick="encodeToken(true)" class="primary-btn has-tooltip"
-                                data-tooltip="Rebuild token from editors and sign (if algorithm ≠ none).">
+                                data-tooltip="Rebuild token from header and payload inputs and sign (if algorithm ≠ none).">
                                 Encode/Sign
                             </button>
                             <button onclick="verifySignature()" class="primary-btn has-tooltip"
@@ -130,13 +113,11 @@
                             </button>
                         </div>
                     </div>
-
                     <div class="inline-checkbox autosign-checkbox">
                         <input type="checkbox" id="isAutoSignEnabled" onclick="encodeToken();" checked="checked">
                         <label for="isAutoSignEnabled">Enable automatic signing</label>
                     </div>
                 </div>
-
             </div>
             <div class="section keys-section">
                 <div class="algorithm-section">
@@ -158,17 +139,13 @@
                         <option value="PS512">PS512</option>
                     </select>
                 </div>
-
                 <!-- Keys Section -->
                 <div class="key-section">
-
                     <div id="keyInput">
                         <p id="symKeys">
                             <textarea type="text" class="key" id="key" oninput="encodeToken();"
                                 placeholder="Secret Key">super-secret-string</textarea>
                         </p>
-
-
                         <div id="asymKeys" class="key-pair" style="display:none">
                             <div class="key-item">
                                 <label for="privateKey">Private Key</label>
@@ -184,153 +161,26 @@
                     </div>
                 </div>
                 <!-- Algorithm Section -->
-
-            </div>
-
-        </div>
-        <!--- JWE Container-->
-        <div class="container" id="JWE-Container" style="display: none;">
-            <h1>JWE Tool</h1>
-            <div class="two-column-layout">
-                <!-- Left Card: Token Input -->
-                <div class="column left-column">
-                    <div class="section token-section" id="token-section-jwe">
-                        <h2>Token Input</h2>
-                        <textarea id="tokenJWE" placeholder="Paste your encrypted JWT here..."
-                            oninput="requestAnimationFrame(() => syncTokenSectionHeight('JWE'))"></textarea>
-                        <div id="errorMessageEncodedJWE" class="error-message"></div>
-                        <div id="jweErrorMessage" class="error-message"></div>
-                    </div>
-                </div>
-
-                <!-- Right Card: Decoded Token -->
-                <div class="column right-column">
-                    <div class="section decoded-token-section" id="decoded-token-section-jwe">
-
-                        <div class="section header-section">
-                            <h2>Header</h2>
-                            <textarea id="decodedHeaderJWE" placeholder="Decoded Header"
-                                oninput="requestAnimationFrame(() => syncTokenSectionHeight('JWE'))"></textarea>
-                            <div id="errorMessageHeaderJWE" class="error-message"></div>
-                        </div>
-                        <div class="section body-section">
-
-                            <h2>Payload</h2>
-                            <textarea id="decodedBodyJWE" placeholder="Decoded Payload"
-                                oninput="requestAnimationFrame(() => syncTokenSectionHeight('JWE'))"></textarea>
-                            <div id="errorMessageBodyJWE" class="error-message"></div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-            <div class="key-section section">
-                <div id="keyInputJWE">
-                    <div id="symKeysJWE">
-                        <input type="text" class="key" id="keyJWE" placeholder="Key"></textarea>
-                        <div class="inline-checkbox">
-                            <input type="checkbox" id="isSymmetricKeyJWEBase64"
-                                onchange="changeKekEncoding();">
-                            <label for="isSymmetricKeyJWEBase64">Base64</label>
-                        </div>
-                    </div>
-                    <div id="asymKeysJWE" style="display:none" class="key-pair">
-                        <div class="key-item">
-                            <label for="privateKeyJWE">Private Key</label>
-                            <textarea type="text" class="key" id="privateKeyJWE" placeholder="Private Key"></textarea>
-                        </div>
-                        <div class="key-item">
-                            <label for="publicKeyJWE">Private Key</label>
-                            <textarea type="text" class="key" id="publicKeyJWE" placeholder="Public Key"></textarea>
-                        </div>
-                    </div>
-
-                    <div id="pbkdf2-parametersJWE" style="display:none" class="pbkdf-params">
-                        <div class="param-row">
-                            <label for="pbkdf2IterationsJWE">PBKDF2 Iterations:</label>
-                            <input type="number" id="pbkdf2IterationsJWE" value="4096">
-                        </div>
-                        <div class="param-row">
-                            <label for="saltJWE">Salt (Base64):</label>
-                            <input type="text" class="key" id="saltJWE" placeholder="Salt">
-                        </div>
-                    </div>
-
-                    <div id="errorMessageKeyJWE" class="error-message"></div>
-                </div>
-
-                <div class="cek-input">
-                    <input type="text" class="key" id="cek" placeholder="CEK (Base64)">
-                </div>
-
-
-                <div class="algorithm-section">
-                    <div class="section-label">Key Encryption Algorithm:</div>
-                    <select id="algorithmJWE" onchange="changeAlgorithmEvent();" class="algorithm-select">
-
-                        <option value="RSA-OAEP">RSA-OAEP</option>
-                        <option value="RSA-OAEP-256">RSA-OAEP-256</option>
-                        <option selected="selected" value="A128KW">A128KW</option>
-                        <option value="A192KW">A192KW</option>
-                        <option value="A256KW">A256KW</option>
-                        <option value="dir">dir</option>
-
-                        <option value="A128GCMKW">A128GCMKW</option>
-                        <option value="A192GCMKW">A192GCMKW</option>
-                        <option value="A256GCMKW">A256GCMKW</option>
-                        <!-- TODO
-                    <option value="RSA1_5">RSA1_5</option>
-                                <option value="PBES2-HS256+A128KW">PBES2-HS256+A128KW</option>
-                                <option value="PBES2-HS384+A192KW">PBES2-HS384+A192KW</option>
-                                <option value="PBES2-HS512+A256KW">PBES2-HS512+A256KW</option>
-                                <option value="ECDH-ES">ECDH-ES</option>
-                                <option value="ECDH-ES+A128KW">ECDH-ES+A128KW</option>
-                                <option value="ECDH-ES+A192KW">ECDH-ES+A192KW</option>
-                                <option value="ECDH-ES+A256KW">ECDH-ES+A256KW</option>
-                                -->
-                    </select>
-
-                    <div class="section-label">Content Encryption Algorithm:</div>
-                    <select id="encryptionAlgorithmJWE" onchange="changeEncryptionAlgorithmEvent();"
-                        class="algorithm-select">
-                        <option selected="selected" value="A128CBC-HS256">A128CBC-HS256</option>
-                        <option value="A192CBC-HS384">A192CBC-HS384</option>
-                        <option value="A256CBC-HS512">A256CBC-HS512</option>
-                        <option value="A128GCM">A128GCM</option>
-                        <option value="A192GCM">A192GCM</option>
-                        <option value="A256GCM">A256GCM</option>
-                    </select>
-                </div>
-            </div>
-            <div class="button-bar">
-                <div class="action-buttons">
-                    <button onclick="decrypt()" class="primary-btn">Decrypt</button>
-                    <button onclick="encrypt()" class="primary-btn">Encrypt</button>
-                </div>
             </div>
         </div>
         <div class="container" id="Attacks-Container" style="display: none;">
             <!----------------------------------- Signature Attacks-->
             <div class="input-section">
-                <label for="jwt-attacks-input">Paste your JWT Token here:</label>
+                <label for="jwt-attacks-input">Paste your JWT here:</label>
                 <textarea id="jwt-attacks-input"
-                    placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.</textarea>
+                    placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2lzc3Vlci5leGFtcGxlIiwic3ViIjoiSm9obiBEb2UiLCJhdWQiOiJleGFtcGxlLWNsaWVudCIsImlhdCI6MTc1NTgxMzYwMCwiZXhwIjoxNzU1ODk5OTk5fQ.p6XQX1WitrvfCMPl46hxWKehJufDZCrNHFrVfTD0VV8">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2lzc3Vlci5leGFtcGxlIiwic3ViIjoiSm9obiBEb2UiLCJhdWQiOiJleGFtcGxlLWNsaWVudCIsImlhdCI6MTc1NTgxMzYwMCwiZXhwIjoxNzU1ODk5OTk5fQ.p6XQX1WitrvfCMPl46hxWKehJufDZCrNHFrVfTD0VV8</textarea>
                 <div class="controls">
                     <button id="import-jwt-btn" onclick="importTokenFromJWTView()">Import from JWT View</button>
-
                 </div>
-
             </div>
             <div class="section">
                 <div class="controls">
-                    <button id="generate-btn" onclick="handleGenerateVulnerableTokens()">Generate Vulnerable
+                    <button id="generate-btn" onclick="handleGenerateVulnerableTokens()">Generate Manipulated
                         Tokens</button>
-
                 </div>
                 <div id="weakHMAC-result"></div>
                 <div id="jwt-attacks-error-message" style="color: red;"></div>
             </div>
-
             <div class="vulnerabilities-section">
                 <label>Select Vulnerabilities to Test:</label>
                 <div class="select-all inline-checkbox">
@@ -346,7 +196,6 @@
             </div>
             <div class="results-sections">
                 <h2>Token Mapping Overview</h2>
-
                 <table id="resultTable">
                     <thead id="headerTableRow">
                         <tr>
@@ -372,14 +221,10 @@
                     </tbody>
                 </table>
             </div>
-
         </div>
-
-
         <div class="container" id="KeyMgmt-Container" style="display: none;">
             <!----------------------------------- Key Management-->
             <h1>Key Management</h1>
-
             <!-- Key Generation Section -->
             <div class="key-section">
                 <h2>Key Generation</h2>
@@ -415,7 +260,6 @@
                             <option value="A256GCMKW">A256GCMKW</option>
                         </optgroup>
                     </select>
-
                     <div id="keyGenOptions" class="key-gen-options">
                         <div id="rsaOptions" style="display: none;">
                             <label for="rsaKeySize">Key Size:</label>
@@ -425,7 +269,6 @@
                                 <option value="4096">4096 bit</option>
                             </select>
                         </div>
-
                         <div id="hmacOptions" style="display: none;">
                             <label for="hmacKeyLength">Key Length:</label>
                             <select id="hmacKeyLength">
@@ -438,7 +281,6 @@
                                 <label for="hmacAsHex">Generate as Hex</label>
                             </div>
                         </div>
-
                         <div id="aesOptions" style="display: none;">
                             <div class="inline-checkbox">
                                 <input type="checkbox" id="aesAsBase64" checked>
@@ -446,10 +288,8 @@
                             </div>
                         </div>
                     </div>
-
                     <button onclick="generateKeyInKeyGenerationUI()" class="gen-btn">Generate Key</button>
                 </div>
-
                 <div class="generated-keys">
                     <div id="symmetricKeyResult" style="display: none;">
                         <label for="generatedSymKey">Generated Key:</label>
@@ -457,7 +297,6 @@
                         <button onclick="copyKeyToClipboardFromKeyGenerationUI('generatedSymKey')"
                             class="copy-btn">Copy</button>
                     </div>
-
                     <div id="asymmetricKeyResult" style="display: none;">
                         <div class="key-pair">
                             <div class="key-item">
@@ -473,7 +312,6 @@
                                     class="copy-btn">Copy</button>
                             </div>
                         </div>
-
                         <div class="key-pair">
                             <div class="key-item">
                                 <label for="generatedPrivateJWK">Private Key (JWK):</label>
@@ -491,7 +329,6 @@
                     </div>
                 </div>
             </div>
-
             <!-- Key Conversion Section -->
             <div class="key-section">
                 <h2>Key Conversion</h2>
@@ -508,7 +345,6 @@
                         </div>
                         <input type="hidden" id="conversionDirection" value="pem-to-jwk">
                     </div>
-
                     <div id="pemToJwkSection">
                         <label for="pemInput">PEM Key Input:</label>
                         <textarea id="pemInput"
@@ -526,15 +362,12 @@
                             <option value="ES512">ES512</option>
                         </select>
                     </div>
-
                     <div id="jwkToPemSection" style="display: none;">
                         <label for="jwkInput">JWK Input:</label>
                         <textarea id="jwkInput" placeholder='{"kty": "RSA", "n": "...", "e": "AQAB", ...}'></textarea>
                     </div>
-
                     <button onclick="convertKeyInKeyGenerationUI()" class="convert-btn">Convert</button>
                 </div>
-
                 <div class="conversion-result">
                     <label for="conversionOutput">Conversion Result:</label>
                     <textarea id="conversionOutput" readonly></textarea>
@@ -543,7 +376,6 @@
                     <div id="conversionError" style="color: red;"></div>
                 </div>
             </div>
-
             <!-- Local Storage Section -->
             <div class="key-section">
                 <h2>Local Storage Management</h2>
@@ -552,39 +384,143 @@
                         <input type="checkbox" id="autoSaveKeys" onchange="toggleAutoSaveInKeyGenerationUI()">
                         <label for="autoSaveKeys">Automatically save generated keys to local storage</label>
                     </div>
-
                     <div class="storage-actions">
                         <button onclick="saveCurrentKeysToStorageInKeyGenerationView()" class="save-btn">Save Current
                             Keys</button>
                         <button onclick="loadKeysFromStorageInKeyGenerationView()" class="load-btn">Load Saved
                             Keys</button>
-                        <button onclick="clearStoredKeysInKeyGenerationView()" class="clear-btn">Clear All Stored
+                        <button onclick="clearStoredKeysInKeyGenerationView()" class="clear-btn">Clear All Saved
                             Keys</button>
                     </div>
                 </div>
-
                 <div class="stored-keys-list">
-                    <h3>Stored Keys:</h3>
+                    <h3>Saved Keys:</h3>
                     <div id="storedKeysList"></div>
                 </div>
             </div>
         </div>
-    </div>
+        <!--- JWE Container-->
+        <div class="container" id="JWE-Container" style="display: none;">
+            <h1>JWE Tool</h1>
+            <div class="two-column-layout">
+                <!-- Left Card: Token Input -->
+                <div class="column left-column">
+                    <div class="section token-section" id="token-section-jwe">
+                        <h2>Token Input</h2>
+                        <textarea id="tokenJWE" placeholder="Paste your encrypted JWT here..."
+                            oninput="requestAnimationFrame(() => syncTokenSectionHeight('JWE'))"></textarea>
+                        <div id="errorMessageEncodedJWE" class="error-message"></div>
+                        <div id="jweErrorMessage" class="error-message"></div>
+                    </div>
+                </div>
+                <!-- Right Card: Decoded Token -->
+                <div class="column right-column">
+                    <div class="section decoded-token-section" id="decoded-token-section-jwe">
+                        <div class="section header-section">
+                            <h2>Header</h2>
+                            <textarea id="decodedHeaderJWE" placeholder="Decoded Header"
+                                oninput="requestAnimationFrame(() => syncTokenSectionHeight('JWE'))"></textarea>
+                            <div id="errorMessageHeaderJWE" class="error-message"></div>
+                        </div>
+                        <div class="section body-section">
+                            <h2>Payload</h2>
+                            <textarea id="decodedBodyJWE" placeholder="Decoded Payload"
+                                oninput="requestAnimationFrame(() => syncTokenSectionHeight('JWE'))"></textarea>
+                            <div id="errorMessageBodyJWE" class="error-message"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="key-section section">
+                <div id="keyInputJWE">
+                    <div id="symKeysJWE">
+                        <input type="text" class="key" id="keyJWE" placeholder="Key">
+                        <div class="inline-checkbox">
+                            <input type="checkbox" id="isSymmetricKeyJWEBase64" onchange="changeKekEncoding();">
+                            <label for="isSymmetricKeyJWEBase64">Base64</label>
+                        </div>
+                    </div>
+                    <div id="asymKeysJWE" style="display:none" class="key-pair">
+                        <div class="key-item">
+                            <label for="privateKeyJWE">Private Key</label>
+                            <textarea type="text" class="key" id="privateKeyJWE" placeholder="Private Key"></textarea>
+                        </div>
+                        <div class="key-item">
+                            <label for="publicKeyJWE">Private Key</label>
+                            <textarea type="text" class="key" id="publicKeyJWE" placeholder="Public Key"></textarea>
+                        </div>
+                    </div>
+                    <div id="pbkdf2-parametersJWE" style="display:none" class="pbkdf-params">
+                        <div class="param-row">
+                            <label for="pbkdf2IterationsJWE">PBKDF2 Iterations:</label>
+                            <input type="number" id="pbkdf2IterationsJWE" value="4096">
+                        </div>
+                        <div class="param-row">
+                            <label for="saltJWE">Salt (Base64):</label>
+                            <input type="text" class="key" id="saltJWE" placeholder="Salt">
+                        </div>
+                    </div>
+                    <div id="errorMessageKeyJWE" class="error-message"></div>
+                </div>
+                <div class="cek-input">
+                    <input type="text" class="key" id="cek" placeholder="CEK (Base64)">
+                </div>
+                <div class="algorithm-section">
+                    <div class="section-label">Key Encryption Algorithm:</div>
+                    <select id="algorithmJWE" onchange="changeAlgorithmEvent();" class="algorithm-select">
+                        <option value="RSA-OAEP">RSA-OAEP</option>
+                        <option value="RSA-OAEP-256">RSA-OAEP-256</option>
+                        <option selected="selected" value="A128KW">A128KW</option>
+                        <option value="A192KW">A192KW</option>
+                        <option value="A256KW">A256KW</option>
+                        <option value="dir">dir</option>
+                        <option value="A128GCMKW">A128GCMKW</option>
+                        <option value="A192GCMKW">A192GCMKW</option>
+                        <option value="A256GCMKW">A256GCMKW</option>
+                        <!-- TODO
+                    <option value="RSA1_5">RSA1_5</option>
+                                <option value="PBES2-HS256+A128KW">PBES2-HS256+A128KW</option>
+                                <option value="PBES2-HS384+A192KW">PBES2-HS384+A192KW</option>
+                                <option value="PBES2-HS512+A256KW">PBES2-HS512+A256KW</option>
+                                <option value="ECDH-ES">ECDH-ES</option>
+                                <option value="ECDH-ES+A128KW">ECDH-ES+A128KW</option>
+                                <option value="ECDH-ES+A192KW">ECDH-ES+A192KW</option>
+                                <option value="ECDH-ES+A256KW">ECDH-ES+A256KW</option>
+                                -->
+                    </select>
+                    <div class="section-label">Content Encryption Algorithm:</div>
+                    <select id="encryptionAlgorithmJWE" onchange="changeEncryptionAlgorithmEvent();"
+                        class="algorithm-select">
+                        <option selected="selected" value="A128CBC-HS256">A128CBC-HS256</option>
+                        <option value="A192CBC-HS384">A192CBC-HS384</option>
+                        <option value="A256CBC-HS512">A256CBC-HS512</option>
+                        <option value="A128GCM">A128GCM</option>
+                        <option value="A192GCM">A192GCM</option>
+                        <option value="A256GCM">A256GCM</option>
+                    </select>
+                </div>
+            </div>
+            <div class="button-bar">
+                <div class="action-buttons">
+                    <button onclick="decrypt()" class="primary-btn">Decrypt</button>
+                    <button onclick="encrypt()" class="primary-btn">Encrypt</button>
+                </div>
+            </div>
+        </div>
     </div>
     <footer>
         <div class="page-wrapper">
-
+            <div class="github">
+                <p><strong>JWTF is open-source. If you found a bug please <a
+                            href="https://github.com/Hackmanit/JWTF/issues" target="_blank" rel="noopener">create an
+                            issue</a>. You can find its source code on <a href="https://github.com/Hackmanit/JWTF"
+                            target="_blank" rel="noopener">GitHub</a>.</strong></p>
+            </div>
             <section id="contact" class="footer__content">
-
-
-
-
                 <div class="custom footer-address">
                     <h4>Address</h4>
                     <p>Hackmanit GmbH<br>Universitätsstraße 60 (Exzenterhaus)<br>44789 Bochum</p>
                 </div>
-
-
                 <div class="custom footer-contact">
                     <h4>Contact</h4>
                     <table>
@@ -611,12 +547,10 @@
                     </table>
                 </div>
                 <ul class="mod-menu mod-list nav ">
-                    <li class="nav-item item-170"><a href="/imprint.html" tabindex="0">Imprint</a></li>
-                    <li class="nav-item item-171"><a href="/privacy-and-disclaimer.html" tabindex="0">Privacy and
+                    <li class="nav-item item-170"><a href="imprint.html" tabindex="0">Imprint</a></li>
+                    <li class="nav-item item-171"><a href="privacy-and-disclaimer.html" tabindex="0">Privacy and
                             Disclaimer</a></li>
                 </ul>
-
-
                 <div class="custom social-icons">
                     <p><a href="https://twitter.com/hackmanit" target="_blank" rel="noopener"> <img
                                 src="./img/hackmanit-x.png" alt="Hackmanit X"> <img src="./img/hackmanit-x-red.png"
@@ -634,6 +568,7 @@
                                 src="./img/hackmanit-linkedin.png" alt="Hackmanit LinkedIn"> <img
                                 src="./img/hackmanit-linkedin-red.png" alt="Hackmanit LinkedIn"> </a></p>
                 </div>
+            </section>
         </div>
         <div class="footer__bar"></div>
     </footer>
