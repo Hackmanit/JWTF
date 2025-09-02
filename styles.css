@@ -919,6 +919,10 @@ td span {
     justify-content: center;
 }
 
+.flex-center {
+    justify-content: center !important;
+}
+
 /*
   ========== Fehler- und Statusmeldungen ==========
 */

@@ -5,11 +5,11 @@ JWTF has two main purposes:
 1. Allow to manually decode, analyze, and alter JSON Web Tokens (JWTs).
 2. Automatically generate manipulated JWTs to be used in penetration tests, security audits, bug bounty hunting, and CTFs.
 
-JWTF was developed by [Hackmanit](https://hackmanit.de) and [Niklas Conrad](https://www.github.com/conni404).
+JWTF was developed by [Hackmanit](https://hackmanit.de) and [Niklas Conrad](https://www.github.com/conni404) as a part of his bachelor's thesis in collaboration with the [Chair for Network and Data Security](https://github.com/RUB-NDS/), Ruhr University Bochum.
 
 JWTF supports all well-known attacks against the validation of JWTs and automatically applies these attack vectors to a given JWT. As an output it generates a text file with all manipulated tokens. This text file can then be used in semi-automated tests, for example using the "Intruder" feature of [Burp Suite](https://portswigger.net/burp/pro).
 
-This eases the process of testing an implementation for vulnerabilities in its JWT validation logic. 
+This eases the process of testing an implementation for vulnerabilities in its JWT validation logic.
 
 - [Features](#features)
 - [How to Use JWTF](#how-to-use-jwtf)
@@ -44,11 +44,11 @@ A blog post providing more information about JWTF will be released in the future
 
 [Cyber Security Blog - Hackmanit](https://hackmanit.de/en/blog-en/)
 
-JWTF was developed as a part of a bachelor's thesis by Niklas Conrad.
+JWTF was developed as a part of a bachelor's thesis by [Niklas Conrad](https://www.github.com/conni404) in collaboration with the [Chair for Network and Data Security](https://github.com/RUB-NDS/) (Ruhr University Bochum).
 You can find results of the bachelor's thesis publicly available here:
 - _Soon:_ Bachelor's Thesis (PDF)
 
 ## License
-JSON Web Token Forgery (JWTF) was developed by [Hackmanit](https://hackmanit.de) and [Niklas Conrad](https://www.github.com/conni404) as a part of his bachelor's thesis. JWTF is licensed under the [Apache License, Version 2.0](license.txt).
+JSON Web Token Forgery (JWTF) was developed by [Hackmanit](https://hackmanit.de) and [Niklas Conrad](https://www.github.com/conni404) as a part of his bachelor's thesis in collaboration with the [Chair for Network and Data Security](https://github.com/RUB-NDS/), Ruhr University Bochum. JWTF is licensed under the [Apache License, Version 2.0](license.txt).
 
 <a href="https://hackmanit.de"><img src="https://www.hackmanit.de/templates/hackmanit-v2/img/wbm_hackmanit.png" width="30%"></a>
