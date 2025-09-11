@@ -115,7 +115,7 @@ const vulnerabilities = {
     Kid: {
         name: "Kid Attacks",
         cve: "N/A",
-        description: "Attacks that abuse the 'kid' field in the JWT header. This field is used to identify the key used to sign the token. An attacker can manipulate the 'kid' field to use a different key than intended, bypassing signature validation. This can work with different attack vectors like LFI, Command Injection, SQLi etc.",
+        description: "Attacks that abuse the 'kid' field in the JWT header. This field is used to identify the key used to sign the token. An attacker can manipulate the 'kid' field to use a different key than intended, bypassing signature validation. This can work with different attack vectors like LFI, Command Injection, SQLi etc. Nine PoC payloads are already included. An attacker can also use a custom payload list.",
         token_amount: 9
     }
 }
