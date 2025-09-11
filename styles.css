@@ -1296,6 +1296,27 @@ div.github a img {
     .controls-section {
         grid-template-columns: 1fr;
     }
+        /* Zwei-Spalten-Layouts wirklich untereinander */
+    .two-column-layout {
+        flex-direction: column;
+        height: auto;           /* statt 100%, verhindert "Zusammenklappen" */
+        align-items: stretch;
+        gap: 20px;
+    }
+    .left-column,
+    .right-column {
+        margin: 0 !important;   /* alte Seitenmargen neutralisieren */
+        width: 100%;
+        flex: 0 0 auto;
+    }
+
+    /* Bedienelemente & Reihen untereinander */
+    .button-bar, .action-buttons, .storage-actions {
+        flex-direction: column;
+        gap: 15px;
+        width: 100%;
+        justify-content: center;
+    }
 }
 
 /* === Tooltip-Basis für Buttons (JWT/JWE/global) === */
