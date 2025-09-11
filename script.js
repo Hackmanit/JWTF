@@ -288,7 +288,7 @@ function unbeautifyJWT() {
  * @return {string} The JSON string without newlines and spaces.
  */
 function unbeautifyJson(jsonString) {
-    jsonString = jsonString.replace(/\n */g, '').replace(/^ */g, '').replace(/ *$/g, '').replace(/:\s*/g, ':')
+    jsonString = jsonString.replace(/\n */g, '').replace(/^ */g, '').replace(/ *$/g, '')
     const tmp = replaceCustomByteEscapeSequences(jsonString);
     console.debug("handleJSONForTokenEncoding:", tmp);
     return tmp
@@ -303,26 +303,30 @@ function unbeautifyJson(jsonString) {
  */
 function JSON_Beautify_But_Way_Cooler(string, indent = 4) {
     // rudimentary beautifier
-    let depth = 0;
-    let result = ""
-    string = unbeautifyJson(string);
-    for (let char of string) {
-        if (char === '{' || char === '[') {
-            depth++;
-            result += char + "\n" + " ".repeat(Math.max(depth * indent, 0));
-        } else if (char === '}' || char === ']') {
-            depth--;
-            result += '\n' + " ".repeat(Math.max(depth * indent, 0)) + char;
-        }
-        else if (char === ',') {
-            result += char + "\n" + " ".repeat(Math.max(depth * indent, 0));
-        } else if (char === ':') {
-            result += char + " ";
-        } else {
-            result += char;
-        }
+    try {
+        return JSON.stringify(JSON.parse(string), null, indent);
     }
-    return result
+    catch (e) {
+
+        let depth = 0;
+        let result = ""
+        string = unbeautifyJson(string);
+        for (let char of string) {
+            if (char === '{' || char === '[') {
+                depth++;
+                result += char + "\n" + " ".repeat(Math.max(depth * indent, 0));
+            } else if (char === '}' || char === ']') {
+                depth--;
+                result += '\n' + " ".repeat(Math.max(depth * indent, 0)) + char;
+            }
+            else if (char === ',') {
+                result += char + "\n" + " ".repeat(Math.max(depth * indent, 0));
+            } else {
+                result += char;
+            }
+        }
+        return result
+    }
 }
 
 /**
