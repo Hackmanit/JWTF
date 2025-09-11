@@ -4158,7 +4158,7 @@ function initVulnerabilitiesList() {
                     </div>
                 <div class="vulnerability-details">${vuln.description}</div>
                 <div class="vulnerability-cve"> <span>${vuln.cve !== 'N/A' ? `${vuln.cve}` : ''}</span></div>
-                ${key === 'KeyConfusion' ? '<input type="text" id="KeyConfusionKey" placeholder="Enter Key (JWK or PEM)" />' : ''}
+                ${key === 'KeyConfusion' ? '<input type="text" id="KeyConfusionKey" placeholder="Enter Pulbic Key (JWK or PEM)" />' : ''}
                 ${key === 'CustomKey' ? '<input type="text" id="CustomKey" placeholder="Enter Private Key (JWK)" />' : ''}
                 ${key === 'CustomKey' ? '<select id="customKeyAlg"><option value="HS256">HS256</option><option value="RS256">RS256</option><option value="ES256">ES256</option><option value="PS256">PS256</option></select>' : ''}
                 ${key === 'CustomKey' ? '<div class="inline-checkbox"><input type="checkbox" class="inline-checkbox" onchange="change_token_amount_of_parent(this)" id="testAllCustomKeyAlgs" data-token-amount-child="3"/><label for="testAllCustomKeyAlgs">Test all algorithms? (+3) </label></div>' : ''}
