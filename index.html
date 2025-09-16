@@ -14,6 +14,13 @@
 
 <body>
     <div class="page-wrapper">
+        <div class="header-bar">
+            <div class="title">JWTF – JWT Forgery</div>
+            <div class="byline">
+                developed by <a href="https://hackmanit.de/" target="_blank" rel="noopener"><img
+                        src="./img/wbm_hackmanit.png" alt="Hackmanit Logo" class="logo"></a>
+            </div>
+        </div>
         <div class="toggle-container-css">
             <div class="toggle-container">
                 <div class="toggle-option active" id="option-JWT" onclick="toggleToJWT();">JWT</div>
@@ -22,15 +29,9 @@
                 <div class="toggle-option" id="option-JWE" onclick="toggleToJWE();">JWE</div>
             </div>
         </div>
-        <div class="header-bar">
-            <div class="title">JWTF – JWT Forgery</div>
-            <div class="byline">
-                developed by <a href="https://hackmanit.de/" target="_blank" rel="noopener"><img
-                        src="./img/wbm_hackmanit.png" alt="Hackmanit Logo" class="logo"></a>
-            </div>
-        </div>
+        
         <div class="container" id="JWT-Container">
-            <div class="two-column-layout">
+            <div class="two-column-layout section">
                 <!-- Left Column -->
                 <div class="column left-column">
                     <div class="section token-section" id="token-section-jwt">
@@ -45,19 +46,17 @@
                 <!-- Right Column -->
                 <div class="column right-column">
                     <div class="section decoded-token-section" id="decoded-token-section-jwt">
-                        <div class="section header-section">
+                        <div class="header-section">
                             <h2>Header</h2>
                             <textarea oninput="encodeToken();requestAnimationFrame(() => syncTokenSectionHeight('JWT'))"
                                 id="decodedHeader" placeholder="Decoded Header"></textarea>
-                            <div id="errorMessageHeader" class="error-message"></div>
                         </div>
-                        <div class="section body-section">
+                        <div class="body-section">
                             <h2>Payload</h2>
                             <textarea oninput="encodeToken();requestAnimationFrame(() => syncTokenSectionHeight('JWT'))"
                                 id="decodedBody" placeholder="Decoded Payload"></textarea>
-                            <div id="errorMessageBody" class="error-message"></div>
                         </div>
-                        <div class="section signature-section">
+                        <div class="signature-section">
                             <h2 class="signature-heading">
                                 Signature is <span id="signatureStatus">Valid</span>
                                 <img style="display:none" id="signatureIcon">
@@ -68,7 +67,7 @@
             </div>
             <div class="section controls-section">
                 <div class="controls-json">
-                    <h3>JSON Controls</h3>
+                    <h2>JSON Controls</h2>
                     <div class="content-type-selection">
                         <div class="toggle-segment-control-small">
                             <button type="button" class="segment-btn-small active has-tooltip"
@@ -96,7 +95,7 @@
                     </div>
                 </div>
                 <div class="controls-signature">
-                    <h3>Signature Controls</h3>
+                    <h2>Signature Controls</h2>
                     <div class="buttons-section">
                         <div class="action-buttons">
                             <button onclick="decodeToken();verifySignature()" class="primary-btn has-tooltip"
@@ -123,7 +122,7 @@
                 <div class="algorithm-section">
                     <div class="section-label">Algorithm:</div>
                     <select oninput="changeAlgorithmEvent();encodeToken();"
-                        onchange="changeAlgorithmEvent();encodeToken();" id="algorithm" class="algorithm-select">
+                        onchange="changeAlgorithmEvent();encodeToken();" id="algorithm" class="select">
                         <option value="none">none</option>
                         <option value="HS256" selected>HS256</option>
                         <option value="HS384">HS384</option>
@@ -166,7 +165,7 @@
         <div class="container" id="Attacks-Container" style="display: none;">
             <!----------------------------------- Signature Attacks-->
             <div class="input-section">
-                <label for="jwt-attacks-input">Paste your JWT here:</label>
+                <h2 for="jwt-attacks-input">Paste your JWT here:</h2>
                 <textarea id="jwt-attacks-input"
                     placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2lzc3Vlci5leGFtcGxlIiwic3ViIjoiSm9obiBEb2UiLCJhdWQiOiJleGFtcGxlLWNsaWVudCIsImlhdCI6MTc1NTgxMzYwMCwiZXhwIjoxNzU1ODk5OTk5fQ.p6XQX1WitrvfCMPl46hxWKehJufDZCrNHFrVfTD0VV8">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2lzc3Vlci5leGFtcGxlIiwic3ViIjoiSm9obiBEb2UiLCJhdWQiOiJleGFtcGxlLWNsaWVudCIsImlhdCI6MTc1NTgxMzYwMCwiZXhwIjoxNzU1ODk5OTk5fQ.p6XQX1WitrvfCMPl46hxWKehJufDZCrNHFrVfTD0VV8</textarea>
                 <div class="controls">
@@ -182,7 +181,7 @@
                 <div id="jwt-attacks-error-message" style="color: red;"></div>
             </div>
             <div class="vulnerabilities-section">
-                <label>Select Vulnerabilities to Test:</label>
+                <h2>Select Vulnerabilities to Test:</h2>
                 <div class="select-all inline-checkbox">
                     <input type="checkbox" id="select-all-checkbox">
                     <label for="select-all-checkbox">Select All</label>
@@ -224,13 +223,12 @@
         </div>
         <div class="container" id="KeyMgmt-Container" style="display: none;">
             <!----------------------------------- Key Management-->
-            <h1>Key Management</h1>
             <!-- Key Generation Section -->
             <div class="key-section">
                 <h2>Key Generation</h2>
                 <div class="key-gen-controls">
                     <label for="keyAlgorithm">Algorithm:</label>
-                    <select id="keyAlgorithm" onchange="updateKeyGenOptionsInKeyGenerationView()">
+                    <select class="select" id="keyAlgorithm" onchange="updateKeyGenOptionsInKeyGenerationView()">
                         <optgroup label="HMAC">
                             <option value="HS256">HS256</option>
                             <option value="HS384">HS384</option>
@@ -263,7 +261,7 @@
                     <div id="keyGenOptions" class="key-gen-options">
                         <div id="rsaOptions" style="display: none;">
                             <label for="rsaKeySize">Key Size:</label>
-                            <select id="rsaKeySize">
+                            <select class="select" id="rsaKeySize">
                                 <option value="2048">2048 bit</option>
                                 <option value="3072">3072 bit</option>
                                 <option value="4096">4096 bit</option>
@@ -271,7 +269,7 @@
                         </div>
                         <div id="hmacOptions" style="display: none;">
                             <label for="hmacKeyLength">Key Length:</label>
-                            <select id="hmacKeyLength">
+                            <select class="select" id="hmacKeyLength">
                                 <option value="32">32 bytes (256 bit)</option>
                                 <option value="48">48 bytes (384 bit)</option>
                                 <option value="64">64 bytes (512 bit)</option>
@@ -350,7 +348,7 @@
                         <textarea id="pemInput"
                             placeholder="-----BEGIN PUBLIC KEY-----&#10;...&#10;-----END PUBLIC KEY-----"></textarea>
                         <label for="jwkAlgorithm">Algorithm (for JWK):</label>
-                        <select id="jwkAlgorithm">
+                        <select class="select" id="jwkAlgorithm">
                             <option value="RS256">RS256</option>
                             <option value="RS384">RS384</option>
                             <option value="RS512">RS512</option>
@@ -394,14 +392,13 @@
                     </div>
                 </div>
                 <div class="stored-keys-list">
-                    <h3>Saved Keys:</h3>
+                    <h2>Saved Keys:</h2>
                     <div id="storedKeysList"></div>
                 </div>
             </div>
         </div>
         <!--- JWE Container-->
         <div class="container" id="JWE-Container" style="display: none;">
-            <h1>JWE Tool</h1>
             <div class="two-column-layout">
                 <!-- Left Card: Token Input -->
                 <div class="column left-column">
@@ -467,7 +464,7 @@
                 </div>
                 <div class="algorithm-section">
                     <div class="section-label">Key Encryption Algorithm:</div>
-                    <select id="algorithmJWE" onchange="changeAlgorithmEvent();" class="algorithm-select">
+                    <select id="algorithmJWE" onchange="changeAlgorithmEvent();" class="select">
                         <option value="RSA-OAEP">RSA-OAEP</option>
                         <option value="RSA-OAEP-256">RSA-OAEP-256</option>
                         <option selected="selected" value="A128KW">A128KW</option>
@@ -490,7 +487,7 @@
                     </select>
                     <div class="section-label">Content Encryption Algorithm:</div>
                     <select id="encryptionAlgorithmJWE" onchange="changeEncryptionAlgorithmEvent();"
-                        class="algorithm-select">
+                        class="select">
                         <option selected="selected" value="A128CBC-HS256">A128CBC-HS256</option>
                         <option value="A192CBC-HS384">A192CBC-HS384</option>
                         <option value="A256CBC-HS512">A256CBC-HS512</option>
