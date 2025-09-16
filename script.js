@@ -103,8 +103,8 @@ const vulnerabilities = {
     CustomKey: {
         name: "Custom Key Attack / Public Key Injection via embedded JWK",
         cve: "CVE-2018-0114",
-        description: "Abuses JWT implementations that accept and trust an embedded 'jwk' object directly in the JWT header. An attacker can generate their own key pair, embed the public key in the 'jwk' field, and sign the token with the corresponding private key, or leave the key empty to use the hardcoded keys.",
-        token_amount: 1
+        description: "Abuses JWT implementations that accept and trust an embedded 'jwk' object directly in the JWT header. It generates four tokens for each algorithm type with an hardcoded key. An attacker can also generate their own key and submit it via the JWK field. ",
+        token_amount: 4
     },
     KeyConfusion: {
         name: "Key Confusion / Algorithm Confusion Attack (RSA/EC Public Key used as HMAC key)",
@@ -2511,12 +2511,12 @@ async function generateVulnerableTokens() {
                 break;
             case 'CustomKey':
                 if (document.getElementById("testCustomKeyViaURL").checked) {
-                    if (!document.getElementById("CustomKeyURL").value) {
-                        jwt_attacks_error_message("Please enter a URL for Custom Key attack");
-                        document.querySelector('#vuln-CustomKey ~ div span.vulnerability-name').classList.add('vulnerability-with-error-message');
-                        return [];
-                    }
-                    else if (!document.getElementById("CustomKey").value) {
+                    // if (!document.getElementById("CustomKeyURL").value) {
+                    //     jwt_attacks_error_message("Please enter a URL for Custom Key attack");
+                    //     document.querySelector('#vuln-CustomKey ~ div span.vulnerability-name').classList.add('vulnerability-with-error-message');
+                    //     return [];
+                    // }
+                    if (!document.getElementById("CustomKey").value) {
                         jwt_attacks_error_message("Please enter a Key (JWK) for Custom Key attack");
                         document.querySelector('#vuln-CustomKey ~ div span.vulnerability-name').classList.add('vulnerability-with-error-message');
                         return [];
@@ -2550,12 +2550,8 @@ async function generateVulnerableTokens() {
                 results.push(attackPsychicSignature(jwt))
                 break
             case 'CustomKey':
-                let algsToBeTested = [document.getElementById("customKeyAlg").value];
-                if (document.getElementById("testAllCustomKeyAlgs").checked) {
-                    // If the user wants to test all algorithms with the custom key
-                    // algsToBeTested = ['HS256', 'HS384', 'HS512', 'RS256', 'RS384', 'RS512', 'ES256', 'ES384', 'ES512', 'PS256', 'PS384', 'PS512'];
-                    algsToBeTested = ['HS256', 'RS256', 'ES256', 'PS256'] // this should be enough, right?
-                }
+                // algsToBeTested = ['HS256', 'HS384', 'HS512', 'RS256', 'RS384', 'RS512', 'ES256', 'ES384', 'ES512', 'PS256', 'PS384', 'PS512'];
+                algsToBeTested = ['HS256', 'RS256', 'ES256', 'PS256'] // this should be enough, right?
                 let testCustomKeyViaURL = document.getElementById("testCustomKeyViaURL").checked;
                 for (const alg of algsToBeTested) {
                     results.push(...await attackCustomKey(jwt, alg, document.getElementById("CustomKey").value, testCustomKeyViaURL, document.getElementById("CustomKeyURL").value, true))
@@ -4159,10 +4155,7 @@ function initVulnerabilitiesList() {
                 <div class="vulnerability-details">${vuln.description}</div>
                 <div class="vulnerability-cve"> <span>${vuln.cve !== 'N/A' ? `${vuln.cve}` : ''}</span></div>
                 ${key === 'KeyConfusion' ? '<input type="text" id="KeyConfusionKey" placeholder="Enter Pulbic Key (JWK or PEM)" />' : ''}
-                ${key === 'CustomKey' ? '<input type="text" id="CustomKey" placeholder="Enter Private Key (JWK)" />' : ''}
-                ${key === 'CustomKey' ? '<select id="customKeyAlg"><option value="HS256">HS256</option><option value="RS256">RS256</option><option value="ES256">ES256</option><option value="PS256">PS256</option></select>' : ''}
-                ${key === 'CustomKey' ? '<div class="inline-checkbox"><input type="checkbox" class="inline-checkbox" onchange="change_token_amount_of_parent(this)" id="testAllCustomKeyAlgs" data-token-amount-child="3"/><label for="testAllCustomKeyAlgs">Test all algorithms? (+3) </label></div>' : ''}
-                ${key === 'CustomKey' ? '<div class="inline-checkbox"><input type="checkbox" onchange="change_token_amount_of_parent(this)" id="testCustomKeyViaURL" data-token-amount-child="4"/><input type="text" id="CustomKeyURL" placeholder="jku/x5u URL for JWK" /></div>' : ''}
+                ${key === 'CustomKey' ? '<div class="inline-checkbox"><input type="checkbox" onchange="change_token_amount_of_parent(this)" id="testCustomKeyViaURL" data-token-amount-child="4"/><select class="select" id="customKeyAlg"><option value="HS256">HS256</option><option value="RS256">RS256</option><option value="ES256">ES256</option><option value="PS256">PS256</option></select><input type="text" id="CustomKey" placeholder="Enter Private Key (JWK)" /><input type="text" id="CustomKeyURL" placeholder="jku/x5u URL for JWK" /></div>' : ''}
                 ${key === 'SSRF' ? '<input type="text" id="SSRFURL" placeholder="http://localhost:8080" />' : ''}
                 ${key === 'Kid' ? '<div class="inline-checkbox"><input type="checkbox" onchange="change_token_amount_of_parent(this)" class="inline-checkbox" data-token-amount-child="0" id="useKidCustomPayloadList"/><textarea id="kidCustomPayloadList" rows="4" onchange="updateKidTokenCount(this)" placeholder="kid_payload;[expected_key(Base64)]&#10;foo;bar&#10;../../../dev/null;\\0&#10;||sleep 10||"></textarea></div>' : ''}
                 </div>
