@@ -1507,3 +1507,10 @@ div.github a img {
 .decoded-token-section textarea {
     margin: 0px;
 }
+
+select:disabled {
+  opacity: 0.6;            
+  cursor: not-allowed;     
+  background-color: #DADEE2;
+  color: #AAADB0;
+}

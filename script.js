@@ -2510,7 +2510,7 @@ async function generateVulnerableTokens() {
                 }
                 break;
             case 'CustomKey':
-                if (document.getElementById("testCustomKeyViaURL").checked) {
+                if (document.getElementById("testCustomKeyViaUserInput").checked) {
                     // if (!document.getElementById("CustomKeyURL").value) {
                     //     jwt_attacks_error_message("Please enter a URL for Custom Key attack");
                     //     document.querySelector('#vuln-CustomKey ~ div span.vulnerability-name').classList.add('vulnerability-with-error-message');
@@ -2552,10 +2552,16 @@ async function generateVulnerableTokens() {
             case 'CustomKey':
                 // algsToBeTested = ['HS256', 'HS384', 'HS512', 'RS256', 'RS384', 'RS512', 'ES256', 'ES384', 'ES512', 'PS256', 'PS384', 'PS512'];
                 algsToBeTested = ['HS256', 'RS256', 'ES256', 'PS256'] // this should be enough, right?
-                let testCustomKeyViaURL = document.getElementById("testCustomKeyViaURL").checked;
+                if (document.getElementById("testCustomKeyViaUserInput").checked){
+                    if (document.getElementById("CustomKeyURL").value) { // if URL is set, test embedded key via jku/x5u
+                        results.push(...await attackCustomKey(jwt, document.getElementById("CustomKeyAlg").value, document.getElementById("CustomKey").value, true, document.getElementById("CustomKeyURL").value, true))
+                    }
+                    else { // if no URL is set, test embedded key only
+                        results.push(...await attackCustomKey(jwt, document.getElementById("CustomKeyAlg").value, document.getElementById("CustomKey").value, false, "", true))
+                    } 
+                }
                 for (const alg of algsToBeTested) {
-                    results.push(...await attackCustomKey(jwt, alg, document.getElementById("CustomKey").value, testCustomKeyViaURL, document.getElementById("CustomKeyURL").value, true))
-                    testCustomKeyViaURL = false;
+                    results.push(...await attackCustomKey(jwt, alg, document.getElementById("CustomKey").value, false, "", true))
                 }
                 break
             case 'KeyConfusion':
@@ -4102,6 +4108,31 @@ function calculateTotalTokenAmount() {
     });
     document.getElementById('generate-btn').innerText = "Generate Vulnerable Tokens (" + totalTokens + ")";
 }
+
+function updateCustomKeyTokenCount(){
+    const checkbox = document.getElementById("testCustomKeyViaUserInput");
+    const keyInput = document.getElementById("CustomKey");
+    const urlInput = document.getElementById("CustomKeyURL");
+    const vulnerabilityWrapper = checkbox.closest('.vulnerability-checkbox-wrapper');
+    const parentThatDisplaysTokenAmount = vulnerabilityWrapper.querySelector(".vulnerability-name");
+    const parentWithTokenAmount = vulnerabilityWrapper.querySelector(".vulnerability-checkbox");
+    
+    if (checkbox.checked){
+        if (keyInput.value){
+            parentWithTokenAmount.setAttribute('data-token-amount-parent', 5);
+            if (urlInput.value){
+                parentWithTokenAmount.setAttribute('data-token-amount-parent', 11);
+            }
+        }
+    }
+
+    const currentText = parentThatDisplaysTokenAmount.innerText;
+    const newText = currentText.replace(/\(\d+\)/, `(${parentWithTokenAmount.getAttribute('data-token-amount-parent')})`);
+    parentThatDisplaysTokenAmount.innerText = newText;
+    calculateTotalTokenAmount();
+}
+
+
 function updateKidTokenCount(textarea) {
     const checkbox = textarea.previousElementSibling;
     const oldValue = Number(textarea.dataset.lastCount || 0);
@@ -4196,7 +4227,7 @@ function initVulnerabilitiesList() {
                 <div class="vulnerability-details">${vuln.description}</div>
                 <div class="vulnerability-cve"> <span>${vuln.cve !== 'N/A' ? `${vuln.cve}` : ''}</span></div>
                 ${key === 'KeyConfusion' ? '<input type="text" id="KeyConfusionKey" placeholder="Enter Pulbic Key (JWK or PEM)" />' : ''}
-                ${key === 'CustomKey' ? '<div class="inline-checkbox"><input type="checkbox" onchange="change_token_amount_of_parent(this)" id="testCustomKeyViaURL" data-token-amount-child="4"/><select class="select" id="customKeyAlg"><option value="HS256">HS256</option><option value="RS256">RS256</option><option value="ES256">ES256</option><option value="PS256">PS256</option></select><input type="text" id="CustomKey" placeholder="Enter Private Key (JWK)" /><input type="text" id="CustomKeyURL" placeholder="jku/x5u URL for JWK" /></div>' : ''}
+                ${key === 'CustomKey' ? '<div class="inline-checkbox"><input type="checkbox" onchange="toggleCustomKeyAttackDropdown(this);change_token_amount_of_parent(this)" id="testCustomKeyViaUserInput" data-token-amount-child="1"/><select disabled class="select" id="CustomKeyAlg"><option value="HS256">HS256</option><option value="RS256">RS256</option><option value="ES256">ES256</option><option value="PS256">PS256</option></select><input type="text" id="CustomKey" oninput="updateCustomKeyTokenCount(this)" placeholder="Enter Private Key (JWK)" /><input type="text" id="CustomKeyURL" oninput="updateCustomKeyTokenCount(this)" placeholder="jku/x5u URL for JWK" /></div>' : ''}
                 ${key === 'SSRF' ? '<input type="text" id="SSRFURL" placeholder="http://localhost:8080" />' : ''}
                 ${key === 'Kid' ? '<div class="inline-checkbox"><input type="checkbox" onchange="change_token_amount_of_parent(this)" class="inline-checkbox" data-token-amount-child="0" id="useKidCustomPayloadList"/><textarea id="kidCustomPayloadList" rows="4" onchange="updateKidTokenCount(this)" placeholder="kid_payload;[expected_key(Base64)]&#10;foo;bar&#10;../../../dev/null;\\0&#10;||sleep 10||"></textarea></div>' : ''}
                 </div>
@@ -4217,11 +4248,12 @@ function initVulnerabilitiesList() {
                 }
             }
         });
+        toggleCustomKeyAttackDropdown(document.getElementById("testCustomKeyViaUserInput")); // Ensure the dropdown gets disabled/enabled correctly
         calculateTotalTokenAmount();
     });
     document.getElementById('select-all-without-user-interaction-checkbox').addEventListener('change', function () {
         const isChecked = this.checked;
-        const idsToSkip = ["useKidCustomPayloadList", "vuln-KeyConfusion", "testCustomKeyViaURL", "vuln-SSRF"];
+        const idsToSkip = ["useKidCustomPayloadList", "vuln-KeyConfusion", "testCustomKeyViaUserInput", "vuln-SSRF"];
         document.getElementById('select-all-checkbox').checked = false;
         document.querySelectorAll('#vulnerabilities-list input[type="checkbox"]').forEach(checkbox => {
             if (idsToSkip.includes(checkbox.id)) {
@@ -4389,6 +4421,16 @@ function renderTestCasesToTable(testCases, containerId = 'resultTableBody') {
         `;
         tbody.appendChild(row);
     });
+}
+
+/**
+ * Enables or disables the custom key algorithm dropdown based on the state of the checkbox.
+ *
+ * @param {HTMLInputElement} checkbox
+ */
+function toggleCustomKeyAttackDropdown(checkbox) {
+    const dropdownElement = document.getElementById('CustomKeyAlg');
+    dropdownElement.disabled = !checkbox.checked;
 }
 // #endregion ====================== End of Table and UI Functions
 
