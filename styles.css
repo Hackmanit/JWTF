@@ -201,8 +201,8 @@
 .key-section {
     background-color: #EEF0F2;
     border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
+    padding: 10px;
+    margin-bottom: 10px;
 }
 
 /*
@@ -218,7 +218,7 @@ body {
 .page-wrapper {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 10px;
 }
 
 h1 {
@@ -233,7 +233,7 @@ a {
 
 .container {
     margin: 0;
-    padding: 20px;
+    padding: 10px;
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -242,14 +242,14 @@ a {
 .row {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 .header-bar {
     max-width: 1200px;
     display: flex;
     margin: 0 auto;
-    padding: 20px;
+    padding: 10px;
     gap: 20px;
 }
 
@@ -264,8 +264,8 @@ a {
     background-color: #EEF0F2;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    margin-bottom: 20px;
+    padding: 10px;
+    margin-bottom: 10px;
 }
 
 .card {
@@ -286,7 +286,8 @@ a {
 }
 
 .card-header h2,
-.section h2 {
+.section h2,
+.key-section h2 {
     margin: 0;
     font-size: 18px;
     color: #535D68;
@@ -295,7 +296,7 @@ a {
 }
 
 .card-body {
-    padding: 20px;
+    padding: 10px;
 }
 
 .section-label {
@@ -310,7 +311,7 @@ a {
 .card-container {
     display: flex;
     gap: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 .two-column-layout {
@@ -345,10 +346,10 @@ a {
     box-sizing: border-box;
     /* Keine feste Höhe, wächst mit Inhalt */
     overflow: visible;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     background-color: #EEF0F2;
     border-radius: 8px;
-    padding: 20px;
+    padding: 10px;
 }
 
 .column {
@@ -404,14 +405,18 @@ label {
     font-weight: bold;
 }
 
-.algorithm-select {
-    width: 100%;
+.select {
+    width: auto;
     padding: 10px 12px;
     border: 1px solid #EEF0F2;
     border-radius: 6px;
     margin-bottom: 15px;
     background-color: white;
     cursor: pointer;
+    display: inline-block;
+    min-width: 10ch;
+    max-width: 18ch;
+    align-self: flex-start;
 }
 
 #asymKeys,
@@ -538,7 +543,7 @@ button.secondary-btn:hover,
     display: flex;
     flex-direction: column;
     gap: 15px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 .key-gen-options,
@@ -558,7 +563,7 @@ button.secondary-btn:hover,
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 .key-item {
@@ -850,7 +855,17 @@ td span {
     align-items: center;
     gap: 0.5em;
 }
+.autosign-checkbox input[type="checkbox"] {
+    margin: 5px;
 
+    width: 1.1em;          
+    height: 1.1em;
+    align-self: center;     
+}
+.autosign-checkbox label {
+    margin: 5px;   
+    line-height: 1.2;      
+}
 .vulnerability-checkbox-wrapper {
     margin-bottom: 10px;
     display: flex;
@@ -1135,7 +1150,7 @@ footer .footer__content div {
 }
 
 footer .footer__content div.footer-contact {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 footer .footer__content div.footer-newsletter {
@@ -1437,7 +1452,7 @@ div.github a img {
     background-color: #EEF0F2;
     /* wie JWT-Boxen */
     border-radius: 8px;
-    padding: 20px;
+    padding: 10px;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -1487,4 +1502,15 @@ div.github a img {
     gap: 10px;
     flex-wrap: wrap;
     justify-content: center;
+}
+
+.decoded-token-section textarea {
+    margin: 0px;
+}
+
+select:disabled {
+  opacity: 0.6;            
+  cursor: not-allowed;     
+  background-color: #DADEE2;
+  color: #AAADB0;
 }

