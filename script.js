@@ -3969,7 +3969,7 @@ function toggleToJWT() {
     isJWEView = false;
     isAttacksView = false;
     isKeyMgmtView = false;
-    syncTokenSectionHeight('JWT');
+    requestAnimationFrame(() => syncTokenSectionHeight('JWT'));
 }
 
 /**
@@ -3992,7 +3992,7 @@ function toggleToJWE() {
     isJWEView = true;
     isAttacksView = false;
     isKeyMgmtView = false;
-    syncTokenSectionHeight('JWE');
+    requestAnimationFrame(() => syncTokenSectionHeight('JWE'));
 }
 
 /**
