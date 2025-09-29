@@ -2554,11 +2554,11 @@ async function generateVulnerableTokens() {
                 algsToBeTested = ['HS256', 'RS256', 'ES256', 'PS256'] // this should be enough, right?
                 if (document.getElementById("testCustomKeyViaUserInput").checked){
                     if (document.getElementById("CustomKeyURL").value) { // if URL is set, test embedded key via jku/x5u
-                        results.push(...await attackCustomKey(jwt, document.getElementById("CustomKeyAlg").value, document.getElementById("CustomKey").value, true, document.getElementById("CustomKeyURL").value, true))
+                        results.push(...await attackCustomKey(jwt, "RS256", document.getElementById("CustomKey").value, true, document.getElementById("CustomKeyURL").value, true))
                     }
                     else { // if no URL is set, test embedded key only
                         results.push(...await attackCustomKey(jwt, document.getElementById("CustomKeyAlg").value, document.getElementById("CustomKey").value, false, "", true))
-                    } 
+                    }
                 }
                 for (const alg of algsToBeTested) {
                     results.push(...await attackCustomKey(jwt, alg, document.getElementById("CustomKey").value, false, "", true))
@@ -3034,7 +3034,7 @@ async function attackKeyConfusion(token, algOutput, key, setTypHeader = false) {
  *
  * @param {string} token JWT token
  * @param {string} alg - algorithm to use (e.g., RS256)
- * @param {object} [key=undefined] JWK key as object
+ * @param {string} [key=undefined] JWK key as String
  * @param {boolean} [addCustomKeyViaURL=true] if true, set jku/x5u to URL
  * @param {string} [URL] URL to the JWK Set or Public Key (x5u) to be used in the header
  * @param {boolean} [setTypHeader=false] set header.typ = "JWT"
@@ -3122,11 +3122,21 @@ async function attackCustomKey(token, alg, key = undefined, addCustomKeyViaURL =
         var signature = await signPS(b64URLencode(header_with_duplicates), body, alg, JSON.stringify(key));
     }
     let test_cases = []
-    let tmp = []
+    test_cases.push(new TestCase({
+        description: vulnerabilities.CustomKey.name,
+        variantName: alg,
+        originalToken: token,
+        testToken: `${b64URLencode(header_with_duplicates)}.${body}.${signature}`,
+        originalReadable: JSON.parse(b64URLdecode(header)),
+        testReadable: header_with_custom_key,
+        vulnerability: vulnerabilities.CustomKey
+    }))
+
     if (addCustomKeyViaURL && URL) {
-        
         // Custom Key Injection via jku/x5u
         // We can just reuse the attack_SSRF function to generate the test cases
+        
+        let tmp = []
         tmp = attack_SSRF(token, URL, isCalledFromCustomKey = true);
         for (let SSRF_token of tmp) {
             SSRF_token.description = vulnerabilities.CustomKey.name
@@ -3150,15 +3160,7 @@ async function attackCustomKey(token, alg, key = undefined, addCustomKeyViaURL =
             test_cases.push(SSRF_token)
         }
     }
-    test_cases.push(new TestCase({
-        description: vulnerabilities.CustomKey.name,
-        variantName: alg,
-        originalToken: token,
-        testToken: `${b64URLencode(header_with_duplicates)}.${body}.${signature}`,
-        originalReadable: JSON.parse(b64URLdecode(header)),
-        testReadable: header_with_custom_key,
-        vulnerability: vulnerabilities.CustomKey
-    }))
+    
     return test_cases
 }
 
