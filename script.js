@@ -4359,6 +4359,7 @@ function copyTokenFromTableToJWTView(id) {
     toggleToJWT();
     document.getElementById("token").value = token;
     decodeToken();
+    verifySignature();
     document.getElementById('decodedHeader').scrollIntoView({ behavior: 'smooth', block: 'center' });
 
 }
