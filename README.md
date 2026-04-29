@@ -36,7 +36,7 @@ _*as of 2025-08-14_
 _More information will follow soon._
 
 ## How to Use This Repository
-Simply access https://jwt.wtf/ to use JWTF.
+Simply access https://hackmanit.github.io/JWTF/ to use JWTF.
 There is no need to download this repository unless you want to contribute in the development of JWTF or want to use JWTF locally.
 
 ## Background Information
